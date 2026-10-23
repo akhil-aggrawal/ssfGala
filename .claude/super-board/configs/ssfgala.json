@@ -131,6 +131,7 @@
   "block_rate_alert_pct": 30,
   "collect": {
     "sources": [
+      "sentry",
       "github",
       "architecture"
     ],
@@ -138,7 +139,15 @@
     "architecture": {
       "max_findings": 5
     },
-    "custom": []
+    "custom": [],
+    "sentry": {
+      "org": "small-steps-foundation",
+      "project": "ssf-gala",
+      "host": "https://sentry.io",
+      "environment": "",
+      "min_events": 1,
+      "min_users": 1
+    }
   },
   "notifications": {
     "channel": "session",

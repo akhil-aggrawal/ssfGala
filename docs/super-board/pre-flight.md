@@ -10,7 +10,7 @@ Written by `super-board lint` on 2026-10-22. Every `[ ]` is a halt gate: `super-
 - [✓] `E2E_AUTH=1` in `.env.local` for the test sign-in route (verified by name)
 - [✓] `STRIPE_SECRET_KEY` (sandbox, `sk_test_…`) and `STRIPE_WEBHOOK_SECRET` from `stripe listen` in `.env.local` (verified by name)
 - [✓] `RESEND_API_KEY` and `EMAIL_FROM` (Resend test sender for now) in `.env.local` (verified by name). Verify the foundation's domain in Resend before tickets go on sale
-- [ ] `SENTRY_DSN` for a Sentry project (#36)
+- [✓] `SENTRY_DSN` and `SENTRY_AUTH_TOKEN` for Sentry project `small-steps-foundation/ssf-gala` in `.env.local` (verified by name; super-collect ping ok)
 - [ ] Railway project for the app with a development environment (account ready; project not created yet) (#36)
 
 ## 🛠 Tools the loop will need
@@ -25,5 +25,5 @@ Written by `super-board lint` on 2026-10-22. Every `[ ]` is a halt gate: `super-
 
 ## 🌐 Environment
 
-- [ ] `.env.local` has the remaining key: Sentry (Supabase, Stripe and Resend keys done)
+- [✓] `.env.local` has every key above: Supabase, Stripe, Resend, Sentry (verified by name)
 - [ ] Local checkout on `staging` with a clean working tree before `super-board run`
