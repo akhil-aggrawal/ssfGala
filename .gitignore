@@ -18,3 +18,10 @@ __pycache__/
 # Supabase CLI local state
 supabase/.branches
 supabase/.temp
+
+# Machine-specific npm registry (e.g. a corporate proxy)
+.npmrc
+
+# super-board local run logs; the run manifest (.md) is committed
+docs/super-board/runs/*.log
+docs/super-board/runs/*-workers/

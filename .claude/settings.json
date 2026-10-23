@@ -85,6 +85,8 @@
       "Bash(mkdir:*)",
       "Bash(pgrep:*)",
       "Bash(node --check:*)",
+      "Bash(npm ci:*)",
+      "Bash(npm install:*)",
       "Bash(bash .claude/bin/super-board-wave-plan.sh:*)",
       "Bash(bash .claude/bin/super-board-preflight.sh:*)",
       "Bash(bash .claude/bin/super-board-usage.sh:*)",
