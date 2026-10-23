@@ -40,4 +40,4 @@ Issues live in [akhil-aggrawal/ssfGala](https://github.com/akhil-aggrawal/ssfGal
 | Blocked by | `- #N — why` bullets, or a bare `- None.` · NEVER "None — but #N first" |
 | Labels | `money`, `auth`, `schema` route the merge to a human (merge_policy) · `schema` = destructive only (DROP/TRUNCATE/RENAME); additive migrations need no label |
 | Human-only step | a `needs-you: <command>` line in the PR body → 🙋 Blocked until done |
-| Size | one card = one PR under 400 changed lines (`merge_policy.auto_max_lines`) · bigger → split with `/to-tickets` |
+| Size | one card = one PR under 4000 changed lines (`merge_policy.auto_max_lines`) · bigger → split with `/to-tickets` |
