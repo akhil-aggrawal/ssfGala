@@ -7,3 +7,14 @@
 .claude/super-board/upgrade.json
 .claude/super-board/perm-rules.txt
 .claude/settings.json.bak-*
+
+# Local env files: secrets stay on this machine
+.env
+.env*.local
+
+# Python bytecode from super-board scripts
+__pycache__/
+
+# Supabase CLI local state
+supabase/.branches
+supabase/.temp
