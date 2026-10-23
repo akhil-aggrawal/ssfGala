@@ -21,9 +21,9 @@ Written by `super-board lint` on 2026-10-22. Every `[ ]` is a halt gate: `super-
 - [✓] Supabase CLI 2.121.0 (verified)
 - [✓] Stripe CLI 1.55.1, switched to a sandbox (verified; never use `--live`)
 - [✓] Railway CLI 5.71.0, logged in (verified)
-- [ ] Playwright Chromium → run: `npx playwright install chromium` (after #1 adds Playwright)
+- [✓] Playwright 1.64.1 Chromium installed; headless launch verified. If #1 pins another `@playwright/test` version, run `npx playwright install chromium` in the project
 
 ## 🌐 Environment
 
 - [✓] `.env.local` has every key above: Supabase, Stripe, Resend, Sentry (verified by name)
-- [ ] Local checkout on `staging` with a clean working tree before `super-board run`
+- [✓] Local checkout on `staging` with a clean working tree (verified after PR #39; `super-board run` re-checks it at start)
