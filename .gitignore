@@ -25,3 +25,6 @@ supabase/.temp
 # super-board local run logs; the run manifest (.md) is committed
 docs/super-board/runs/*.log
 docs/super-board/runs/*-workers/
+
+# Local Isaac tool state
+.isaac/
