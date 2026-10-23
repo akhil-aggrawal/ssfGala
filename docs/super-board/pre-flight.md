@@ -11,7 +11,7 @@ Written by `super-board lint` on 2026-10-22. Every `[ ]` is a halt gate: `super-
 - [✓] `STRIPE_SECRET_KEY` (sandbox, `sk_test_…`) and `STRIPE_WEBHOOK_SECRET` from `stripe listen` in `.env.local` (verified by name)
 - [✓] `RESEND_API_KEY` and `EMAIL_FROM` (Resend test sender for now) in `.env.local` (verified by name). Verify the foundation's domain in Resend before tickets go on sale
 - [✓] `SENTRY_DSN` and `SENTRY_AUTH_TOKEN` for Sentry project `small-steps-foundation/ssf-gala` in `.env.local` (verified by name; super-collect ping ok)
-- [ ] Railway project for the app with a development environment (account ready; project not created yet) (#36)
+- [✓] Railway project `ssf-gala-dev` linked, with `staging` (staging branch) and `production` (main) environments; CLI defaults to `staging` (verified)
 
 ## 🛠 Tools the loop will need
 
