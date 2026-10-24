@@ -1,0 +1,8 @@
+# Failed test 1: "an attendee whose only allocation is refunded is not paid"
+# Failed test 2: "an attendee whose only allocation failed is not paid"
+# Failed test 4: "refunding the succeeded payment makes the attendee unpaid"
+# Failed test 7: "an allocation cannot pair a payment with an attendee from another event"
+Failed 4/11 subtests 
+/Users/akhil/myapps/ssfGala/.claude/worktrees/issue-5-qa/supabase/tests/payments_allocations_edges_test.sql   (Wstat: 0 Tests: 11 Failed: 4)
+  Failed tests:  1-2, 4, 7
+Result: FAIL
