@@ -1,0 +1,9 @@
+▲ Next.js 16.4.3
+- Local:         http://localhost:3736
+- Network:       http://10.0.0.31:3736
+✓ Ready in 323ms
+✓ Running next.config.ts took 60ms
+{"level":"info","msg":"server started","time":"2026-10-24T02:31:55.773Z","commit":"unknown"}
+⨯ Error: qa-36 boom
+    at r (.next/server/chunks/_0iw-kavfg8gi0._.js:1:6459)
+{"level":"error","msg":"request failed","time":"2026-10-24T02:31:58.978Z","request_id":"99f7cf12-01a1-4f92-af77-b7555fdd3720","method":"GET","path":"/api/qa-boom","route":"/api/qa-boom","error":"qa-36 boom"}
