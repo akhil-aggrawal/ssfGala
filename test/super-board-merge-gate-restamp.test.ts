@@ -270,6 +270,91 @@ describe("merge gate: re-stamps migrations inside the lock", { timeout: 60_000 }
     expect(runGate(b, 7, head).status).toBe(6);
   });
 
+  // QA (#76 AC4): every other shape a moved head can take must still void the review.
+  describe("head guard rejects anything that is not a clean base merge or a pure re-stamp", () => {
+    const pushPr = (b: Board, n: number) => b.git("push", "-q", "origin", `pr-${n}`);
+
+    it("exits 6 on a base merge that sneaks in an extra change (evil merge)", () => {
+      const b = makeBoard();
+      const head = b.openPr(11, { [`${MIG}/20261024130000_x.sql`]: "select 2;\n" });
+      b.landOnBase({ [`${MIG}/20261024140000_y.sql`]: "select 3;\n" });
+      b.git("checkout", "-q", "pr-11");
+      b.git("merge", "-q", "--no-commit", "origin/staging");
+      writeFileSync(join(b.root, "work", "evil.ts"), "export const evil = 1;\n");
+      b.git("add", "evil.ts");
+      b.git("commit", "-q", "--no-edit");
+      pushPr(b, 11);
+
+      const run = runGate(b, 11, head);
+      expect(run.status, run.out).toBe(6);
+      expect(run.out).toContain("not a clean merge");
+      expect(b.pr(11).state).toBe("OPEN");
+    });
+
+    it("exits 6 on a merge that brings in a commit not on the base", () => {
+      const b = makeBoard();
+      const head = b.openPr(12, { [`${MIG}/20261024130000_x.sql`]: "select 2;\n" });
+      b.openPr(13, { "src/other.ts": "export const o = 1;\n" });
+      b.git("checkout", "-q", "pr-12");
+      b.git("merge", "-q", "--no-edit", "pr-13");
+      pushPr(b, 12);
+
+      const run = runGate(b, 12, head);
+      expect(run.status, run.out).toBe(6);
+      expect(run.out).toContain("which is not on origin/staging");
+    });
+
+    it("exits 6 on a 100% rename of a file that is not a migration", () => {
+      const b = makeBoard();
+      const head = b.openPr(14, {
+        [`${MIG}/20261024130000_x.sql`]: "select 2;\n",
+        "src/app.ts": "export const x = 1;\n",
+      });
+      b.git("checkout", "-q", "pr-14");
+      b.git("mv", "src/app.ts", "src/renamed.ts");
+      b.git("commit", "-q", "-m", "rename app");
+      pushPr(b, 14);
+
+      expect(runGate(b, 14, head).status).toBe(6);
+    });
+
+    it("exits 6 on a re-stamp that also changes the migration's name", () => {
+      const b = makeBoard();
+      const head = b.openPr(15, { [`${MIG}/20261024130000_x.sql`]: "select 2;\n" });
+      b.git("checkout", "-q", "pr-15");
+      b.git("mv", `${MIG}/20261024130000_x.sql`, `${MIG}/20261024130001_other.sql`);
+      b.git("commit", "-q", "-m", "rename and retitle");
+      pushPr(b, 15);
+
+      expect(runGate(b, 15, head).status).toBe(6);
+    });
+
+    it("exits 6 on a rename of a migration that is already on the base", () => {
+      const b = makeBoard();
+      const head = b.openPr(16, { [`${MIG}/20261024130000_x.sql`]: "select 2;\n" });
+      b.git("checkout", "-q", "pr-16");
+      b.git("mv", `${MIG}/20261024100000_a.sql`, `${MIG}/20261024190000_a.sql`);
+      b.git("commit", "-q", "-m", "move a merged migration");
+      pushPr(b, 16);
+
+      expect(runGate(b, 16, head).status).toBe(6);
+    });
+
+    it("exits 6 when the reviewed head is not in the PR's history (force-push)", () => {
+      const b = makeBoard();
+      const head = b.openPr(17, { [`${MIG}/20261024130000_x.sql`]: "select 2;\n" });
+      b.git("checkout", "-q", "-B", "pr-17", "origin/staging");
+      writeFileSync(join(b.root, "work", "rewrite.ts"), "export const r = 1;\n");
+      b.git("add", "rewrite.ts");
+      b.git("commit", "-q", "-m", "rewritten");
+      b.git("push", "-q", "--force", "origin", "pr-17");
+
+      const run = runGate(b, 17, head);
+      expect(run.status, run.out).toBe(6);
+      expect(run.out).toContain("is not an ancestor");
+    });
+  });
+
   it("accepts its own pushed re-stamp on a re-run after verification failed", () => {
     const b = makeBoard();
     const head = b.openPr(8, { [`${MIG}/20261024130000_x.sql`]: "select 2;\n" });
