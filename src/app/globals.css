@@ -589,3 +589,37 @@ a:focus-visible {
   outline: 3px solid #1a56db;
   outline-offset: 2px;
 }
+
+.admin-table-wrap {
+  overflow-x: auto;
+}
+
+.admin-table {
+  width: 100%;
+  min-width: 48rem;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.admin-table caption {
+  text-align: left;
+  color: var(--muted);
+  padding-bottom: 0.5rem;
+}
+
+.admin-table th,
+.admin-table td {
+  border-bottom: 1px solid var(--rule);
+  padding: 0.5rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.admin-table code {
+  overflow-wrap: anywhere;
+}
+
+.admin-id {
+  display: block;
+  color: var(--muted);
+}

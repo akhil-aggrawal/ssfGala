@@ -1,0 +1,8 @@
+Live gh 2.103.1 against akhil-aggrawal/ssfGala, head bf23f98, SB_GITHUB_HALT_FILE redirected to scratch
+ac1-unknown-field   pr view 62 --json number,notAField                      rc=64 halt=no  1 attempt
+ac2-slurp-jq        api .../pulls/62/comments --paginate --slurp --jq .     rc=64 halt=no  1 attempt
+ac3-strict-field    SB_GITHUB_READ_STRICT=1, same as ac1                    rc=79 halt=yes
+ac3-strict-slurp    SB_GITHUB_READ_STRICT=1, same as ac2                    rc=79 halt=yes
+ctrl-valid          pr view 62 --json number                                rc=0  halt=no
+edge-unknown-flag   pr view 62 --bogus                                      rc=64 halt=no
+real .claude/super-board/github-halt.json: absent after all runs

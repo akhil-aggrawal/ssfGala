@@ -372,6 +372,9 @@ isOneToOne: false
             "is_admin":
 { Args: Record<PropertyKey, never>; Returns: boolean
                            },
+"record_audit_log":
+{ Args: { "p_action": string,"p_actor_id": string,"p_after_data": Json,"p_before_data": Json,"p_entity_id": string,"p_entity_type": string,"p_event_id": string }; Returns: number
+                           },
 "save_gala_setup":
 { Args: { "p_actor_id": string,"p_event": Json,"p_event_id"?: string,"p_tiers": Json }; Returns: string
                            }
