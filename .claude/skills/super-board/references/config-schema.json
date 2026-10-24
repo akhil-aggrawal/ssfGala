@@ -128,7 +128,7 @@
       "**/__snapshots__/**", "**/*.snap"
     ],
     // Globs whose added lines are NOT searched for always_human keywords, so a
-    // test seed reading the service-role key or a fixture writing `drop table`
+    // test seed reading the service-role key or a fixture holding destructive SQL
     // does not hold the PR. Test paths only: a glob matching app code would let
     // a real auth or schema change auto-merge. Label and path rules still apply
     // to these files. Setting this replaces the defaults below; [] searches
