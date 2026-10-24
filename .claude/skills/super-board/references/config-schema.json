@@ -127,8 +127,19 @@
       "**/*.min.js", "**/*.min.css", "**/*.map", "**/*.pb.go", "**/*_pb2.py",
       "**/__snapshots__/**", "**/*.snap"
     ],
+    // Globs whose added lines are NOT searched for always_human keywords, so a
+    // test seed reading the service-role key or a fixture holding destructive SQL
+    // does not hold the PR. Test paths only: a glob matching app code would let
+    // a real auth or schema change auto-merge. Label and path rules still apply
+    // to these files. Setting this replaces the defaults below; [] searches
+    // every file.
+    "keyword_exclude": [
+      "e2e/**", "test/**", "tests/**", "**/*.test.ts", "**/*.test.tsx", "**/*.spec.ts",
+      "supabase/tests/**"
+    ],
     // ALWAYS human, whatever `default` says. A PR matching ANY label, path glob
-    // or keyword (case-insensitive, searched in the diff's ADDED lines only) of
+    // or keyword (case-insensitive, searched in the diff's ADDED lines only,
+    // outside keyword_exclude) of
     // a category exits the gate 7: no merge, card → Blocked 🙋 (the human merges
     // it, or comments "done" to approve and the next wave merges).
     // Setting this key replaces the whole default set; {} turns it off.
