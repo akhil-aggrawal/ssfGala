@@ -1,0 +1,7 @@
+▲ Next.js 16.4.3
+- Local:         http://localhost:3736
+- Network:       http://10.0.0.31:3736
+✓ Ready in 188ms
+✓ Running next.config.ts took 39ms
+{"level":"error","msg":"refusing to start","time":"2026-10-24T02:29:25.598Z","error":"Missing required environment variable(s): RESEND_API_KEY"}
+exit=1

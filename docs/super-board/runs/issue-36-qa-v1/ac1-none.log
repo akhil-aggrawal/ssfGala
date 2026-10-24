@@ -1,0 +1,7 @@
+▲ Next.js 16.4.3
+- Local:         http://localhost:3736
+- Network:       http://10.0.0.31:3736
+✓ Ready in 174ms
+✓ Running next.config.ts took 45ms
+{"level":"error","msg":"refusing to start","time":"2026-10-24T02:29:26.051Z","error":"Missing required environment variable(s): NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY, STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, RESEND_API_KEY, NEXT_PUBLIC_APP_URL"}
+exit=1
