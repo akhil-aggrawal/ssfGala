@@ -1,0 +1,4 @@
+mutants (not committed): sponsored_tables sponsorship FK single-column; invite_token_hash unique per event; sponsors RLS off
+sponsors_tables_edges_test.sql: Failed 3/17 subtests (1, 3, 12)
+sponsors_tables_test.sql: ok
+migration restored; clean reset -> 4 files, 55 tests PASS
