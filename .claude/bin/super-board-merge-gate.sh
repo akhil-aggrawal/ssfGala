@@ -75,7 +75,9 @@
 #   4  could not take the lock within the timeout
 #   5  the base could not be merged in (real conflict) — needs a rebase pass
 #   6  the PR head is not the commit that was reviewed — review evidence is void,
-#      the card goes back to Review (not Blocked, not a rebase pass)
+#      the card goes back to Review (not Blocked, not a rebase pass). A head
+#      that adds only clean base merges and migration renames (what this gate
+#      pushes when it re-stamps) is not a moved head.
 #   7  merge policy says a human merges this one (money / auth / destructive
 #      schema, a diff over auto_max_lines — default 400, "big PR — please
 #      review" — or merge_policy.default "human"). Stdout lists each
@@ -190,7 +192,8 @@ say "lock taken; verifying against ${BASE} as it is now"
 
 # ---- the freshness check ---------------------------------------------------
 # Done in a throwaway worktree so the branch under test is never mutated: the
-# gate proves a merge, it does not perform one locally and it never pushes.
+# gate proves a merge, it does not perform one locally. Its only push is a
+# migration re-stamp (below).
 SCRATCH=$(mktemp -d)
 cleanup() { git -C "$REPO_PATH" worktree remove --force "$SCRATCH" 2>/dev/null || true; rm -rf "$SCRATCH" "${META:-}" "${DIFF:-}"; release; }
 trap cleanup EXIT
@@ -213,9 +216,18 @@ fi
 if [ -n "$EXPECT_HEAD" ]; then
   case "$HEAD_SHA" in
     "$EXPECT_HEAD"*) : ;;
-    *) say "head moved: reviewed ${EXPECT_HEAD}, PR head is now ${HEAD_SHA}"
-       say "the review evidence is void — send the card back to Review"
-       exit 6 ;;
+    *) # A head this gate moved on an earlier run (base merged in, migrations
+       # re-stamped — see below) still carries the reviewed code. Anything else
+       # voids the review.
+       git -C "$REPO_PATH" fetch origin "$HEAD_REF" "$BASE" --quiet
+       if WHY=$(python3 "$HERE/super-board-restamp.py" check --repo "$REPO_PATH" --config "$CONFIG" \
+                  --base "origin/${BASE}" --reviewed "$EXPECT_HEAD" --head "$HEAD_SHA" 2>&1); then
+         say "head ${HEAD_SHA} is the reviewed ${EXPECT_HEAD} plus base merges and migration re-stamps only"
+       else
+         say "head moved: reviewed ${EXPECT_HEAD}, PR head is now ${HEAD_SHA} (${WHY})"
+         say "the review evidence is void — send the card back to Review"
+         exit 6
+       fi ;;
   esac
 else
   say "WARNING: no --expect-head; pinning the head read now (${HEAD_SHA}), not the reviewed one"
@@ -268,6 +280,38 @@ if ! git -C "$SCRATCH" merge "origin/${BASE}" --no-edit --quiet 2>/dev/null; the
   say "the base does not merge in cleanly — conflicts: ${CONFLICTS}"
   say "this is a rebase pass for the Builder lane, not a Blocked card"
   exit 5
+fi
+
+# ---- migration re-stamp ----------------------------------------------------
+# A migration's version is picked when its branch starts, so a PR that merged
+# first can hold the same version (`supabase db reset` fails) or a later one
+# (`supabase db push` refuses the older file). Inside the lock the base cannot
+# move, so rename the PR's migrations to sort after every one on the base, push
+# that to the PR branch, and verify and merge THAT head. The head guard above
+# accepts it on a re-run; verification below runs on the renamed tree.
+RENAMES=$(python3 "$HERE/super-board-restamp.py" restamp --repo "$SCRATCH" --config "$CONFIG" \
+            --base "origin/${BASE}") || { say "could not re-stamp the PR's migrations"; exit 5; }
+if [ -n "$RENAMES" ]; then
+  say "re-stamping migrations after ${BASE}: $(echo "$RENAMES" | tr '\t\n' '>,' | sed 's/>/ → /g; s/,$//')"
+  git -C "$SCRATCH" commit --quiet --no-verify -F - <<MSG
+🔧 [chore] migrations: re-stamp after ${BASE}
+
+$(echo "$RENAMES" | sed 's/^/- /; s/\t/ → /')
+MSG
+  NEW_HEAD=$(git -C "$SCRATCH" rev-parse HEAD)
+  if [ "$DRY" -eq 1 ]; then
+    say "dry run: would push ${NEW_HEAD} to ${HEAD_REF}"
+  else
+    python3 "$GITHUB_READ" --check
+    # A plain push: it fast-forwards from the head read above or is refused.
+    if ! git -C "$SCRATCH" push --quiet --no-verify origin "HEAD:refs/heads/${HEAD_REF}"; then
+      say "could not push the re-stamp to ${HEAD_REF}; the head may have moved"
+      say "the review evidence is void — send the card back to Review"
+      exit 6
+    fi
+    say "pushed re-stamp ${NEW_HEAD}; verifying and merging that head"
+    HEAD_SHA="$NEW_HEAD"
+  fi
 fi
 
 if [ "${#VERIFY[@]}" -eq 0 ]; then
