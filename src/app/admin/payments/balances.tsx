@@ -41,7 +41,7 @@ export function Balances({ balances }: { balances: SponsorshipBalance[] }) {
       </div>
 
       {balances.map((b) => (
-        <section key={b.id} className="receipt-section" aria-labelledby={`receipts-${b.id}`}>
+        <section key={b.id} className="gala-form" aria-labelledby={`receipts-${b.id}`}>
           <h2 id={`receipts-${b.id}`}>{b.sponsorName}</h2>
           <p>
             {formatCents(b.receivedCents)} received of {formatCents(b.pledgedCents)} ·{" "}

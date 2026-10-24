@@ -29,18 +29,18 @@ export function ReceiptForm(props: Props) {
   }, [state]);
 
   return (
-    <form ref={formRef} onSubmit={onSubmit} className="receipt-form" aria-label={props.label}>
+    <form ref={formRef} onSubmit={onSubmit} aria-label={props.label}>
       {props.mode === "record" ? (
         <input type="hidden" name="sponsorship_id" value={props.sponsorshipId} />
       ) : (
         <input type="hidden" name="payment_id" value={props.paymentId} />
       )}
-      <fieldset disabled={pending}>
+      <fieldset disabled={pending} className="gala-form__grid">
         <label htmlFor={id("amount")}>{props.mode === "record" ? "Amount (USD)" : "Correct amount (USD, 0 voids)"}</label>
         <input id={id("amount")} name="amount" required inputMode="decimal" />
         <label htmlFor={id("date")}>Received date</label>
         <input id={id("date")} name="received_on" type="date" required />
-        <button type="submit">
+        <button type="submit" className="gala-form__save">
           {pending ? "Saving…" : props.mode === "record" ? "Record receipt" : "Save correction"}
         </button>
       </fieldset>

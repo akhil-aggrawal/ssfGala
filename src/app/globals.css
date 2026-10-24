@@ -660,20 +660,7 @@ a:focus-visible {
   text-decoration: none;
 }
 
-/* Offline sponsorship receipts (/admin/payments): high-contrast forms. */
-.receipt-section {
-  margin: 2rem 0;
-  padding: 1.25rem 1rem;
-  background: #fff;
-  color: #111;
-  border-radius: 0.5rem;
-}
-
-.receipt-section h2 {
-  font-size: 1.25rem;
-  margin-bottom: 0.5rem;
-}
-
+/* Offline sponsorship receipts (/admin/payments): reuses .gala-form. */
 .receipt-list {
   margin: 1rem 0;
   padding-left: 1.25rem;
@@ -688,52 +675,12 @@ a:focus-visible {
   text-decoration: line-through;
 }
 
-.receipt-form fieldset {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 0.25rem;
-  max-width: 24rem;
-  margin: 0.75rem 0 0;
-  padding: 0;
-  border: 0;
-  min-width: 0;
-}
-
-.receipt-form label {
-  font-weight: 600;
-  margin-top: 0.5rem;
-}
-
-.receipt-form input {
-  min-height: 2.75rem;
-  padding: 0.5rem;
-  border: 1px solid #555;
-  border-radius: 0.25rem;
-  background: #fff;
-  color: #111;
-  font: inherit;
-}
-
-.receipt-form button,
-.receipt-section summary {
+.receipt-list summary {
   min-height: 2.75rem;
   cursor: pointer;
 }
 
-.receipt-form button {
-  margin-top: 0.75rem;
-  padding: 0.5rem 1.5rem;
-  border: 0;
-  border-radius: 0.25rem;
-  background: #111;
-  color: #fff;
-  font: inherit;
-  font-weight: 600;
-}
-
-.receipt-form input:focus-visible,
-.receipt-form button:focus-visible,
-.receipt-section summary:focus-visible {
+.receipt-list summary:focus-visible {
   outline: 3px solid #1a56db;
   outline-offset: 2px;
 }
