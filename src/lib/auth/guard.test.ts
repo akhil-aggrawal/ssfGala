@@ -1,7 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const session = vi.hoisted(() => ({ user: null as { id: string; email: string } | null }));
-const roleRows = vi.hoisted(() => ({ rows: [] as { role: string }[] }));
+const roleRows = vi.hoisted(() => ({
+  rows: [] as { role: string }[],
+  error: null as { message: string } | null,
+}));
 
 vi.mock("next/navigation", () => ({
   redirect: vi.fn((url: string) => {
@@ -17,7 +20,7 @@ vi.mock("@/lib/supabase/server", () => ({
     from: (table: string) => ({
       select: () =>
         table === "user_roles"
-          ? { eq: async () => ({ data: roleRows.rows, error: null }) }
+          ? { eq: async () => ({ data: roleRows.rows, error: roleRows.error }) }
           : { in: () => ({ maybeSingle: async () => ({ data: { id: "ev1" }, error: null }) }) },
     }),
   }),
@@ -29,6 +32,7 @@ describe("requireRole", () => {
   beforeEach(() => {
     session.user = { id: "u1", email: "a@example.test" };
     roleRows.rows = [];
+    roleRows.error = null;
   });
 
   it("redirects a signed-out visitor to sign-in with the next path", async () => {
@@ -54,5 +58,23 @@ describe("requireRole", () => {
       roles: ["admin", "sponsor"],
       eventId: "ev1",
     });
+  });
+
+  // QA #8 test-gap check: the guard fails closed and never builds an open redirect.
+  it("fails closed when the roles query errors, even for an admin", async () => {
+    roleRows.rows = [{ role: "admin" }];
+    roleRows.error = { message: "db down" };
+    await expect(requireRole("admin", "/admin")).rejects.toThrow("db down");
+  });
+
+  it("drops an off-origin next path from the sign-in redirect", async () => {
+    session.user = null;
+    await expect(requireRole("admin", "//evil.example/x")).rejects.toThrow(/^REDIRECT \/signin\?next=%2F$/);
+  });
+
+  it("lets a sponsor into a sponsor area and keeps admin out", async () => {
+    roleRows.rows = [{ role: "sponsor" }];
+    await expect(requireRole("sponsor", "/sponsor")).resolves.toMatchObject({ roles: ["sponsor"] });
+    await expect(requireRole("admin", "/admin")).rejects.toThrow("FORBIDDEN");
   });
 });

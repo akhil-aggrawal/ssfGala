@@ -8,9 +8,10 @@ function fakeAdmin(
   roleRows: Row[] | null,
   eventRow: Row | null = { id: "ev1" },
   roleError: { message: string } | null = null,
+  eventError: { message: string } | null = null,
 ) {
   const eq = vi.fn().mockResolvedValue({ data: roleRows, error: roleError });
-  const maybeSingle = vi.fn().mockResolvedValue({ data: eventRow, error: null });
+  const maybeSingle = vi.fn().mockResolvedValue({ data: eventRow, error: eventError });
   const inStatus = vi.fn().mockReturnValue({ maybeSingle });
   const from = vi.fn((table: string) => ({
     select: () => (table === "user_roles" ? { eq } : { in: inStatus }),
@@ -51,6 +52,12 @@ describe("loadAccess", () => {
   it("throws when the roles query fails, so a DB error never reads as no role", async () => {
     const admin = fakeAdmin(null, { id: "ev1" }, { message: "boom" });
     await expect(loadAccess(admin.client, user)).rejects.toThrow("boom");
+  });
+
+  // QA #8: a failed event lookup must not read as "no active event".
+  it("throws when the active-event query fails", async () => {
+    const admin = fakeAdmin([{ role: "admin" }], null, null, { message: "event boom" });
+    await expect(loadAccess(admin.client, user)).rejects.toThrow("event boom");
   });
 });
 
