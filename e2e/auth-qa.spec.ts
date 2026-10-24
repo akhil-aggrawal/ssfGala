@@ -81,6 +81,26 @@ test.describe("AC4: sign-out on a phone", () => {
   });
 });
 
+// QA v2: the phone fix switches layout at 40rem (640 px). Check both sides of
+// the breakpoint and the narrowest phone, and that the session stays cleared.
+test.describe("AC4: Sign out stays on screen around the 40rem breakpoint", () => {
+  for (const width of [320, 640, 641, 768]) {
+    test(`at ${width} px wide`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 700 });
+      await page.goto(testSignIn(uniqueEmail(), "/"));
+      const nav = page.getByRole("navigation", { name: "Main" });
+      await nav.getByText("Account").click();
+      const signOut = nav.getByRole("button", { name: "Sign out" });
+      await expect(signOut).toBeInViewport({ ratio: 1 });
+      await signOut.click({ timeout: 5_000 });
+      await expect(headerSignIn(page)).toBeVisible();
+      await page.reload();
+      await expect(headerSignIn(page)).toBeVisible();
+      await expect(nav.getByText("Account")).toHaveCount(0);
+    });
+  }
+});
+
 // Evidence screenshots for the QA report; off unless QA_SHOTS is set.
 test.describe("screenshots", () => {
   test.skip(!process.env.QA_SHOTS, "set QA_SHOTS=<dir> to capture");
