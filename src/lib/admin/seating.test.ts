@@ -105,6 +105,63 @@ describe("buildSeating", () => {
     seated.attendees[1].assigned_table_number = "12";
     expect(buildSeating(seated).tables[0]).toMatchObject({ guestCount: 4 });
   });
+
+  // Review #28 R7: a guest whose number equals their own table's never left it.
+  it("does not mark a guest moved when their number is their own table's", () => {
+    const seated = rows();
+    seated.attendees[1].assigned_table_number = "12";
+    const ben = buildSeating(seated).guests.find((g) => g.fullName === "Ben");
+    expect(ben).toMatchObject({ tableNumber: "12", moved: false });
+  });
+
+  // Review #28 R6: a guest moved onto another sponsored table's number sits there.
+  it("counts a guest moved onto another sponsored table's number at that table", () => {
+    const seated = rows();
+    seated.tables[1].physical_table_number = "7";
+    seated.attendees[3].cancelled_at = null; // Dan sits at Bolt's table 7
+    seated.attendees.push(
+      { id: "a8", registration_id: "r2", full_name: "Hal", email: "hal@x.test", assigned_table_number: null, cancelled_at: null },
+    );
+    // Bolt's table 7 is full (Dan, Hal); Ben is moved onto 7 and Eve (individual) too.
+    seated.attendees[4].assigned_table_number = "7";
+    const bolt = buildSeating(seated).tables.find((t) => t.id === "t2");
+    expect(bolt).toMatchObject({ guestCount: 4, capacity: 2, overbooked: true });
+    // Acme's 12 loses Ben: Ann, Cat, Gus = 3 on 2.
+    expect(buildSeating(seated).tables.find((t) => t.id === "t1")).toMatchObject({ guestCount: 3 });
+  });
+
+  it("does not count a moved guest at a cancelled sponsorship's table", () => {
+    const seated = rows();
+    seated.tables[2].physical_table_number = "7"; // t3 belongs to cancelled s3
+    seated.tables[2].capacity = 0;
+    const overview = computeOverview({
+      payments: [],
+      sponsorships: seated.sponsorships.map((s) => ({ id: s.id, status: s.status, pledged_cents: 0 })),
+      tables: seated.tables,
+      registrations: seated.registrations,
+      attendees: seated.attendees,
+    }).overbookedTables;
+    expect(overview).toBe(buildSeating(seated).tables.filter((t) => t.overbooked).length);
+  });
+
+  it("agrees with the admin overview when guests move onto another table", () => {
+    const seated = rows();
+    seated.tables[0].capacity = 3; // Ann, Cat, Gus fill table 12
+    seated.tables[1].physical_table_number = "7";
+    seated.tables[1].capacity = 0;
+    seated.attendees[0].assigned_table_number = "7"; // Ann onto Bolt's 7: 1 on 0
+    seated.attendees[4].assigned_table_number = "12"; // Eve onto 12: 3 on 3
+    const page = buildSeating(seated).tables.filter((t) => t.overbooked).map((t) => t.id);
+    const overview = computeOverview({
+      payments: [],
+      sponsorships: seated.sponsorships.map((s) => ({ id: s.id, status: s.status, pledged_cents: 0 })),
+      tables: seated.tables,
+      registrations: seated.registrations,
+      attendees: seated.attendees,
+    }).overbookedTables;
+    expect(page).toEqual(["t2"]);
+    expect(overview).toBe(1);
+  });
 });
 
 describe("parseTableNumber", () => {

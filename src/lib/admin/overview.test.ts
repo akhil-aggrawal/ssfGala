@@ -117,10 +117,10 @@ describe("computeOverview", () => {
     const o = computeOverview({
       ...empty,
       tables: [
-        { id: "t-full", capacity: 10, physical_table_number: null },
-        { id: "t-over", capacity: 10, physical_table_number: null },
-        { id: "t-small", capacity: 2, physical_table_number: null },
-        { id: "t-cancelled", capacity: 1, physical_table_number: null },
+        { id: "t-full", sponsorship_id: "s1", capacity: 10, physical_table_number: null },
+        { id: "t-over", sponsorship_id: "s1", capacity: 10, physical_table_number: null },
+        { id: "t-small", sponsorship_id: "s1", capacity: 2, physical_table_number: null },
+        { id: "t-cancelled", sponsorship_id: "s1", capacity: 1, physical_table_number: null },
       ],
       registrations: [
         { id: "rf", status: "registered", sponsored_table_id: "t-full" },
@@ -154,12 +154,47 @@ describe("computeOverview", () => {
     });
     const o = computeOverview({
       ...empty,
-      tables: [{ id: "t1", capacity: 2, physical_table_number: "12" }],
+      tables: [{ id: "t1", sponsorship_id: "s1", capacity: 2, physical_table_number: "12" }],
       registrations: [{ id: "r1", status: "registered", sponsored_table_id: "t1" }],
       attendees: [guest(null), guest("12"), guest("7")],
     });
     expect(o.overbookedTables).toBe(0);
     expect(o.attendeeCount).toBe(3);
+  });
+
+  // Review #28 R6: a guest moved onto another table's number counts there.
+  it("counts a guest moved onto another table's number at that table", () => {
+    const o = computeOverview({
+      ...empty,
+      tables: [
+        { id: "t1", sponsorship_id: "s1", capacity: 2, physical_table_number: "12" },
+        { id: "t2", sponsorship_id: "s2", capacity: 1, physical_table_number: "7" },
+      ],
+      registrations: [
+        { id: "r1", status: "registered", sponsored_table_id: "t1" },
+        { id: "r2", status: "registered", sponsored_table_id: "t2" },
+      ],
+      attendees: [
+        { registration_id: "r1", assigned_table_number: null, cancelled_at: null },
+        { registration_id: "r1", assigned_table_number: "7", cancelled_at: null },
+        { registration_id: "r2", assigned_table_number: null, cancelled_at: null },
+      ],
+    });
+    expect(o.overbookedTables).toBe(1);
+  });
+
+  it("does not count tables of cancelled sponsorships", () => {
+    const o = computeOverview({
+      ...empty,
+      sponsorships: [{ id: "s9", pledged_cents: 0, status: "cancelled" }],
+      tables: [{ id: "t9", sponsorship_id: "s9", capacity: 1, physical_table_number: null }],
+      registrations: [{ id: "r9", status: "registered", sponsored_table_id: "t9" }],
+      attendees: [
+        { registration_id: "r9", assigned_table_number: null, cancelled_at: null },
+        { registration_id: "r9", assigned_table_number: null, cancelled_at: null },
+      ],
+    });
+    expect(o.overbookedTables).toBe(0);
   });
 });
 

@@ -1,12 +1,12 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/database.types";
-import { readAll, sitsAtSponsoredTable } from "./overview";
+import { countSeated, liveTables, readAll, sitsAtSponsoredTable } from "./overview";
 
 // Tables & Seating (/admin/tables): who sits where, and which sponsored
 // tables are over capacity. Admin only: overbooking is never shown to guests.
 // A guest's table is their own assigned_table_number when an admin moved
 // them, otherwise their sponsored table's physical_table_number. A moved guest
-// stops counting toward their sponsored table, so moves clear Overbooked.
+// counts at the table they were moved to (countSeated), the same as /admin.
 
 type Tables = Database["public"]["Tables"];
 type Row<T extends keyof Tables, K extends keyof Tables[T]["Row"]> = Pick<Tables[T]["Row"], K>;
@@ -60,14 +60,17 @@ export function buildSeating(rows: SeatingRows): { tables: SeatingTable[]; guest
     (a) => a.cancelled_at === null && liveRegistrations.has(a.registration_id),
   );
 
-  const seated = new Map<string, number>();
+  const live = liveTables(rows.tables, rows.sponsorships);
+  const seated = countSeated(
+    live,
+    active.map((a) => ({
+      tableId: liveRegistrations.get(a.registration_id)!.sponsored_table_id,
+      assignedTableNumber: a.assigned_table_number,
+    })),
+  );
   const guests: SeatingGuest[] = active.map((a) => {
     const reg = liveRegistrations.get(a.registration_id)!;
     const table = reg.sponsored_table_id ? tables.get(reg.sponsored_table_id) : undefined;
-    // A guest moved to another number no longer sits at (or overbooks) this table.
-    if (table && sitsAtSponsoredTable(a.assigned_table_number, table.physical_table_number)) {
-      seated.set(table.id, (seated.get(table.id) ?? 0) + 1);
-    }
     return {
       id: a.id,
       fullName: a.full_name,
@@ -75,29 +78,27 @@ export function buildSeating(rows: SeatingRows): { tables: SeatingTable[]; guest
       tierName: tierName.get(reg.tier_id) ?? "",
       sponsorName: table ? tableSponsor(table.sponsorship_id) : null,
       tableNumber: a.assigned_table_number ?? table?.physical_table_number ?? null,
-      moved: a.assigned_table_number !== null,
+      moved: !sitsAtSponsoredTable(a.assigned_table_number, table?.physical_table_number),
     };
   });
 
-  const liveTables: SeatingTable[] = rows.tables
-    .filter((t) => sponsorships.get(t.sponsorship_id)?.status !== "cancelled")
-    .map((t) => {
-      const guestCount = seated.get(t.id) ?? 0;
-      return {
-        id: t.id,
-        sponsorName: tableSponsor(t.sponsorship_id),
-        tierName: tierName.get(t.tier_id) ?? "",
-        capacity: t.capacity,
-        guestCount,
-        overbooked: guestCount > t.capacity,
-        tableNumber: t.physical_table_number,
-      };
-    });
+  const seatingTables: SeatingTable[] = live.map((t) => {
+    const guestCount = seated.get(t.id) ?? 0;
+    return {
+      id: t.id,
+      sponsorName: tableSponsor(t.sponsorship_id),
+      tierName: tierName.get(t.tier_id) ?? "",
+      capacity: t.capacity,
+      guestCount,
+      overbooked: guestCount > t.capacity,
+      tableNumber: t.physical_table_number,
+    };
+  });
 
   const byText = (a: string, b: string) => a.localeCompare(b);
-  liveTables.sort((a, b) => byText(a.sponsorName, b.sponsorName) || byText(a.id, b.id));
+  seatingTables.sort((a, b) => byText(a.sponsorName, b.sponsorName) || byText(a.id, b.id));
   guests.sort((a, b) => byText(a.fullName, b.fullName) || byText(a.id, b.id));
-  return { tables: liveTables, guests };
+  return { tables: seatingTables, guests };
 }
 
 // Loads one event's seating with the service-role client. The caller must
