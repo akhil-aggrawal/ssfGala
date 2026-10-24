@@ -9,6 +9,8 @@ Mutations never enter this retry helper. For the agent-facing kinds in FORMS, a
 payload that fails its shape on every attempt is the caller's malformed read, not
 an outage: that call exits 64 with the valid form and the run keeps going. Scripts
 whose commands are fixed set SB_GITHUB_READ_STRICT=1 to keep halting on it.
+The same holds for a command gh rejects locally before sending any request (an
+unknown --json field, flags that cannot be combined): exit 64 on the first attempt.
 """
 from __future__ import annotations
 
@@ -109,6 +111,19 @@ def permanent_error(text):
                      r'GRAPHQL_VALIDATION_FAILED|undefinedField|variableRequiresValidType|'
                      r'HTTP 40[134]|Bad credentials|requires authentication|Resource not accessible|'
                      r'Could not resolve to (?:a|an) |missing required scopes', text, re.I) is not None
+
+
+# gh's own usage errors, printed as the first stderr line before any request is sent.
+USAGE_ERROR = re.compile(
+    r'(?:Unknown JSON field: |unknown (?:shorthand )?flag: |unknown command "|flag needs an argument: |'
+    r'invalid argument "[^"]*" for "|the `--[\w-]+` option is not supported with |'
+    r'accepts (?:at most |between )?\d+(?: and \d+)? arg\(s\), received |required flag\(s\) "|'
+    r'if any flags in the group \[)')
+
+
+def usage_error(stderr):
+    first = next((line for line in stderr.splitlines() if line.strip()), '')
+    return first.strip() if USAGE_ERROR.match(first) else None
 
 
 def require(condition, why):
@@ -282,6 +297,13 @@ def read(args, kind='json', meta=None, recovering=False):
         try:
             result = subprocess.run(['gh', *args], capture_output=True, text=True, timeout=30)
             diagnostic = result.stderr
+            usage = usage_error(result.stderr) if result.returncode else None
+            if usage:
+                # Retrying cannot help: gh refused the command itself, GitHub was never asked.
+                if kind in FORMS and not os.environ.get('SB_GITHUB_READ_STRICT'):
+                    raise ValueError(f'gh rejected the command before sending it: {usage}; '
+                                     f'this call failed, the run continues. Valid form: --kind {kind} -- {FORMS[kind]}')
+                halt(f'gh rejected a required read before sending it: {usage}; fix the command before restarting', attempt, operation)
             if result.returncode:
                 diagnostic += result.stdout
             elif kind != 'diff':

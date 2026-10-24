@@ -46,7 +46,9 @@ unrelated successful calls do not reset its failures. Invalid GraphQL queries,
 authentication, and permission errors stop immediately. Do not retry mutations.
 A payload that misses an agent-facing `--kind` shape (`READ_SHAPES` in
 `workflows/super-board-wave.js`) exits 64 for that call only, printing the valid
-form; it never halts the run. Fixed-command scripts set `SB_GITHUB_READ_STRICT=1`.
+form; it never halts the run. So does a command gh rejects locally before sending
+it (unknown `--json` field, unknown flag, `--slurp` with `--jq`), on the first
+attempt. Fixed-command scripts set `SB_GITHUB_READ_STRICT=1` to halt on both.
 
 Exit **79**, a workflow result with `halted: true`, or a failed `--check` ends this
 run. Check the helper's `--check` before claims, board/comment writes, each new

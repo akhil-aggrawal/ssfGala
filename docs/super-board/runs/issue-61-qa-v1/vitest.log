@@ -1,0 +1,17 @@
+
+ RUN  v5.0.5 /Users/akhil/myapps/ssfGala/.claude/worktrees/issue-61-qa
+
+ ✓ test/super-board-github-read.test.ts > super-board-github-read: gh usage errors > exits 64 on the first attempt for an unknown --json field, without a halt file 558ms
+ ✓ test/super-board-github-read.test.ts > super-board-github-read: gh usage errors > exits 64 on the first attempt for --slurp with --jq, without a halt file 484ms
+ ✓ test/super-board-github-read.test.ts > super-board-github-read: gh usage errors > exits 64 on the first attempt for an unknown flag, without a halt file 487ms
+ ✓ test/super-board-github-read.test.ts > super-board-github-read: gh usage errors > still halts with exit 79 under SB_GITHUB_READ_STRICT=1 1096ms
+ ✓ test/super-board-github-read.test.ts > super-board-github-read: outages still halt > retries an HTTP 5xx three times, then exits 79 with a halt file 468ms
+ ✓ test/super-board-github-read.test.ts > super-board-github-read: outages still halt > retries a network timeout three times, then exits 79 with a halt file 472ms
+ ✓ test/super-board-github-read.test.ts > super-board-github-read: outages still halt > matches usage text on the first stderr line only: an outage that quotes it later still retries and halts 651ms
+ ✓ test/super-board-github-read.test.ts > super-board-github-read: outages still halt > ignores usage-like stderr when gh exits 0 569ms
+
+ Test Files  1 passed (1)
+      Tests  8 passed (8)
+   Start at  01:36:02
+   Duration  5.16s (tests 99%, transform 1%)
+
