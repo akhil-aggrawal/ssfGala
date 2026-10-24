@@ -35,7 +35,7 @@ async function Seating({ searchParams }: { searchParams: SearchParams }) {
           <p>{overbookedOnly ? "No table is overbooked." : "No sponsored tables yet."}</p>
         ) : (
           // Focusable so keyboard users can scroll the wide table on a phone.
-          <div className="admin-table-wrap" role="region" aria-label="Sponsored tables" tabIndex={0}>
+          <div className="admin-table-wrap" role="region" aria-label="Sponsored tables, scrollable" tabIndex={0}>
             <table className="admin-table">
               <thead>
                 <tr>
@@ -76,7 +76,7 @@ async function Seating({ searchParams }: { searchParams: SearchParams }) {
         {guests.length === 0 ? (
           <p>No guests yet.</p>
         ) : (
-          <div className="admin-table-wrap" role="region" aria-label="Guests" tabIndex={0}>
+          <div className="admin-table-wrap" role="region" aria-label="Guests, scrollable" tabIndex={0}>
             <table className="admin-table">
               <thead>
                 <tr>

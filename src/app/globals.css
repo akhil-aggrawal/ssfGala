@@ -591,6 +591,8 @@ a:focus-visible {
 }
 
 .admin-table-wrap {
+  /* Contains absolutely-positioned .visually-hidden labels so they scroll with the table. */
+  position: relative;
   overflow-x: auto;
 }
 

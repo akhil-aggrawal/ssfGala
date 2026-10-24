@@ -80,8 +80,15 @@ test.beforeAll(async () => {
     full_name: guestName(n),
     email: `seat${n}-${tag}@example.test`,
   });
-  // Three guests on a table of two: overbooked. One on the other: not.
-  const [g1] = await insert("attendees", [guest(rBusy.id, 1), guest(rBusy.id, 2), guest(rBusy.id, 3), guest(rQuiet.id, 4)]);
+  // Four guests on a table of two: overbooked, and still overbooked after AC2 moves one away.
+  // One on the other: not.
+  const [g1] = await insert("attendees", [
+    guest(rBusy.id, 1),
+    guest(rBusy.id, 2),
+    guest(rBusy.id, 3),
+    guest(rBusy.id, 5),
+    guest(rQuiet.id, 4),
+  ]);
   movedGuestId = g1.id;
 });
 
@@ -90,9 +97,9 @@ test.afterAll(async () => {
 });
 
 const tableRow = (page: Page, sponsor: string) =>
-  page.getByRole("region", { name: "Sponsored tables" }).getByRole("row").filter({ hasText: sponsor });
+  page.getByRole("region", { name: "Sponsored tables, scrollable", exact: true }).getByRole("row").filter({ hasText: sponsor });
 const guestRow = (page: Page, n: number) =>
-  page.getByRole("region", { name: "Guests" }).getByRole("row").filter({ hasText: guestName(n) });
+  page.getByRole("region", { name: "Guests, scrollable", exact: true }).getByRole("row").filter({ hasText: guestName(n) });
 
 test("AC1: a table number shows for all of the table's guests", async ({ page }) => {
   await signIn(page, ["admin"]);
@@ -103,7 +110,7 @@ test("AC1: a table number shows for all of the table's guests", async ({ page })
   await row.getByRole("button", { name: "Save" }).click();
   await expect(row.getByRole("status")).toHaveText("Saved.");
   await page.reload();
-  for (const n of [1, 2, 3]) await expect(guestRow(page, n).getByRole("cell").nth(3)).toHaveText("41");
+  for (const n of [1, 2, 3, 5]) await expect(guestRow(page, n).getByRole("cell").nth(3)).toHaveText("41");
 });
 
 test("AC2: moving one guest changes only that guest's table", async ({ page }) => {
@@ -129,6 +136,27 @@ test("AC3: overbooked tables show a badge and the filter lists only them", async
   await expect(page).toHaveURL(/show=overbooked/);
   await expect(tableRow(page, busy)).toHaveCount(1);
   await expect(tableRow(page, quiet)).toHaveCount(0);
+});
+
+test("AC3: moving guests off an overbooked table clears its badge", async ({ page }) => {
+  await signIn(page, ["admin"]);
+  await page.goto("/admin/tables");
+  await expect(tableRow(page, busy).getByRole("cell").nth(2)).toHaveText("3 / 2Overbooked");
+  const row = guestRow(page, 2);
+  await row.getByLabel(`Move ${guestName(2)} to table`).fill("43");
+  await row.getByRole("button", { name: "Save" }).click();
+  await expect(row.getByRole("status")).toHaveText("Saved.");
+  await page.reload();
+  await expect(tableRow(page, busy).getByRole("cell").nth(2)).toHaveText("2 / 2");
+});
+
+test("Tables & Seating does not scroll sideways on a 375px phone", async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 667 });
+  await signIn(page, ["admin"]);
+  await page.goto("/admin/tables");
+  await expect(tableRow(page, busy)).toHaveCount(1);
+  const widths = await page.evaluate(() => [document.documentElement.scrollWidth, window.innerWidth]);
+  expect(widths[0]).toBeLessThanOrEqual(widths[1]);
 });
 
 test("AC3: a non-admin never sees the seating page", async ({ page }) => {
