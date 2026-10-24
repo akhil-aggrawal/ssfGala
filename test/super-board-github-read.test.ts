@@ -83,4 +83,20 @@ describe("super-board-github-read: outages still halt", () => {
     );
     expect(run).toMatchObject({ status: 79, attempts: 3, halted: true });
   });
+
+  it("matches usage text on the first stderr line only: an outage that quotes it later still retries and halts", () => {
+    const run = runRead(
+      ["pr", "view", "58", "--json", "body"],
+      'HTTP 503: Service Unavailable (https://api.github.com/graphql)\nUnknown JSON field: "body"\n',
+      1,
+    );
+    expect(run).toMatchObject({ status: 79, attempts: 3, halted: true });
+  });
+
+  it("ignores usage-like stderr when gh exits 0", () => {
+    const run = runRead(["pr", "view", "58", "--json", "body"], "unknown flag: --noise\n", 0);
+    // fake gh prints no stdout, so the read fails its JSON shape: retried, never treated as a usage error
+    expect(run.attempts).toBe(3);
+    expect(run.stderr).not.toContain("gh rejected the command");
+  });
 });

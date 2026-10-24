@@ -1,0 +1,13 @@
+gh version 2.103.1 (2026-10-23)
+## ac1-unknown-field
+[github-read] gh rejected the command before sending it: Unknown JSON field: "notAField"; this call failed, the run continues. Valid form: --kind json -- <gh args> (JSON output; no --jq that prints a plain string)
+## ac2-slurp-jq
+[github-read] gh rejected the command before sending it: the `--slurp` option is not supported with `--jq` or `--template`; this call failed, the run continues. Valid form: --kind json -- <gh args> (JSON output; no --jq that prints a plain string)
+## ac3-strict-field
+[github-read] HALT: gh rejected a required read before sending it: Unknown JSON field: "notAField"; fix the command before restarting. Saved at /private/tmp/claude-502/-Users-akhil-myapps-ssfGala/992db0ae-49ca-49ff-beea-cdea145f6e6f/scratchpad/qa61/halt.json
+## ac3-strict-slurp
+[github-read] HALT: gh rejected a required read before sending it: the `--slurp` option is not supported with `--jq` or `--template`; fix the command before restarting. Saved at /private/tmp/claude-502/-Users-akhil-myapps-ssfGala/992db0ae-49ca-49ff-beea-cdea145f6e6f/scratchpad/qa61/halt.json
+## ctrl-valid
+{"number":62}
+## edge-unknown-flag
+[github-read] gh rejected the command before sending it: unknown flag: --bogus; this call failed, the run continues. Valid form: --kind json -- <gh args> (JSON output; no --jq that prints a plain string)
