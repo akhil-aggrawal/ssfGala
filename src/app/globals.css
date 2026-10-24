@@ -881,3 +881,83 @@ a:focus-visible {
   display: block;
   font-weight: 600;
 }
+
+/* Sponsor dashboard: high-contrast cards, one per table. */
+.sponsor-dash {
+  max-width: 60rem;
+  margin: 0 auto;
+  padding: 3rem 1rem;
+}
+
+.sponsor-dash h1 {
+  color: var(--gold);
+  font-size: 2.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.sponsor-dash__lede {
+  color: var(--muted);
+}
+
+.sponsor-dash__cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sponsor-dash__card,
+.sponsor-dash__empty {
+  padding: 1.25rem 1rem;
+  background: #fff;
+  color: #111;
+  border-radius: 0.5rem;
+}
+
+.sponsor-dash__empty {
+  margin-top: 1.5rem;
+}
+
+.sponsor-dash__card h2,
+.sponsor-dash__empty h2 {
+  font-size: 1.35rem;
+  margin-bottom: 0.5rem;
+}
+
+.sponsor-dash__empty p {
+  margin-bottom: 1rem;
+}
+
+.sponsor-dash__count {
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+.sponsor-dash__card summary {
+  min-height: 2.75rem;
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.sponsor-dash__card summary:focus-visible {
+  outline: 3px solid #1a56db;
+  outline-offset: 2px;
+}
+
+.sponsor-dash__guests {
+  display: grid;
+  gap: 0.35rem;
+  padding-left: 1.25rem;
+  overflow-wrap: anywhere;
+}
+
+.sponsor-dash__email {
+  display: block;
+  color: #444;
+  font-size: 0.9rem;
+}
