@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Suspense } from "react";
 import {
   REGISTRATION_KINDS,
@@ -72,9 +73,25 @@ function Filters({ f }: { f: AttendeeFilters }) {
   );
 }
 
+function AddAttendeesLink() {
+  return (
+    <p>
+      <Link href="/admin/attendees/new" className="gala-form__save admin-link-button">
+        Add attendees
+      </Link>
+    </p>
+  );
+}
+
 async function AttendeeList({ searchParams }: { searchParams: SearchParams }) {
   const access = await requireRole("admin", "/admin/attendees");
-  if (access.eventId === null) return <p>No active gala is set up yet.</p>;
+  if (access.eventId === null)
+    return (
+      <>
+        <AddAttendeesLink />
+        <p>No active gala is set up yet.</p>
+      </>
+    );
 
   const f = parseFilters(await searchParams);
   const all = await loadAttendees(createSupabaseAdminClient(), access.eventId);
@@ -82,6 +99,7 @@ async function AttendeeList({ searchParams }: { searchParams: SearchParams }) {
 
   return (
     <>
+      <AddAttendeesLink />
       <Filters f={f} />
       {rows.length === 0 ? (
         <p role="status">No attendees match.</p>

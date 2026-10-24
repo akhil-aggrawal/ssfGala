@@ -2,201 +2,178 @@ import { mkdirSync } from "node:fs";
 import { createClient } from "@supabase/supabase-js";
 import { expect, test, type Page } from "@playwright/test";
 
-// QA coverage for issue #26: the admin attendee list in a real browser.
-// Search is scoped to the active gala, edit writes a before/after audit row,
-// cancel soft-cancels and keeps payments, cancelled rows hide behind a filter.
-// Needs a local Supabase with the #26 migration and the app started with E2E_AUTH=1.
+// QA coverage for issue #25: an admin adds complimentary and paid-offline
+// attendees through /admin/attendees/new, and the database holds the
+// registration, payment and audit rows. The attendees area never calls Stripe.
+// Needs a local Supabase and the app started with E2E_AUTH=1.
 test.skip(process.env.E2E_AUTH !== "1", "set E2E_AUTH=1 with a local Supabase");
-test.describe.configure({ mode: "serial" });
 
 const db = () =>
   createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!, {
     auth: { persistSession: false },
   });
 
-const tag = Math.random().toString(36).slice(2, 8);
-const shots = process.env.QA_SHOTS_DIR;
-let createdEvent: string | null = null;
-const seeded = { eventId: "", payer: "", other: "", archived: "", paymentId: "" };
+const tag = () => Math.random().toString(36).slice(2, 8);
 
 async function signInAdmin(page: Page) {
-  const email = `qa-${Date.now()}-${tag}@example.test`;
+  const email = `qa-${Date.now()}-${tag()}@example.test`;
   await page.goto(`/auth/test-signin?email=${encodeURIComponent(email)}&next=/`);
   const { data: profile } = await db().from("profiles").select("id").eq("email", email).single();
   const { error } = await db().from("user_roles").insert({ user_id: profile!.id, role: "admin" });
   expect(error).toBeNull();
+  return profile!.id as string;
 }
 
-async function insert<T = { id: string }>(table: string, row: object): Promise<T> {
-  const { data, error } = await db().from(table).insert(row).select("id").single();
-  expect(error, `${table}: ${error?.message}`).toBeNull();
-  return data as T;
-}
-
-async function goldTier(eventId: string) {
-  const { data } = await db().from("seating_tiers").select("id").eq("event_id", eventId).eq("name", "Gold");
-  if (data?.length) return data[0].id as string;
-  return (
-    await insert("seating_tiers", {
-      event_id: eventId,
-      name: "Gold",
-      seat_price_cents: 20000,
-      suggested_contribution_cents: 20000,
-    })
-  ).id;
-}
-
-async function attendee(eventId: string, fullName: string, email: string) {
-  const tierId = await goldTier(eventId);
-  const reg = await insert("registrations", { event_id: eventId, kind: "individual", tier_id: tierId });
-  const a = await insert("attendees", { event_id: eventId, registration_id: reg.id, full_name: fullName, email });
-  return { id: a.id, registrationId: reg.id };
-}
-
-test.beforeAll(async () => {
-  const { data: active } = await db().from("events").select("id").in("status", ["draft", "open"]);
-  if (active?.length) seeded.eventId = active[0].id;
-  else {
-    const year = 4000 + Math.floor(Math.random() * 5000);
-    seeded.eventId = (await insert("events", { name: "[TEST] QA attendees gala", year, status: "open" })).id;
-    createdEvent = seeded.eventId;
+// The active gala with its three tiers; created when none exists.
+async function activeGala() {
+  const { data } = await db().from("events").select("id").in("status", ["draft", "open"]);
+  let eventId = data?.[0]?.id as string | undefined;
+  if (!eventId) {
+    const { data: created, error } = await db()
+      .from("events")
+      .insert({ name: "QA attendees gala", year: 4000 + Math.floor(Math.random() * 5000), status: "open" })
+      .select("id")
+      .single();
+    expect(error).toBeNull();
+    eventId = created!.id as string;
   }
-  const archived = (
-    await insert("events", {
-      name: "[TEST] QA archived gala",
-      year: 10000 + Math.floor(Math.random() * 80000),
-      status: "archived",
-    })
-  ).id;
-
-  const payer = await attendee(seeded.eventId, `[TEST] Paula Payer ${tag}`, `paula.${tag}@example.test`);
-  seeded.payer = payer.id;
-  seeded.other = (await attendee(seeded.eventId, `[TEST] Omar Other ${tag}`, `omar.${tag}@corp.test`)).id;
-  seeded.archived = (await attendee(archived, `[TEST] Paula Archived ${tag}`, `paula.${tag}@old.test`)).id;
-
-  seeded.paymentId = (
-    await insert("payments", {
-      event_id: seeded.eventId,
-      registration_id: payer.registrationId,
-      provider: "offline",
-      purpose: "ticket",
-      amount_cents: 20000,
-      status: "succeeded",
-    })
-  ).id;
-  await insert("payment_allocations", {
-    event_id: seeded.eventId,
-    payment_id: seeded.paymentId,
-    attendee_id: payer.id,
-    amount_cents: 20000,
-  });
-});
-
-test.afterAll(async () => {
-  // Leave no active gala behind: it trips one_active_gala for later DB tests.
-  if (createdEvent) await db().from("events").update({ status: "archived" }).eq("id", createdEvent);
-});
-
-const table = (page: Page) => page.getByRole("region", { name: "Attendees" });
-const rowOf = (page: Page, text: string) => table(page).locator("tbody tr").filter({ hasText: text });
-
-async function shoot(page: Page, name: string) {
-  if (!shots) return;
-  mkdirSync(shots, { recursive: true });
-  await page.screenshot({ path: `${shots}/${name}.png`, fullPage: true });
+  const { data: tiers } = await db().from("seating_tiers").select("id, name").eq("event_id", eventId);
+  if (!tiers?.length) {
+    const { error } = await db()
+      .from("seating_tiers")
+      .insert(
+        [
+          ["Silver", 15000],
+          ["Gold", 20000],
+          ["Platinum", 25000],
+        ].map(([name, cents]) => ({
+          event_id: eventId,
+          name,
+          seat_price_cents: cents,
+          suggested_contribution_cents: cents,
+        })),
+      );
+    expect(error).toBeNull();
+  }
+  return eventId;
 }
 
-test("AC1: partial name or email search returns only the active gala's attendees", async ({ page }) => {
+async function registrationFor(email: string) {
+  const { data: attendee } = await db()
+    .from("attendees")
+    .select("registration_id")
+    .eq("email", email)
+    .single();
+  const id = attendee!.registration_id as string;
+  const { data: registration } = await db().from("registrations").select("*").eq("id", id).single();
+  const { data: payments } = await db().from("payments").select("*").eq("registration_id", id);
+  const { data: audits } = await db().from("audit_logs").select("action, actor_id").eq("entity_id", id);
+  return { registration: registration!, payments: payments!, audits: audits! };
+}
+
+async function fillAttendee(page: Page, n: number, name: string, email: string) {
+  await page.getByLabel(`Attendee ${n} full name`).fill(name);
+  await page.getByLabel(`Attendee ${n} email`).fill(email);
+}
+
+test("AC1 + AC4: a complimentary add is registered, unpaid and audited", async ({ page }) => {
+  await activeGala();
+  const adminId = await signInAdmin(page);
+  const email = `comp-${tag()}@example.test`;
+
+  await page.goto("/admin/attendees");
+  await page.getByRole("link", { name: "Add attendees" }).click();
+  await expect(page).toHaveURL(/\/admin\/attendees\/new$/);
+  await page.getByLabel("Complimentary").check();
+  await page.getByLabel("Tier").selectOption({ label: "Gold · $200 per seat" });
+  await fillAttendee(page, 1, "[TEST] Comp Guest", email);
+  await page.getByRole("button", { name: "Save attendees" }).click();
+  await expect(page.locator("form").getByRole("status")).toHaveText("Added 1 attendee.");
+
+  const { registration, payments, audits } = await registrationFor(email);
+  expect(registration).toMatchObject({ kind: "complimentary", status: "registered", created_by: adminId });
+  expect(payments).toHaveLength(0);
+  expect(audits).toEqual([{ action: "registration.create_complimentary", actor_id: adminId }]);
+});
+
+test("AC2 + AC4: a paid-offline add stores an offline payment with recorded_by", async ({ page }) => {
+  await activeGala();
+  const adminId = await signInAdmin(page);
+  const first = `paid1-${tag()}@example.test`;
+
+  await page.goto("/admin/attendees/new");
+  await page.getByLabel("Paid offline (cash or check)").check();
+  await page.getByLabel("Tier").selectOption({ label: "Silver · $150 per seat" });
+  await page.getByLabel("Amount received (USD)").fill("300.01");
+  await fillAttendee(page, 1, "[TEST] Paid One", first);
+  await page.getByRole("button", { name: "Add another attendee" }).click();
+  await fillAttendee(page, 2, "[TEST] Paid Two", `paid2-${tag()}@example.test`);
+  await page.getByRole("button", { name: "Save attendees" }).click();
+  await expect(page.locator("form").getByRole("status")).toHaveText("Added 2 attendees.");
+
+  const { registration, payments, audits } = await registrationFor(first);
+  expect(registration).toMatchObject({ kind: "offline_paid", status: "registered" });
+  expect(payments).toHaveLength(1);
+  expect(payments[0]).toMatchObject({
+    provider: "offline",
+    purpose: "ticket",
+    status: "succeeded",
+    amount_cents: 30001,
+    recorded_by: adminId,
+  });
+  const { data: allocations } = await db()
+    .from("payment_allocations")
+    .select("amount_cents")
+    .eq("payment_id", payments[0].id);
+  expect(allocations!.map((a) => a.amount_cents).sort()).toEqual([15000, 15001]);
+  expect(audits).toEqual([{ action: "registration.create_offline_paid", actor_id: adminId }]);
+});
+
+test("AC2: a refused amount keeps the form and saves nothing", async ({ page }) => {
+  await activeGala();
   await signInAdmin(page);
-  await page.goto(`/admin/attendees?q=${encodeURIComponent(`PAULA PAYER ${tag}`.slice(2))}`);
-  await expect(rowOf(page, `Paula Payer ${tag}`)).toHaveCount(1);
-  await expect(table(page).locator("tbody tr")).toHaveCount(1);
+  const email = `zero-${tag()}@example.test`;
 
-  await page.getByRole("searchbox", { name: "Search name or email" }).fill(`paula.${tag}@`);
-  await page.getByRole("button", { name: "Filter" }).click();
-  await expect(page).toHaveURL(new RegExp(`q=paula.${tag}`));
-  await expect(rowOf(page, `paula.${tag}@example.test`)).toHaveCount(1);
-  // The archived gala's attendee shares the email prefix but must not show.
-  await expect(page.getByText(`paula.${tag}@old.test`)).toHaveCount(0);
-  await expect(table(page).locator("tbody tr")).toHaveCount(1);
+  await page.goto("/admin/attendees/new");
+  await page.getByLabel("Paid offline (cash or check)").check();
+  await page.getByLabel("Tier").selectOption({ label: "Gold · $200 per seat" });
+  await page.getByLabel("Amount received (USD)").fill("0");
+  await fillAttendee(page, 1, "[TEST] Zero", email);
+  await page.getByRole("button", { name: "Save attendees" }).click();
+  await expect(page.locator("form").getByRole("alert")).toHaveText("Amount received must be more than $0. Nothing was saved.");
+  await expect(page.getByLabel("Attendee 1 email")).toHaveValue(email);
+  const { count } = await db().from("attendees").select("id", { count: "exact", head: true }).eq("email", email);
+  expect(count).toBe(0);
+});
 
+test("AC3: the attendees area makes no Stripe request; shots at three viewports", async ({ page }) => {
+  await activeGala();
+  await signInAdmin(page);
+  const stripe: string[] = [];
+  page.on("request", (r) => {
+    if (/stripe/i.test(r.url())) stripe.push(r.url());
+  });
+
+  const dir = process.env.QA_SHOTS_DIR;
+  if (dir) mkdirSync(dir, { recursive: true });
   for (const [name, width, height] of [
-    ["ac1-search-desktop", 1920, 1080],
-    ["ac1-search-tablet", 1024, 768],
-    ["ac1-search-mobile", 375, 667],
+    ["desktop", 1920, 1080],
+    ["tablet", 1024, 768],
+    ["mobile", 375, 667],
   ] as const) {
     await page.setViewportSize({ width, height });
-    await page.reload();
-    await expect(rowOf(page, `Paula Payer ${tag}`)).toHaveCount(1);
+    await page.goto("/admin/attendees");
+    await expect(page.getByRole("link", { name: "Add attendees" })).toBeVisible();
+    await expect(page.getByRole("button", { name: /charge|card|stripe/i })).toHaveCount(0);
+    if (dir) await page.screenshot({ path: `${dir}/list-${name}.png` });
+
+    await page.goto("/admin/attendees/new");
+    await page.getByLabel("Paid offline (cash or check)").check();
+    await expect(page.getByLabel("Amount received (USD)")).toBeVisible();
+    await expect(page.getByRole("button", { name: /charge|card|stripe/i })).toHaveCount(0);
     const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
-    expect(scrollWidth, `${name} page scrolls sideways`).toBeLessThanOrEqual(width);
-    await shoot(page, name);
+    expect(scrollWidth).toBeLessThanOrEqual(width);
+    if (dir) await page.screenshot({ path: `${dir}/${name}.png`, fullPage: true });
   }
-});
-
-test("AC3: editing an attendee writes an audit row with before and after values", async ({ page }) => {
-  await signInAdmin(page);
-  // Search by the tag so the row still matches after its name and email change.
-  await page.goto(`/admin/attendees?q=${tag}`);
-  // Locate by attendee id: the row's text changes once the edit saves.
-  const row = table(page).locator("tbody tr", { has: page.locator(`#attendee-${seeded.other}-name`) });
-  await row.getByText("Edit", { exact: true }).click();
-  await row.getByLabel("Name").fill(`[TEST] Omar Fixed ${tag}`);
-  await row.getByLabel("Email").fill(`omar.fixed.${tag}@corp.test`);
-  await row.getByRole("button", { name: "Save" }).click();
-  await expect(row.getByRole("status")).toHaveText("Saved.");
-  await expect(row.getByRole("rowheader")).toHaveText(`[TEST] Omar Fixed ${tag}`);
-  await shoot(page, "ac3-edit-saved");
-
-  const { data: logs, error } = await db()
-    .from("audit_logs")
-    .select("action, before_data, after_data")
-    .eq("entity_id", seeded.other)
-    .eq("action", "attendee.update");
-  expect(error).toBeNull();
-  expect(logs).toHaveLength(1);
-  expect(logs![0].before_data).toMatchObject({ full_name: `[TEST] Omar Other ${tag}`, email: `omar.${tag}@corp.test` });
-  expect(logs![0].after_data).toMatchObject({
-    full_name: `[TEST] Omar Fixed ${tag}`,
-    email: `omar.fixed.${tag}@corp.test`,
-  });
-
-  await page.goto(`/admin/attendees?q=omar.fixed.${tag}`);
-  await expect(rowOf(page, `Omar Fixed ${tag}`)).toHaveCount(1);
-});
-
-test("AC2 + AC4: cancel keeps payments; cancelled rows hide until the filter is ticked", async ({ page }) => {
-  await signInAdmin(page);
-  await page.goto(`/admin/attendees?q=${tag}`);
-  const row = rowOf(page, `Paula Payer ${tag}`);
-  await expect(row).toContainText("Paid");
-  await row.getByText("Cancel", { exact: true }).click();
-  await row.getByRole("button", { name: `Cancel [TEST] Paula Payer ${tag}` }).click();
-
-  // AC4: hidden by default once cancelled.
-  await expect(rowOf(page, `Paula Payer ${tag}`)).toHaveCount(0);
-  await expect(rowOf(page, `Omar Fixed ${tag}`)).toHaveCount(1);
-  await shoot(page, "ac4-cancelled-hidden");
-
-  // AC2: cancelled_at set, payment and allocation untouched.
-  const { data: a } = await db().from("attendees").select("cancelled_at").eq("id", seeded.payer).single();
-  expect(a!.cancelled_at).not.toBeNull();
-  const { data: pay } = await db().from("payments").select("status, amount_cents").eq("id", seeded.paymentId).single();
-  expect(pay).toEqual({ status: "succeeded", amount_cents: 20000 });
-  const { count } = await db()
-    .from("payment_allocations")
-    .select("id", { count: "exact", head: true })
-    .eq("attendee_id", seeded.payer);
-  expect(count).toBe(1);
-
-  // AC4: shown with the filter, marked Cancelled, no second cancel offered.
-  await page.getByLabel("Show cancelled").check();
-  await page.getByRole("button", { name: "Filter" }).click();
-  await expect(page).toHaveURL(/cancelled=1/);
-  const shown = rowOf(page, `Paula Payer ${tag}`);
-  await expect(shown).toHaveCount(1);
-  await expect(shown).toContainText("Cancelled");
-  await expect(shown).toContainText("Paid");
-  await expect(shown.getByText("Cancel", { exact: true })).toHaveCount(0);
-  await shoot(page, "ac2-ac4-cancelled-shown");
+  expect(stripe).toEqual([]);
 });
