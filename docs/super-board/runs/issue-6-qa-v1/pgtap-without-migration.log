@@ -1,0 +1,125 @@
+### row_level_security_edges_test.sql
+1..20
+{"sub":"00000000-0000-0000-0000-000000000702","role":"authenticated"}
+not ok 1 - a sponsor sees only their own sponsorships
+# Failed test 1: "a sponsor sees only their own sponsorships"
+#     Results differ beginning at row 1:
+#         have: NULL
+#         want: (00000000-0000-0000-0000-000000000731)
+not ok 2 - a sponsor cannot read another sponsor's table or invite token hash
+# Failed test 2: "a sponsor cannot read another sponsor's table or invite token hash"
+#     Results differ beginning at row 1:
+#         have: NULL
+#         want: (hash-edge-1)
+not ok 3 - a sponsor sees only the registrations on their own table
+# Failed test 3: "a sponsor sees only the registrations on their own table"
+#     Results differ beginning at row 1:
+#         have: NULL
+#         want: (00000000-0000-0000-0000-000000000751)
+not ok 4 - attendee_payment_status shows a sponsor only their own table's attendees
+# Failed test 4: "attendee_payment_status shows a sponsor only their own table's attendees"
+#     Results differ beginning at row 1:
+#         have: NULL
+#         want: (00000000-0000-0000-0000-000000000761)
+ok 5 - a sponsor cannot see payment allocations
+ok 6 - a sponsor cannot read the audit log
+not ok 7 - a sponsor sees only their own profile, not their guests' or others'
+# Failed test 7: "a sponsor sees only their own profile, not their guests' or others'"
+#     Results differ beginning at row 1:
+#         have: NULL
+#         want: (00000000-0000-0000-0000-000000000702)
+{"sub":"00000000-0000-0000-0000-000000000704","role":"authenticated"}
+not ok 8 - a guest sees only the registrations they made
+# Failed test 8: "a guest sees only the registrations they made"
+#     Results differ beginning at row 1:
+#         have: NULL
+#         want: (00000000-0000-0000-0000-000000000751)
+ok 9 - a guest cannot see another guest's payment
+ok 10 - a guest cannot see another guest's payment allocation
+not ok 11 - a guest sees only their own profile
+# Failed test 11: "a guest sees only their own profile"
+#     Results differ beginning at row 1:
+#         have: NULL
+#         want: (00000000-0000-0000-0000-000000000704)
+{"sub":"00000000-0000-0000-0000-000000000705","role":"authenticated"}
+not ok 12 - a guest sees the allocation of their own payment
+# Failed test 12: "a guest sees the allocation of their own payment"
+#     Results differ beginning at row 1:
+#         have: NULL
+#         want: (00000000-0000-0000-0000-000000000763)
+{"sub":"00000000-0000-0000-0000-000000000701","role":"authenticated"}
+not ok 13 - an admin reads the audit log
+# Failed test 13: "an admin reads the audit log"
+#         have: 0
+#         want: 1
+ok 14 - an admin session cannot insert into payments from the client
+ok 15 - an admin session cannot grant roles from the client
+not ok 16 - an admin session cannot update a payment from the client
+# Failed test 16: "an admin session cannot update a payment from the client"
+#       caught: no exception
+#       wanted: 42501
+{"sub":"00000000-0000-0000-0000-000000000704","role":"authenticated"}
+ok 17 - a guest cannot see a draft event
+ok 18 - a guest cannot see a draft event's tiers
+{"sub":"00000000-0000-0000-0000-000000000701","role":"authenticated"}
+not ok 19 - an admin sees the draft event
+# Failed test 19: "an admin sees the draft event"
+#         have: 0
+#         want: 1
+{"role":"anon"}
+ok 20 - anon reads no events
+# Looks like you failed 11 tests of 20
+### row_level_security_test.sql
+1..20
+ok 1 - the public schema holds the gala tables
+ok 2 - every public table has row level security enabled
+{"sub":"00000000-0000-0000-0000-000000000602","role":"authenticated"}
+not ok 3 - a sponsor selects only the attendees on their own table
+# Failed test 3: "a sponsor selects only the attendees on their own table"
+#     Results differ beginning at row 1:
+#         have: NULL
+#         want: ("Table One Guest")
+ok 4 - a sponsor cannot select another sponsor's attendee
+not ok 5 - a sponsor sees only their own sponsor row
+# Failed test 5: "a sponsor sees only their own sponsor row"
+#     Results differ beginning at row 1:
+#         have: NULL
+#         want: (Acme)
+ok 6 - a sponsor cannot see their guests' payments
+not ok 7 - a sponsor sees only their own roles
+# Failed test 7: "a sponsor sees only their own roles"
+#     Results differ beginning at row 1:
+#         have: NULL
+#         want: (sponsor)
+ok 8 - an authenticated client cannot insert into payments
+ok 9 - an authenticated client cannot grant itself a role
+ok 10 - an authenticated client cannot insert attendees directly
+{"role":"anon"}
+ok 11 - an anon client cannot insert into payments
+ok 12 - an anon client cannot insert into user_roles
+ok 13 - anon sees no attendees
+{"sub":"00000000-0000-0000-0000-000000000604","role":"authenticated"}
+not ok 14 - a guest selects only the attendees of registrations they made
+# Failed test 14: "a guest selects only the attendees of registrations they made"
+#     Results differ beginning at row 1:
+#         have: NULL
+#         want: ("Table One Guest")
+not ok 15 - a guest sees the payment for their own registration
+# Failed test 15: "a guest sees the payment for their own registration"
+#     Results differ beginning at row 1:
+#         have: NULL
+#         want: (00000000-0000-0000-0000-000000000671)
+ok 16 - a guest cannot see sponsor rows
+{"sub":"00000000-0000-0000-0000-000000000601","role":"authenticated"}
+not ok 17 - an admin selects every attendee of the active event
+# Failed test 17: "an admin selects every attendee of the active event"
+#     Results differ beginning at row 1:
+#         have: NULL
+#         want: ("Table One Guest")
+not ok 18 - an admin sees every sponsor
+# Failed test 18: "an admin sees every sponsor"
+#         have: 0
+#         want: 2
+ok 19 - no client session reads stripe_webhook_events
+ok 20 - the sponsor's client-side update changed nothing
+# Looks like you failed 7 tests of 20
