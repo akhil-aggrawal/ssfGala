@@ -369,7 +369,9 @@ isOneToOne: false
                 }
           }
           Functions: {
-            [_ in never]: never
+            "save_gala_setup":
+{ Args: { "p_actor_id": string,"p_event": Json,"p_event_id"?: string,"p_tiers": Json }; Returns: string
+                           }
           }
           Enums: {
             [_ in never]: never
