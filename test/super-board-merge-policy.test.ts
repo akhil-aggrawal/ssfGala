@@ -82,6 +82,21 @@ describe("super-board-merge-policy: keyword_exclude", () => {
     expect(out.map((h) => h.category).sort()).toEqual(["auth", "schema"]);
   });
 
+  it("does not let a +++ content line inside a hunk relabel a src file as a test file", () => {
+    // Adding the line "++ b/e2e/x.spec.ts" to src shows up in the diff as "+++ b/e2e/x.spec.ts".
+    const out = holds([{ path: "src/lib/admin.ts", added: ["++ b/e2e/x.spec.ts", serviceRole] }]);
+    expect(out.map((h) => h.category)).toContain("auth");
+  });
+
+  it("checks each hunk of a multi-file diff against its own file", () => {
+    const out = holds([
+      { path: "src/lib/admin.ts", added: ["harmless"] },
+      { path: "e2e/seed.spec.ts", added: [serviceRole] },
+      { path: "scripts/reset.sql", added: [dropTable] },
+    ]);
+    expect(out.map((h) => h.category)).toEqual(["schema"]);
+  });
+
   it("still holds on labels and paths when every file matches keyword_exclude", () => {
     expect(holds([{ path: "e2e/a.spec.ts", added: ["x"] }], { labels: ["auth"] })).toEqual([
       { category: "auth", why: "label auth" },

@@ -1,0 +1,7 @@
+PR #83 head fe4b876, ssfgala config
+new: {"human": [], "migrations": [], "run": [], "needs_you": [], "done": false}
+old (staging bb3f8d1): {"human": [{"category": "auth", "why": "keyword \"service_role\" in an added line"}, {"category": "schema", "why": "keyword \"drop table\" in an added line"}], "migrations": [], "run": [], "needs_you": [], "done": false}
+
+PR #79 diff (4b883aa..bb3f8d1), ssfgala config
+new: {"human": [], "migrations": [], "run": [], "needs_you": [], "done": false}
+old: {"human": [{"category": "auth", "why": "keyword \"service_role\" in an added line"}], "migrations": [], "run": [], "needs_you": [], "done": false}
