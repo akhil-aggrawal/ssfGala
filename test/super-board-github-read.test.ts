@@ -9,18 +9,25 @@ const helper = fileURLToPath(
   new URL("../.claude/bin/super-board-github-read.py", import.meta.url),
 );
 
-// Runs the helper against a fake `gh` that prints `stderr` and exits `rc`.
-function runRead(args: string[], stderr: string, rc: number, env: Record<string, string> = {}) {
+// Runs the helper against a fake `gh` that prints `stdout` and `stderr` and exits `rc`.
+function runRead(
+  args: string[],
+  stderr: string,
+  rc: number,
+  env: Record<string, string> = {},
+  { kind = "json", stdout = "" }: { kind?: string; stdout?: string } = {},
+) {
   const dir = mkdtempSync(join(tmpdir(), "gh-read-"));
   const calls = join(dir, "calls");
   writeFileSync(join(dir, "stderr.txt"), stderr);
+  writeFileSync(join(dir, "stdout.txt"), stdout);
   writeFileSync(
     join(dir, "gh"),
-    `#!/bin/sh\necho x >> "${calls}"\ncat "${join(dir, "stderr.txt")}" >&2\nexit ${rc}\n`,
+    `#!/bin/sh\necho x >> "${calls}"\ncat "${join(dir, "stdout.txt")}"\ncat "${join(dir, "stderr.txt")}" >&2\nexit ${rc}\n`,
   );
   chmodSync(join(dir, "gh"), 0o755);
   const haltFile = join(dir, "github-halt.json");
-  const result = spawnSync("python3", [helper, "--kind", "json", "--", ...args], {
+  const result = spawnSync("python3", [helper, "--kind", kind, "--", ...args], {
     encoding: "utf8",
     env: {
       ...process.env,
@@ -98,5 +105,69 @@ describe("super-board-github-read: outages still halt", () => {
     // fake gh prints no stdout, so the read fails its JSON shape: retried, never treated as a usage error
     expect(run.attempts).toBe(3);
     expect(run.stderr).not.toContain("gh rejected the command");
+  });
+});
+
+const quotaText = ["api", "rate_limit", "--jq", '"graphql=\\(.resources.graphql.remaining)"'];
+const placeholderQuery = [
+  "api",
+  "graphql",
+  "-f",
+  'query=query{repository(owner:"{owner}",name:"{repo}"){pullRequest(number:66){title}}}',
+];
+const unresolved = "GraphQL: Could not resolve to a Repository with the name '{owner}/{repo}'. (repository)\n";
+const quota = { kind: "quota" };
+
+describe("super-board-github-read: malformed reads of any kind fail only that call", () => {
+  it("exits 64 on the first attempt when --kind quota gets plain text from --jq, without a halt file", () => {
+    const run = runRead(quotaText, "", 0, {}, { ...quota, stdout: "graphql=4000\n" });
+    expect(run).toMatchObject({ status: 64, attempts: 1, halted: false });
+    expect(run.stderr).toContain("--kind quota");
+  });
+
+  it("exits 64 on the first attempt for a gh usage error on a kind not in FORMS, without a halt file", () => {
+    const run = runRead(["api", "rate_limit", "--bogus"], unknownFlag, 1, {}, quota);
+    expect(run).toMatchObject({ status: 64, attempts: 1, halted: false });
+    expect(run.stderr).toContain("--kind quota");
+  });
+
+  it("exits 64 for a graphql query with literal {owner}/{repo}, before asking GitHub, without a halt file", () => {
+    const run = runRead(placeholderQuery, unresolved, 1);
+    expect(run).toMatchObject({ status: 64, attempts: 0, halted: false });
+    expect(run.stderr).toContain("{owner}");
+  });
+
+  it("still halts on the first attempt for real auth and permission errors", () => {
+    const query = ["api", "graphql", "-f", 'query=query{repository(owner:"o",name:"r"){id}}'];
+    const auth = "HTTP 401: Bad " + "credentials (https://api.github.com/graphql)\n";
+    const permission = "GraphQL: Resource not accessible by integration\n";
+    expect(runRead(query, auth, 1)).toMatchObject({ status: 79, attempts: 1, halted: true });
+    expect(runRead(query, permission, 1)).toMatchObject({ status: 79, attempts: 1, halted: true });
+  });
+
+  it("still halts with exit 79 under SB_GITHUB_READ_STRICT=1", () => {
+    const strict = { SB_GITHUB_READ_STRICT: "1" };
+    const plain = { ...quota, stdout: "graphql=1\n" };
+    expect(runRead(quotaText, "", 0, strict, plain)).toMatchObject({ status: 79, halted: true });
+    expect(runRead(["api", "rate_limit", "--bogus"], unknownFlag, 1, strict, quota)).toMatchObject({
+      status: 79,
+      halted: true,
+    });
+    expect(runRead(placeholderQuery, unresolved, 1, strict)).toMatchObject({ status: 79, halted: true });
+  });
+
+  it("retries an HTTP 5xx on a kind not in FORMS three times, then exits 79 with a halt file", () => {
+    const run = runRead(["api", "rate_limit"], "HTTP 502: Bad Gateway (https://api.github.com/rate_limit)\n", 1, {}, quota);
+    expect(run).toMatchObject({ status: 79, attempts: 3, halted: true });
+  });
+
+  it("retries a timeout on a kind not in FORMS three times, then exits 79 with a halt file", () => {
+    const timeout =
+      'Get "https://api.github.com/rate_limit": context deadline exceeded (Client.Timeout exceeded while awaiting headers)\n';
+    expect(runRead(["api", "rate_limit"], timeout, 1, {}, quota)).toMatchObject({
+      status: 79,
+      attempts: 3,
+      halted: true,
+    });
   });
 });

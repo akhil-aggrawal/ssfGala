@@ -5,12 +5,15 @@ A logical read gets three total attempts. Success resets its own sequence; other
 reads cannot reset it. Permanent query/auth errors stop on the first attempt.
 The halt file is shared through the main checkout, including linked worktrees.
 Only an explicit new run clears it with --resume after preserving the old reason.
-Mutations never enter this retry helper. For the agent-facing kinds in FORMS, a
-payload that fails its shape on every attempt is the caller's malformed read, not
-an outage: that call exits 64 with the valid form and the run keeps going. Scripts
-whose commands are fixed set SB_GITHUB_READ_STRICT=1 to keep halting on it.
-The same holds for a command gh rejects locally before sending any request (an
-unknown --json field, flags that cannot be combined): exit 64 on the first attempt.
+Mutations never enter this retry helper. For every kind, a payload that fails its
+shape on every attempt is the caller's malformed read, not an outage: that call
+exits 64 (quoting the valid form from FORMS when there is one) and the run keeps
+going. Plain text from --jq/--template where JSON is needed, a command gh rejects
+locally before sending any request (an unknown --json field, flags that cannot be
+combined), and a GraphQL query with literal {owner}/{repo} exit 64 on the first
+attempt. Scripts whose commands are fixed set SB_GITHUB_READ_STRICT=1 to keep
+halting on all of these. Network, auth, permission and rate-limit failures retry
+and halt as before.
 """
 from __future__ import annotations
 
@@ -282,9 +285,32 @@ def validate(text, kind, meta=None):
     return value
 
 
+def caller_error(why, kind):
+    """The caller's malformed read: this call fails (exit 64), the run continues."""
+    form = f'Valid form: --kind {kind} -- {FORMS[kind]}' if kind in FORMS else f'fix this --kind {kind} read'
+    return ValueError(f'{why}; this call failed, the run continues. {form}')
+
+
+def strict():
+    return bool(os.environ.get('SB_GITHUB_READ_STRICT'))
+
+
+def placeholder_query(args):
+    # gh fills {owner}/{repo} only in a REST path; in a GraphQL query GitHub gets them literally.
+    return 'graphql' in args and any(a.startswith('query=') and re.search(r'\{(?:owner|repo|branch)\}', a) for a in args)
+
+
+def plain_jq_output(args, error):
+    # --jq/--template output is computed from the whole response, so plain text never heals on retry.
+    return isinstance(error, json.JSONDecodeError) and any(
+        a in ('--jq', '-q', '--template', '-t') or a.startswith(('--jq=', '--template=')) for a in args)
+
+
 def read(args, kind='json', meta=None, recovering=False):
     if not read_only(args):
         raise ValueError('retry helper accepts read-only GitHub commands only')
+    if placeholder_query(args) and not strict():
+        raise caller_error('GraphQL query contains literal {owner}/{repo}/{branch}; pass owner and name as -F variables', kind)
     if not recovering:
         check_halt()
     operation = {'args': args, 'kind': kind, 'meta': meta}
@@ -300,9 +326,8 @@ def read(args, kind='json', meta=None, recovering=False):
             usage = usage_error(result.stderr) if result.returncode else None
             if usage:
                 # Retrying cannot help: gh refused the command itself, GitHub was never asked.
-                if kind in FORMS and not os.environ.get('SB_GITHUB_READ_STRICT'):
-                    raise ValueError(f'gh rejected the command before sending it: {usage}; '
-                                     f'this call failed, the run continues. Valid form: --kind {kind} -- {FORMS[kind]}')
+                if not strict():
+                    raise caller_error(f'gh rejected the command before sending it: {usage}', kind)
                 halt(f'gh rejected a required read before sending it: {usage}; fix the command before restarting', attempt, operation)
             if result.returncode:
                 diagnostic += result.stdout
@@ -327,14 +352,16 @@ def read(args, kind='json', meta=None, recovering=False):
                 except (ValueError, KeyError, TypeError, AttributeError, IndexError) as error:
                     last = f'GitHub required read returned incomplete evidence: {error}'
                     shape_only = shape_only and not isinstance(error, GitHubErrors)
+                    if shape_only and plain_jq_output(args, error) and not strict():
+                        raise caller_error(f'--kind {kind} needs JSON but --jq/--template printed plain text ({error})', kind)
         except (OSError, subprocess.SubprocessError):
             shape_only = False
             last = 'GitHub required read timed out or could not start'
         if attempt < 3:
             print(f'[github-read] {last}; retry {attempt + 1}/3', file=sys.stderr)
             time.sleep(max(0, delay) * attempt)
-    if shape_only and kind in FORMS and not os.environ.get('SB_GITHUB_READ_STRICT'):
-        raise ValueError(f'{last}; this call failed, the run continues. Valid form: --kind {kind} -- {FORMS[kind]}')
+    if shape_only and not strict():
+        raise caller_error(f'{last} (--kind {kind})', kind)
     halt(f'{last}; stopped after 3 failed attempts', 3, operation)
 
 
