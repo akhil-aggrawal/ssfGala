@@ -1,0 +1,17 @@
+
+ RUN  v5.0.5 /Users/akhil/myapps/ssfGala/.claude/worktrees/issue-75-qa
+
+ ✓ test/super-board-approval-link.test.ts > super-board-approval links a held PR to its issue > links a PR into a non-default base through a Closes line in its body 628ms
+ ✓ test/super-board-approval-link.test.ts > super-board-approval links a held PR to its issue > accepts Fixes and a same-repository owner/repo#N reference 1250ms
+ ✓ test/super-board-approval-link.test.ts > super-board-approval links a held PR to its issue > keeps a PR into a non-default base with no closing line unlinked 511ms
+ ✓ test/super-board-approval-link.test.ts > super-board-approval links a held PR to its issue > does not link an issue from another repository 560ms
+ ✓ test/super-board-approval-link.test.ts > super-board-approval links a held PR to its issue > matches full issue numbers only 1151ms
+ ✓ test/super-board-approval-link.test.ts > super-board-approval links a held PR to its issue > matches keywords in any case with an optional colon, but not inside another word 1941ms
+ ✓ test/super-board-approval-link.test.ts > super-board-approval links a held PR to its issue > does not link a repository whose name only starts like this one 1221ms
+ ✓ test/super-board-approval-link.test.ts > super-board-approval links a held PR to its issue > uses closingIssuesReferences only for a PR into the default branch 1194ms
+
+ Test Files  1 passed (1)
+      Tests  8 passed (8)
+   Start at  12:01:39
+   Duration  8.64s (tests 100%)
+

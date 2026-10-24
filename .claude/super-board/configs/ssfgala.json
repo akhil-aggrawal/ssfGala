@@ -113,8 +113,12 @@
       "staging"
     ],
     "target_env": "staging",
-    "commands": {},
-    "checks": {},
+    "commands": {
+      "staging": "supabase db push --yes --db-url \"${STAGING_DB_URL:-$(set -a; . /Users/akhil/myapps/ssfGala/.env; printf %s \"$STAGING_DB_URL\")}\""
+    },
+    "checks": {
+      "staging": "supabase migration list --db-url \"${STAGING_DB_URL:-$(set -a; . /Users/akhil/myapps/ssfGala/.env; printf %s \"$STAGING_DB_URL\")}\""
+    },
     "human_steps": []
   },
   "no_progress_cycles": 6,
@@ -124,9 +128,10 @@
   "usage_pause_pct": 95,
   "usage_fallback": "none",
   "verify_commands": [
-    "npm ci --silent && npm run verify"
+    "npm ci --silent && npm run verify",
+    "supabase db reset"
   ],
-  "max_workers": 0,
+  "max_workers": 2,
   "rebuild_cap": 2,
   "block_rate_alert_pct": 30,
   "collect": {

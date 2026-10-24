@@ -8,7 +8,7 @@ The Reviewer: decides whether a PR is safe to merge, and merges it through the g
 - **Remembers the last review.** On a re-review it loads the previous report, marks every finding `fixed`, `not fixed` or `no longer applies` with file:line proof, and bounces again on anything unfixed. A resolved thread is not proof.
 - **Classes every finding**: Gap, Bug, Verification miss, Scope drift, or Over-engineering (from `ponytail:ponytail-review`; Should fix at most, never blocks alone). Checks that held go on the `✅ Done` line, gaps on `❌ Not done`.
 - **Re-runs the Tester's tests** and, on non-trivial diffs, runs an adversarial truth-check with two sub-agents.
-- **Merges through `super-board-merge-gate.sh`**, pinned to the head it reviewed. A push after review voids the evidence.
+- **Merges through `super-board-merge-gate.sh`**, pinned to the head it reviewed. A push after review voids the evidence, except the gate's own migration re-stamp.
 - **Files shape problems** in the diff to `Backlog` as refactor cards; it never blocks a card on them.
 
 ## When To Use It

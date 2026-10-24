@@ -1,0 +1,17 @@
+Connecting to local database...
+append_only_history_test.sql ............ ok
+audit_log_writer_test.sql ............... ok
+events_tiers_edges_test.sql ............. ok
+events_tiers_test.sql ................... ok
+payments_allocations_edges_test.sql ..... ok
+payments_allocations_test.sql ........... ok
+registrations_attendees_edges_test.sql .. ok
+registrations_attendees_test.sql ........ ok
+row_level_security_edges_test.sql ....... ok
+row_level_security_test.sql ............. ok
+save_gala_setup_test.sql ................ ok
+sponsors_tables_edges_test.sql .......... ok
+sponsors_tables_test.sql ................ ok
+All tests successful.
+Files=13, Tests=173,  1 wallclock secs ( 0.15 usr  0.03 sys +  0.21 cusr  0.13 csys =  0.52 CPU)
+Result: PASS

@@ -590,6 +590,107 @@ a:focus-visible {
   outline-offset: 2px;
 }
 
+/* Attendee details and order review. */
+.tickets__summary {
+  margin-top: 1rem;
+  color: var(--amber);
+}
+
+.tickets__summary a {
+  color: inherit;
+}
+
+.attendee {
+  display: grid;
+  gap: 0.25rem;
+  margin: 0 0 1.25rem;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.attendee legend {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.attendee__field {
+  display: grid;
+  gap: 0.25rem;
+  margin-top: 0.5rem;
+}
+
+.attendee__field input {
+  min-height: 2.75rem;
+  padding: 0.5rem;
+  border: 1px solid #555;
+  border-radius: 0.25rem;
+  background: #fff;
+  color: #111;
+  font: inherit;
+}
+
+.attendee__field input[aria-invalid="true"] {
+  border: 2px solid #b00020;
+}
+
+.attendee__error,
+.ticket-form__error {
+  margin: 0.25rem 0 0;
+  color: #b00020;
+  font-weight: 600;
+}
+
+.ticket-form__error {
+  margin-bottom: 1rem;
+}
+
+.ticket-form__continue:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.ticket-review h2 {
+  margin: 1.25rem 0 0.5rem;
+  font-size: 1.125rem;
+}
+
+.ticket-review__facts {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.25rem 1rem;
+  margin: 0;
+}
+
+.ticket-review__facts dt {
+  font-weight: 600;
+}
+
+.ticket-review__facts dd {
+  margin: 0;
+}
+
+.ticket-review__attendees {
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+.ticket-review__email {
+  color: #444;
+  overflow-wrap: anywhere;
+}
+
+.ticket-review__pay {
+  margin-top: 1rem;
+}
+
+.ticket-review__edit {
+  display: inline-block;
+  margin-top: 1rem;
+  color: #111;
+  font-weight: 600;
+}
+
 .admin-table-wrap {
   overflow-x: auto;
 }
@@ -683,4 +784,241 @@ a:focus-visible {
 .receipt-list summary:focus-visible {
   outline: 3px solid #1a56db;
   outline-offset: 2px;
+}
+
+/* Sponsor pledge: poster heading, high-contrast form. */
+.pledge {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 3rem 1rem;
+}
+
+.pledge h1 {
+  color: var(--gold);
+  font-size: 2.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.pledge__lede,
+.pledge__note {
+  color: var(--muted);
+}
+
+.pledge__form,
+.pledge__confirm {
+  margin-top: 1.5rem;
+  padding: 1.25rem 1rem;
+  background: #fff;
+  color: #111;
+  border-radius: 0.5rem;
+}
+
+.pledge__form h2,
+.pledge__confirm h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.pledge__confirm h3 {
+  font-size: 1.25rem;
+  margin: 1.25rem 0 0.25rem;
+}
+
+.pledge__form fieldset {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.pledge__tiers {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.pledge__tiers th,
+.pledge__tiers td {
+  padding: 0.35rem 0.5rem 0.35rem 0;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.pledge__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.25rem;
+  margin-top: 1.25rem;
+}
+
+.pledge__grid label {
+  font-weight: 600;
+  margin-top: 0.5rem;
+}
+
+.pledge__form input,
+.pledge__links input {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.5rem;
+  border: 1px solid #555;
+  border-radius: 0.25rem;
+  background: #fff;
+  color: #111;
+  font: inherit;
+}
+
+.pledge__tiers input {
+  max-width: 5.5rem;
+}
+
+.pledge__form input:focus-visible,
+.pledge__links input:focus-visible,
+.pledge__submit:focus-visible {
+  outline: 3px solid #1a56db;
+  outline-offset: 2px;
+}
+
+.pledge__total {
+  margin: 1.25rem 0 0;
+}
+
+.pledge__submit {
+  margin-top: 1rem;
+  min-height: 2.75rem;
+  padding: 0.5rem 1.5rem;
+  border: 0;
+  border-radius: 0.25rem;
+  background: #111;
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.pledge__error {
+  color: #a00d0d;
+  font-weight: 600;
+}
+
+.pledge__links {
+  display: grid;
+  gap: 0.75rem;
+  padding-left: 1.25rem;
+}
+
+.pledge__links li span {
+  display: block;
+  font-weight: 600;
+}
+
+/* Sponsor dashboard: high-contrast cards, one per table. */
+.sponsor-dash {
+  max-width: 60rem;
+  margin: 0 auto;
+  padding: 3rem 1rem;
+}
+
+.sponsor-dash h1 {
+  color: var(--gold);
+  font-size: 2.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.sponsor-dash__lede {
+  color: var(--muted);
+}
+
+.sponsor-dash__cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sponsor-dash__card,
+.sponsor-dash__empty {
+  padding: 1.25rem 1rem;
+  background: #fff;
+  color: #111;
+  border-radius: 0.5rem;
+}
+
+.sponsor-dash__empty {
+  margin-top: 1.5rem;
+}
+
+.sponsor-dash__card h2,
+.sponsor-dash__empty h2 {
+  font-size: 1.35rem;
+  margin-bottom: 0.5rem;
+}
+
+.sponsor-dash__empty p {
+  margin-bottom: 1rem;
+}
+
+.sponsor-dash__count {
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+.sponsor-dash__card summary {
+  min-height: 2.75rem;
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.sponsor-dash__card summary:focus-visible {
+  outline: 3px solid #1a56db;
+  outline-offset: 2px;
+}
+
+.sponsor-dash__guests {
+  display: grid;
+  gap: 0.35rem;
+  padding-left: 1.25rem;
+  overflow-wrap: anywhere;
+}
+
+.sponsor-dash__email {
+  display: block;
+  color: #444;
+  font-size: 0.9rem;
+}
+
+/* Table invite landing */
+.invite {
+  max-width: 36rem;
+  margin: 0 auto;
+  padding: 4rem 1rem;
+  text-align: center;
+}
+
+.invite h1 {
+  color: var(--gold);
+  font-family: var(--font-serif);
+  font-size: 2.25rem;
+  margin-bottom: 1rem;
+}
+
+.invite__sponsor,
+.invite__tier strong {
+  color: var(--gold);
+}
+
+.invite__closed {
+  color: var(--amber);
+  font-weight: 600;
+}
+
+.invite__signin .button {
+  margin-top: 0.5rem;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
 }

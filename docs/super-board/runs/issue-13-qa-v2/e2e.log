@@ -1,0 +1,10 @@
+
+Running 3 tests using 1 worker
+
+  ✓  1 [chromium] › e2e/checkout-qa.spec.ts:99:5 › review shows Pay with Stripe under the server total, and the form sends no amount (1.7s)
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+[WebServer] {"level":"error","msg":"ticket checkout failed","time":"2026-10-24T20:40:12.962Z","userId":"0c44ecd1-12f8-4f60-a722-b1e9ad6b2df1","error":"Error: Invalid API Key provided: sk_test_****cted"}
+  ✓  2 [chromium] › e2e/checkout-qa.spec.ts:114:5 › when Stripe refuses, the buyer sees a plain error, stays on review, and no payment is stored (1.3s)
+  ✓  3 [chromium] › e2e/checkout-qa.spec.ts:126:5 › AC4: opening and reloading the success URL changes nothing (1.2s)
+
+  3 passed (13.7s)

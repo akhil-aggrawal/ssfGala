@@ -1,0 +1,29 @@
+
+ RUN  v5.0.5 /Users/akhil/myapps/ssfGala/.claude/worktrees/issue-13-qa
+
+ ❯ src/lib/tickets/checkout.db.test.ts (8 tests | 1 failed | 6 skipped) 443ms
+   ❯ startTicketCheckout on a real database (issue #13 QA) (8)
+     × R1: a failed payment insert then a changed order still reaches Stripe (no idempotency lockout) 159ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/lib/tickets/checkout.db.test.ts > startTicketCheckout on a real database (issue #13 QA) > R1: a failed payment insert then a changed order still reaches Stripe (no idempotency lockout)
+Error: idempotency_error: same key, other params
+ ❯ Object.create src/lib/tickets/checkout.db.test.ts:36:41
+     34|       const seen = byKey.get(key);
+     35|       if (seen) {
+     36|         if (seen.params !== body) throw new Error("idempotency_error: …
+       |                                         ^
+     37|         return sessions.get(seen.id)!;
+     38|       }
+ ❯ startTicketCheckout src/lib/tickets/checkout.ts:85:32
+ ❯ src/lib/tickets/checkout.db.test.ts:273:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 passed | 6 skipped (8)
+   Start at  13:39:02
+   Duration  695ms (tests 83%, import 9%, transform 7%, worker 1%)
+

@@ -378,6 +378,9 @@ isOneToOne: false
 "is_admin":
 { Args: Record<PropertyKey, never>; Returns: boolean
                            },
+"pledge_sponsorship":
+{ Args: { "p_display_name": string,"p_email": string,"p_event_id": string,"p_tables": Json,"p_token_hashes": string[],"p_user_id": string }; Returns: Json
+                           },
 "record_audit_log":
 { Args: { "p_action": string,"p_actor_id": string,"p_after_data": Json,"p_before_data": Json,"p_entity_id": string,"p_entity_type": string,"p_event_id": string }; Returns: number
                            },
@@ -386,6 +389,9 @@ isOneToOne: false
                            },
 "save_gala_setup":
 { Args: { "p_actor_id": string,"p_event": Json,"p_event_id"?: string,"p_tiers": Json }; Returns: string
+                           },
+"save_pending_ticket_order":
+{ Args: { "p_attendees": Json,"p_tier_name": string,"p_user_id": string }; Returns: string
                            }
           }
           Enums: {

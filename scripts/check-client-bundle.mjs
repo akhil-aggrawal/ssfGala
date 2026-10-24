@@ -4,7 +4,7 @@ import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-export const SERVER_ONLY_NAMES = ["SUPABASE_SERVICE_ROLE_KEY"];
+export const SERVER_ONLY_NAMES = ["SUPABASE_SERVICE_ROLE_KEY", "STRIPE_SECRET_KEY", "STRIPE_WEBHOOK_SECRET"];
 
 function* files(dir) {
   for (const entry of readdirSync(dir)) {
