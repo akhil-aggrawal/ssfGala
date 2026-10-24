@@ -590,6 +590,103 @@ a:focus-visible {
   outline-offset: 2px;
 }
 
+/* Attendee details and order review. */
+.tickets__summary {
+  margin-top: 1rem;
+  color: var(--amber);
+}
+
+.tickets__summary a {
+  color: inherit;
+}
+
+.attendee {
+  display: grid;
+  gap: 0.25rem;
+  margin: 0 0 1.25rem;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.attendee legend {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.attendee__field {
+  display: grid;
+  gap: 0.25rem;
+  margin-top: 0.5rem;
+}
+
+.attendee__field input {
+  min-height: 2.75rem;
+  padding: 0.5rem;
+  border: 1px solid #555;
+  border-radius: 0.25rem;
+  background: #fff;
+  color: #111;
+  font: inherit;
+}
+
+.attendee__field input[aria-invalid="true"] {
+  border: 2px solid #b00020;
+}
+
+.attendee__error,
+.ticket-form__error {
+  margin: 0.25rem 0 0;
+  color: #b00020;
+  font-weight: 600;
+}
+
+.ticket-form__error {
+  margin-bottom: 1rem;
+}
+
+.ticket-form__continue:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.ticket-review h2 {
+  margin: 1.25rem 0 0.5rem;
+  font-size: 1.125rem;
+}
+
+.ticket-review__facts {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.25rem 1rem;
+  margin: 0;
+}
+
+.ticket-review__facts dt {
+  font-weight: 600;
+}
+
+.ticket-review__facts dd {
+  margin: 0;
+}
+
+.ticket-review__attendees {
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+.ticket-review__email {
+  color: #444;
+  overflow-wrap: anywhere;
+}
+
+.ticket-review__edit {
+  display: inline-block;
+  margin-top: 1rem;
+  color: #111;
+  font-weight: 600;
+}
+
 .admin-table-wrap {
   overflow-x: auto;
 }
