@@ -1,0 +1,28 @@
+
+Running 23 tests using 1 worker
+
+  ✓   1 [chromium] › e2e/tickets-qa.spec.ts:60:7 › AC4: every not-open state shows the closed message › a closed gala shows the closed message and no Continue (681ms)
+  ✓   2 [chromium] › e2e/tickets-qa.spec.ts:72:7 › AC4: every not-open state shows the closed message › no active gala at all shows the closed message, not an error (262ms)
+  ✓   3 [chromium] › e2e/tickets-qa.spec.ts:84:7 › AC4: every not-open state shows the closed message › a sale that closes before Continue sends the buyer back to the closed page (552ms)
+  ✓   4 [chromium] › e2e/tickets-qa.spec.ts:103:9 › AC2/AC3: the choice in the URL is checked, not trusted › an unknown tier pre-selects nothing (228ms)
+  ✓   5 [chromium] › e2e/tickets-qa.spec.ts:103:9 › AC2/AC3: the choice in the URL is checked, not trusted › a tier in the wrong case pre-selects nothing (224ms)
+  ✓   6 [chromium] › e2e/tickets-qa.spec.ts:111:9 › AC2/AC3: the choice in the URL is checked, not trusted › quantity=0 falls back to 1 (249ms)
+  ✓   7 [chromium] › e2e/tickets-qa.spec.ts:111:9 › AC2/AC3: the choice in the URL is checked, not trusted › quantity=11 falls back to 1 (553ms)
+  ✓   8 [chromium] › e2e/tickets-qa.spec.ts:111:9 › AC2/AC3: the choice in the URL is checked, not trusted › quantity=99 falls back to 1 (464ms)
+  ✓   9 [chromium] › e2e/tickets-qa.spec.ts:111:9 › AC2/AC3: the choice in the URL is checked, not trusted › quantity=-1 falls back to 1 (445ms)
+  ✓  10 [chromium] › e2e/tickets-qa.spec.ts:111:9 › AC2/AC3: the choice in the URL is checked, not trusted › quantity=2.5 falls back to 1 (554ms)
+  ✓  11 [chromium] › e2e/tickets-qa.spec.ts:111:9 › AC2/AC3: the choice in the URL is checked, not trusted › quantity=abc falls back to 1 (282ms)
+  ✓  12 [chromium] › e2e/tickets-qa.spec.ts:118:7 › AC2/AC3: the choice in the URL is checked, not trusted › quantity=10, a full table, is kept (510ms)
+  ✓  13 [chromium] › e2e/tickets-qa.spec.ts:124:7 › AC2/AC3: the choice in the URL is checked, not trusted › Continue without a tier stays on /tickets (285ms)
+  ✓  14 [chromium] › e2e/tickets-qa.spec.ts:132:5 › AC3: the real sign-in form posts the choice as next (761ms)
+  ✓  15 [chromium] › e2e/tickets-qa.spec.ts:147:9 › accessibility › /tickets has no axe violations and no sideways scroll at desktop (707ms)
+  ✓  16 [chromium] › e2e/tickets-qa.spec.ts:147:9 › accessibility › /tickets has no axe violations and no sideways scroll at mobile (717ms)
+  ✓  17 [chromium] › e2e/tickets-qa.spec.ts:170:9 › screenshots › capture desktop (1.5s)
+  ✓  18 [chromium] › e2e/tickets-qa.spec.ts:170:9 › screenshots › capture tablet (1.5s)
+  ✓  19 [chromium] › e2e/tickets-qa.spec.ts:170:9 › screenshots › capture mobile (1.7s)
+  ✓  20 [chromium] › e2e/tickets.spec.ts:51:5 › AC1 tiers and prices come from the database (521ms)
+  ✓  21 [chromium] › e2e/tickets.spec.ts:59:5 › AC2 the total is price × quantity as quantity changes (661ms)
+  ✓  22 [chromium] › e2e/tickets.spec.ts:69:5 › AC3 signed out: Continue goes through sign-in and back to /tickets with the choice kept (1.4s)
+  ✓  23 [chromium] › e2e/tickets.spec.ts:89:5 › AC4 a gala that is not open shows a closed message and no Continue (547ms)
+
+  23 passed (31.3s)
