@@ -1,10 +1,24 @@
+/* Poster palette: black ground, copper, amber and gold accents, serif headings.
+   Every text colour below clears WCAG AA (4.5:1) on --background. */
 :root {
   --background: #000;
+  --surface: #120c06;
   --foreground: #f5e6c8;
+  --muted: #d9c7a3;
+  --copper: #d48a5a;
+  --amber: #f2a93b;
+  --gold: #e3bc5a;
+  --rule: #5a3a22;
+  --font-serif: Georgia, "Times New Roman", Times, serif;
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
 
 * {
   box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
@@ -12,10 +26,165 @@ body {
   min-height: 100vh;
   background: var(--background);
   color: var(--foreground);
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: var(--font-sans);
+  line-height: 1.6;
 }
 
-main {
-  padding: 4rem 1rem;
+h1,
+h2,
+h3 {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  line-height: 1.15;
+  margin: 0;
+}
+
+a {
+  color: var(--gold);
+}
+
+a:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 3px;
+}
+
+/* Header */
+.site-header {
+  border-bottom: 1px solid var(--rule);
+  padding: 0.75rem 1rem;
+}
+
+.site-nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1.25rem;
+  max-width: 72rem;
+  margin: 0 auto;
+}
+
+.site-nav__brand {
+  font-family: var(--font-serif);
+  font-size: 1.375rem;
+  color: var(--gold);
+  text-decoration: none;
+  letter-spacing: 0.04em;
+}
+
+.site-nav__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.site-nav__links a {
+  display: inline-block;
+  padding: 0.5rem 0;
+  color: var(--foreground);
+  text-decoration: none;
+  font-size: 0.9375rem;
+}
+
+.site-nav__links a:hover {
+  color: var(--amber);
+}
+
+/* Homepage */
+.hero {
+  padding: 4rem 1rem 3rem;
   text-align: center;
+  background: radial-gradient(
+    ellipse at top,
+    rgba(212, 138, 90, 0.18),
+    transparent 65%
+  );
+}
+
+.hero__eyebrow {
+  margin: 0 0 1rem;
+  color: var(--copper);
+  font-size: 0.875rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.hero__title {
+  color: var(--gold);
+  font-size: clamp(2.25rem, 9vw, 4.5rem);
+}
+
+.hero__details {
+  list-style: none;
+  margin: 2rem auto 0;
+  padding: 0;
+  max-width: 32rem;
+  display: grid;
+  gap: 0.25rem;
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+}
+
+.hero__details li:first-child {
+  color: var(--amber);
+}
+
+.hero__reception {
+  margin: 1rem 0 0;
+  color: var(--muted);
+}
+
+.hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-top: 2.5rem;
+}
+
+.button {
+  display: inline-block;
+  min-width: 11rem;
+  padding: 0.875rem 1.5rem;
+  border: 2px solid var(--gold);
+  border-radius: 999px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.button--primary {
+  background: var(--gold);
+  color: #000;
+}
+
+.button--secondary {
+  color: var(--gold);
+}
+
+.button:hover {
+  border-color: var(--amber);
+}
+
+.button--primary:hover {
+  background: var(--amber);
+}
+
+.about {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 3rem 1rem 4rem;
+  border-top: 1px solid var(--rule);
+}
+
+.about h2 {
+  color: var(--copper);
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+.about p {
+  margin: 0 0 1rem;
 }
