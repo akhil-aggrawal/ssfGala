@@ -83,6 +83,10 @@ test("creating a second active event shows an error and saves nothing", async ({
   await fillNewGala(form, `${name} second`, year + 1);
   await form.getByRole("button", { name: "Save" }).click();
   await expect(form.getByRole("alert")).toHaveText(/already a draft or open gala.*Nothing was saved/);
+  // A refused save keeps what the admin typed.
+  await expect(form.getByLabel("Event name")).toHaveValue(`${name} second`);
+  await expect(form.getByLabel("Year")).toHaveValue(String(year + 1));
+  await expect(form.getByLabel("Venue")).toHaveValue("ICC Milpitas");
   const { count } = await db().from("events").select("id", { count: "exact", head: true }).eq("year", year + 1);
   expect(count).toBe(0);
 });

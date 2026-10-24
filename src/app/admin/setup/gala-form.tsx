@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { startTransition, useActionState, useEffect, useRef, type FormEvent } from "react";
 import {
   EVENT_STATUSES,
   centsToDollars,
@@ -22,12 +22,25 @@ export type GalaFormEvent = {
 // One gala: event details, its three tiers, and status. Archived → read-only.
 export function GalaForm({ event, title }: { event: GalaFormEvent; title: string }) {
   const [state, action, pending] = useActionState(saveGala, null);
+  const formRef = useRef<HTMLFormElement>(null);
   const readOnly = event.status === "archived";
   const key = event.id ?? "new";
   const id = (field: string) => `${key}-${field}`;
 
+  // A <form action> is reset by React 19 after every save, so a refused save
+  // would wipe what the admin typed. Submit by hand and clear only the New
+  // gala form once it has saved.
+  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const data = new FormData(e.currentTarget);
+    startTransition(() => action(data));
+  };
+  useEffect(() => {
+    if (state?.ok && !event.id) formRef.current?.reset();
+  }, [state, event.id]);
+
   return (
-    <form action={action} className="gala-form" aria-labelledby={id("title")}>
+    <form ref={formRef} onSubmit={onSubmit} className="gala-form" aria-labelledby={id("title")}>
       <h2 id={id("title")}>{title}</h2>
       {readOnly && <p className="gala-form__note">Archived galas are read-only.</p>}
       <fieldset disabled={readOnly || pending}>
