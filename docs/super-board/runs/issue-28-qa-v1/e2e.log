@@ -1,0 +1,11 @@
+
+Running 6 tests using 1 worker
+
+  ✓  1 [chromium] › e2e/admin-seating.spec.ts:97:5 › AC1: a table number shows for all of the table's guests (1.5s)
+  ✓  2 [chromium] › e2e/admin-seating.spec.ts:109:5 › AC2: moving one guest changes only that guest's table (1.5s)
+  ✓  3 [chromium] › e2e/admin-seating.spec.ts:123:5 › AC3: overbooked tables show a badge and the filter lists only them (918ms)
+  ✓  4 [chromium] › e2e/admin-seating.spec.ts:134:5 › AC3: a non-admin never sees the seating page (462ms)
+  ✓  5 [chromium] › e2e/admin-seating.spec.ts:141:5 › AC4: the assignment and the move each wrote an audit row (9ms)
+  ✓  6 [chromium] › e2e/admin-seating.spec.ts:154:5 › /admin/seating opens Tables & Seating (514ms)
+
+  6 passed (7.2s)
