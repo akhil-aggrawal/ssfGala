@@ -1,0 +1,27 @@
+1..26
+ok 1 - apply_stripe_checkout_event exists
+ok 2 - completed + unpaid waits for the async event
+ok 3 - unpaid session leaves the payment pending
+ok 4 - completed + paid confirms the payment
+ok 5 - payment marked succeeded
+ok 6 - payment intent id stored
+ok 7 - received_at set
+ok 8 - registration set to registered
+ok 9 - one allocation per live attendee, summing to the paid amount
+ok 10 - replayed event id is a duplicate
+ok 11 - event id recorded once
+ok 12 - still one succeeded payment
+ok 13 - no extra allocations after replay
+ok 14 - second event for a settled session is ignored
+ok 15 - still two allocations
+ok 16 - mismatch reported with the expected amount
+ok 17 - mismatched payment not confirmed
+ok 18 - mismatched registration stays pending_payment
+ok 19 - no allocations on mismatch
+ok 20 - expired session marks the payment failed
+ok 21 - expired session leaves the registration pending_payment
+ok 22 - async failure marks the payment failed
+ok 23 - async failure leaves the registration pending_payment
+ok 24 - unknown session is reported, nothing changes
+ok 25 - anon cannot execute
+ok 26 - authenticated cannot execute

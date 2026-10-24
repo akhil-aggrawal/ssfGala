@@ -1,0 +1,10 @@
+{"level":"warn","msg":"stripe webhook: signature verification failed","time":"2026-10-24T23:01:40.416Z","error":"Error: No signatures found matching the expected signature for payload. Are you passing the raw request body you received from Stripe? \n If a webhook request is being forwarded by a third-party tool, ensure that the exact request body, including JSON formatting and new line style, is preserved.\n\n
+ POST /api/stripe/webhook 400 in 873ms (next.js: 693ms, proxy.ts: 91ms, application-code: 90ms)
+ POST /api/stripe/webhook 400 in 24ms (next.js: 12ms, proxy.ts: 7ms, application-code: 5ms)
+ POST /api/stripe/webhook 200 in 13ms (next.js: 3ms, proxy.ts: 5ms, application-code: 5ms)
+{"level":"error","msg":"stripe webhook: processing failed","time":"2026-10-24T23:01:50.770Z","eventId":"evt_qa14_live_unknown","sessionId":"cs_qa14_live_none","error":"Error: apply_stripe_checkout_event failed: Could not find the function public.apply_stripe_checkout_event(p_amount_total, p_event_id, p_event_type, p_payment_status, p_session_id) in the schema cache"}
+ POST /api/stripe/webhook 500 in 48ms (next.js: 21ms, proxy.ts: 5ms, application-code: 23ms)
+{"level":"warn","msg":"stripe webhook: no stored payment for this session","time":"2026-10-24T23:02:06.965Z","eventId":"evt_qa14_live_unknown2","sessionId":"cs_qa14_live_none"}
+ POST /api/stripe/webhook 200 in 45ms (next.js: 4ms, proxy.ts: 6ms, application-code: 35ms)
+{"level":"info","msg":"stripe webhook: processed","time":"2026-10-24T23:02:07.031Z","eventId":"evt_qa14_live_unknown2","type":"checkout.session.completed","sessionId":"cs_qa14_live_none","outcome":"duplicate"}
+ POST /api/stripe/webhook 200 in 36ms (next.js: 3ms, proxy.ts: 5ms, application-code: 28ms)
