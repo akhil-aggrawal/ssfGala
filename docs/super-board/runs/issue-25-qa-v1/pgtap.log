@@ -1,0 +1,21 @@
+1..20
+ok 1 - a complimentary registration is created as registered
+ok 2 - the registration records the admin who added it
+ok 3 - every attendee is saved, names trimmed
+ok 4 - a complimentary registration has no payment row
+ok 5 - a paid-offline registration stores an offline payment for the amount
+ok 6 - the offline payment has recorded_by set
+ok 7 - allocations add up to the payment
+ok 8 - the first attendee takes the leftover cent
+ok 9 - every paid-offline attendee reads as paid
+ok 10 - each creation writes one audit_logs row
+ok 11 - paid offline without an amount is rejected
+ok 12 - only complimentary and offline_paid are accepted
+ok 13 - an attendee without an email is rejected
+ok 14 - a tier from another event is rejected
+ok 15 - an archived event is read-only
+ok 16 - a complimentary registration with an amount is rejected
+ok 17 - paid offline under 1 cent per attendee is rejected
+ok 18 - exactly 1 cent per attendee is accepted and allocated
+ok 19 - an empty attendee list is rejected
+ok 20 - signed-in users cannot call add_admin_attendees directly

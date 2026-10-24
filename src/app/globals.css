@@ -472,6 +472,124 @@ a:focus-visible {
   }
 }
 
+/* Buy tickets: poster heading, high-contrast form. */
+.tickets {
+  max-width: 36rem;
+  margin: 0 auto;
+  padding: 3rem 1rem;
+}
+
+.tickets h1 {
+  color: var(--gold);
+  font-size: 2.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.tickets__closed {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  border: 1px solid var(--rule);
+  border-radius: 0.5rem;
+  color: var(--amber);
+}
+
+.ticket-form {
+  margin-top: 1.5rem;
+  padding: 1.25rem 1rem;
+  background: #fff;
+  color: #111;
+  border-radius: 0.5rem;
+}
+
+.ticket-form__tiers {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.ticket-form__tiers legend,
+.ticket-form__quantity {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.ticket-tier {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 0.75rem;
+  min-height: 2.75rem;
+  padding: 0.75rem;
+  border: 1px solid #555;
+  border-radius: 0.25rem;
+  cursor: pointer;
+}
+
+.ticket-tier:has(input:checked) {
+  border: 2px solid #111;
+  background: #f4efe4;
+}
+
+.ticket-tier input {
+  width: 1.25rem;
+  height: 1.25rem;
+  margin: 0;
+}
+
+.ticket-tier__name {
+  font-weight: 600;
+}
+
+.ticket-tier__price {
+  margin-left: auto;
+}
+
+.ticket-form__quantity {
+  display: grid;
+  gap: 0.25rem;
+  max-width: 10rem;
+  margin-top: 1.25rem;
+}
+
+.ticket-form__quantity select {
+  min-height: 2.75rem;
+  padding: 0.5rem;
+  border: 1px solid #555;
+  border-radius: 0.25rem;
+  background: #fff;
+  color: #111;
+  font: inherit;
+}
+
+.ticket-form__total {
+  margin: 1.25rem 0 0;
+  font-size: 1.25rem;
+}
+
+.ticket-form__continue {
+  margin-top: 1rem;
+  min-height: 2.75rem;
+  width: 100%;
+  padding: 0.5rem 1.5rem;
+  border: 0;
+  border-radius: 0.25rem;
+  background: #111;
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.ticket-form input:focus-visible,
+.ticket-form select:focus-visible,
+.ticket-form button:focus-visible {
+  outline: 3px solid #1a56db;
+  outline-offset: 2px;
+}
+
 .admin-table-wrap {
   overflow-x: auto;
 }
@@ -504,6 +622,42 @@ a:focus-visible {
 .admin-id {
   display: block;
   color: var(--muted);
+}
+
+/* Add attendees form (/admin/attendees/new). */
+.gala-form__group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.gala-form__group legend {
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.gala-form__group input[type="radio"] {
+  width: auto;
+  min-height: 0;
+  accent-color: #111;
+}
+
+.gala-form__secondary {
+  margin-top: 0.75rem;
+  min-height: 2.75rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid #111;
+  border-radius: 0.25rem;
+  background: #fff;
+  color: #111;
+  font: inherit;
+  cursor: pointer;
+}
+
+.admin-link-button {
+  display: inline-block;
+  text-decoration: none;
 }
 
 /* Sponsor pledge: poster heading, high-contrast form. */
