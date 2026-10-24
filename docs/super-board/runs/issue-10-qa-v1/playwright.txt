@@ -1,0 +1,14 @@
+
+Running 9 tests using 1 worker
+
+  ✓  1 [chromium] › e2e/gala-setup-qa.spec.ts:54:5 › a signed-out visitor to /admin/setup is sent to sign-in (256ms)
+  ✓  2 [chromium] › e2e/gala-setup-qa.spec.ts:59:5 › a signed-in non-admin gets the 403 page at /admin/setup and sees no gala form (559ms)
+  ✓  3 [chromium] › e2e/gala-setup-qa.spec.ts:66:5 › AC1 + AC2 + AC3 + AC4 through the admin UI (4.2s)
+  ✓  4 [chromium] › e2e/gala-setup-qa.spec.ts:124:5 › a forged save on an archived gala is refused by the server (29ms)
+  ✓  5 [chromium] › e2e/gala-setup.spec.ts:51:5 › the admin home links to Gala Setup (887ms)
+  ✓  6 [chromium] › e2e/gala-setup.spec.ts:57:5 › saving a new event creates exactly three tiers at $150, $200 and $250 (917ms)
+  ✓  7 [chromium] › e2e/gala-setup.spec.ts:80:5 › creating a second active event shows an error and saves nothing (1.8s)
+  ✓  8 [chromium] › e2e/gala-setup.spec.ts:90:5 › the status control saves open and closed (1.1s)
+  ✓  9 [chromium] › e2e/gala-setup.spec.ts:102:5 › an archived event is listed with every field read-only (1.0s)
+
+  9 passed (12.0s)
