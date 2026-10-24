@@ -5,7 +5,8 @@ import { readAll } from "./overview";
 // Tables & Seating (/admin/tables): who sits where, and which sponsored
 // tables are over capacity. Admin only: overbooking is never shown to guests.
 // A guest's table is their own assigned_table_number when an admin moved
-// them, otherwise their sponsored table's physical_table_number.
+// them, otherwise their sponsored table's physical_table_number. A moved guest
+// stops counting toward their sponsored table, so moves clear Overbooked.
 
 type Tables = Database["public"]["Tables"];
 type Row<T extends keyof Tables, K extends keyof Tables[T]["Row"]> = Pick<Tables[T]["Row"], K>;
@@ -63,7 +64,10 @@ export function buildSeating(rows: SeatingRows): { tables: SeatingTable[]; guest
   const guests: SeatingGuest[] = active.map((a) => {
     const reg = liveRegistrations.get(a.registration_id)!;
     const table = reg.sponsored_table_id ? tables.get(reg.sponsored_table_id) : undefined;
-    if (table) seated.set(table.id, (seated.get(table.id) ?? 0) + 1);
+    // A guest moved to another number no longer sits at (or overbooks) this table.
+    const atTable =
+      a.assigned_table_number === null || a.assigned_table_number === table?.physical_table_number;
+    if (table && atTable) seated.set(table.id, (seated.get(table.id) ?? 0) + 1);
     return {
       id: a.id,
       fullName: a.full_name,

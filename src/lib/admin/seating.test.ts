@@ -33,6 +33,7 @@ const rows = (): SeatingRows => ({
     { id: "a4", registration_id: "r2", full_name: "Dan", email: "dan@x.test", assigned_table_number: null, cancelled_at: "2026-10-01T00:00:00Z" },
     { id: "a5", registration_id: "r3", full_name: "Eve", email: "eve@x.test", assigned_table_number: null, cancelled_at: null },
     { id: "a6", registration_id: "r4", full_name: "Fay", email: "fay@x.test", assigned_table_number: null, cancelled_at: null },
+    { id: "a7", registration_id: "r1", full_name: "Gus", email: "gus@x.test", assigned_table_number: null, cancelled_at: null },
   ],
 });
 
@@ -66,7 +67,24 @@ describe("buildSeating", () => {
 
   it("leaves out cancelled guests and guests of cancelled registrations", () => {
     const names = buildSeating(rows()).guests.map((g) => g.fullName);
-    expect(names).toEqual(["Ann", "Ben", "Cat", "Eve"]);
+    expect(names).toEqual(["Ann", "Ben", "Cat", "Eve", "Gus"]);
+  });
+
+  // Review #28 R2/R3: moving guests off a table is how an admin resolves overbooking.
+  it("stops counting a guest toward their sponsored table once moved to another number", () => {
+    const seated = rows();
+    seated.attendees[1].assigned_table_number = null; // Ben back at table 12: 4 on a table of 2
+    expect(buildSeating(seated).tables[0]).toMatchObject({ guestCount: 4, overbooked: true });
+
+    seated.attendees[0].assigned_table_number = "7"; // Ann moved away
+    seated.attendees[1].assigned_table_number = "8"; // Ben moved away
+    expect(buildSeating(seated).tables[0]).toMatchObject({ guestCount: 2, capacity: 2, overbooked: false });
+  });
+
+  it("still counts a guest moved to their own table's number", () => {
+    const seated = rows();
+    seated.attendees[1].assigned_table_number = "12";
+    expect(buildSeating(seated).tables[0]).toMatchObject({ guestCount: 4 });
   });
 });
 
