@@ -19,7 +19,7 @@ export type AddAttendeesInput = {
 export type AddAttendeesParse = { ok: true; value: AddAttendeesInput } | { ok: false; error: string };
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+export const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const text = (fd: FormData, key: string) => (fd.get(key)?.toString() ?? "").trim();
 

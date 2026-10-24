@@ -380,6 +380,9 @@ isOneToOne: false
                            },
 "save_gala_setup":
 { Args: { "p_actor_id": string,"p_event": Json,"p_event_id"?: string,"p_tiers": Json }; Returns: string
+                           },
+"save_pending_ticket_order":
+{ Args: { "p_attendees": Json,"p_tier_name": string,"p_user_id": string }; Returns: string
                            }
           }
           Enums: {
