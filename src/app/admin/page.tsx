@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Suspense } from "react";
 import { requireRole } from "@/lib/auth/guard";
 
@@ -10,6 +11,13 @@ async function AdminHome() {
     <>
       <p>Signed in as {access.user.email ?? "admin"}.</p>
       {access.eventId === null && <p>No active gala is set up yet.</p>}
+      <nav aria-label="Admin tools">
+        <ul>
+          <li>
+            <Link href="/admin/setup">Gala Setup</Link>
+          </li>
+        </ul>
+      </nav>
     </>
   );
 }
