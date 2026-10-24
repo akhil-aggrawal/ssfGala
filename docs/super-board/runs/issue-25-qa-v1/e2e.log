@@ -1,0 +1,9 @@
+
+Running 4 tests using 1 worker
+
+  ✓  1 [chromium] › e2e/admin-attendees-qa.spec.ts:79:5 › AC1 + AC4: a complimentary add is registered, unpaid and audited (1.6s)
+  ✓  2 [chromium] › e2e/admin-attendees-qa.spec.ts:99:5 › AC2 + AC4: a paid-offline add stores an offline payment with recorded_by (1.4s)
+  ✓  3 [chromium] › e2e/admin-attendees-qa.spec.ts:132:5 › AC2: a refused amount keeps the form and saves nothing (1.5s)
+  ✓  4 [chromium] › e2e/admin-attendees-qa.spec.ts:149:5 › AC3: the attendees area makes no Stripe request; shots at three viewports (3.8s)
+
+  4 passed (10.0s)

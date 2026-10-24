@@ -623,3 +623,39 @@ a:focus-visible {
   display: block;
   color: var(--muted);
 }
+
+/* Add attendees form (/admin/attendees/new). */
+.gala-form__group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.gala-form__group legend {
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.gala-form__group input[type="radio"] {
+  width: auto;
+  min-height: 0;
+  accent-color: #111;
+}
+
+.gala-form__secondary {
+  margin-top: 0.75rem;
+  min-height: 2.75rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid #111;
+  border-radius: 0.25rem;
+  background: #fff;
+  color: #111;
+  font: inherit;
+  cursor: pointer;
+}
+
+.admin-link-button {
+  display: inline-block;
+  text-decoration: none;
+}

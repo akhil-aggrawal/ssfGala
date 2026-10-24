@@ -369,7 +369,10 @@ isOneToOne: false
                 }
           }
           Functions: {
-            "is_admin":
+            "add_admin_attendees":
+{ Args: { "p_actor_id": string,"p_amount_cents"?: number,"p_attendees": Json,"p_event_id": string,"p_kind": string,"p_tier_id": string }; Returns: string
+                           },
+"is_admin":
 { Args: Record<PropertyKey, never>; Returns: boolean
                            },
 "record_audit_log":
