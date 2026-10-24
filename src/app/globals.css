@@ -272,3 +272,10 @@ a:focus-visible {
   font-weight: 600;
   cursor: pointer;
 }
+
+/* Admin */
+.admin {
+  max-width: 60rem;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
