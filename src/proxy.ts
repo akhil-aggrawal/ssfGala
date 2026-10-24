@@ -21,7 +21,16 @@ export async function proxy(request: NextRequest) {
       },
     },
   });
-  await supabase.auth.getClaims();
+  const { data } = await supabase.auth.getClaims();
+
+  // Fast path for admin routes: a signed-out visitor gets a real redirect
+  // to sign-in. The role check itself runs in requireRole on the page.
+  const { pathname, search } = request.nextUrl;
+  if (!data?.claims?.sub && (pathname === "/admin" || pathname.startsWith("/admin/"))) {
+    const signin = new URL("/signin", request.url);
+    signin.searchParams.set("next", `${pathname}${search}`);
+    return NextResponse.redirect(signin);
+  }
   return response;
 }
 
