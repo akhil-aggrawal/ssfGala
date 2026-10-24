@@ -1,0 +1,3 @@
+# E2E_AUTH unset, next start on :3101
+GET /auth/test-signin -> 404
+GET /auth/test-signin?email=e2e-guest@example.test&next=/ -> 404

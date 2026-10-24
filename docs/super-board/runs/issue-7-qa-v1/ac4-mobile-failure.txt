@@ -1,0 +1,30 @@
+  ✘  25 [chromium] › e2e/auth-qa.spec.ts:73:7 › AC4: sign-out on a phone › the Account menu's Sign out button is on screen and signs out (5.5s)
+  ✓  27 [chromium] › e2e/auth-qa.spec.ts:93:9 › screenshots › capture desktop (1.4s)
+  ✓  28 [chromium] › e2e/auth-qa.spec.ts:93:9 › screenshots › capture tablet (1.1s)
+  ✓  29 [chromium] › e2e/auth-qa.spec.ts:93:9 › screenshots › capture mobile (1.0s)
+
+
+  1) [chromium] › e2e/auth-qa.spec.ts:73:7 › AC4: sign-out on a phone › the Account menu's Sign out button is on screen and signs out 
+
+    Error: expect(locator).toBeInViewport() failed
+
+    Locator:  getByRole('navigation', { name: 'Main' }).getByRole('button', { name: 'Sign out' })
+    Expected: in viewport
+    Received: viewport ratio 0
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toBeInViewport" getByRole('navigation', { name: 'Main' }).getByRole('button', { name: 'Sign out' }) with timeout 5000ms
+      - waiting for getByRole('navigation', { name: 'Main' }).getByRole('button', { name: 'Sign out' })
+        14 × locator resolved to <button type="submit">Sign out</button>
+           - unexpected value "viewport ratio 0"
+
+
+      76 |     await nav.getByText("Account").click();
+      77 |     const signOut = nav.getByRole("button", { name: "Sign out" });
+    > 78 |     await expect(signOut).toBeInViewport({ ratio: 1 });
+         |                           ^
+      79 |     await signOut.click({ timeout: 5_000 });
+      80 |     await expect(headerSignIn(page)).toBeVisible();
+      81 |   });
+        at /Users/akhil/myapps/ssfGala/.claude/worktrees/issue-7-qa/e2e/auth-qa.spec.ts:78:27
