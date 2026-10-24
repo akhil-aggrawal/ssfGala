@@ -286,6 +286,115 @@ a:focus-visible {
   padding: 2rem 1rem;
 }
 
+/* Gala setup form: high-contrast, not poster style. */
+.gala-form {
+  margin: 2rem 0;
+  padding: 1.25rem 1rem;
+  background: #fff;
+  color: #111;
+  border-radius: 0.5rem;
+}
+
+.gala-form h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.gala-form fieldset {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.gala-form__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.25rem 1rem;
+  max-width: 32rem;
+}
+
+.gala-form label {
+  font-weight: 600;
+  margin-top: 0.5rem;
+}
+
+.gala-form input,
+.gala-form select {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.5rem;
+  border: 1px solid #555;
+  border-radius: 0.25rem;
+  background: #fff;
+  color: #111;
+  font: inherit;
+}
+
+.gala-form input:disabled,
+.gala-form select:disabled {
+  background: #eee;
+  color: #333;
+}
+
+.gala-form input:focus-visible,
+.gala-form select:focus-visible,
+.gala-form button:focus-visible {
+  outline: 3px solid #1a56db;
+  outline-offset: 2px;
+}
+
+.gala-form__tiers {
+  display: block;
+  overflow-x: auto;
+  margin-top: 1.5rem;
+  border-collapse: collapse;
+}
+
+.gala-form__tiers caption {
+  text-align: left;
+  font-weight: 600;
+  padding-bottom: 0.5rem;
+}
+
+.gala-form__tiers th,
+.gala-form__tiers td {
+  padding: 0.25rem 0.5rem 0.25rem 0;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.gala-form__tiers input {
+  min-width: 6.5rem;
+}
+
+.gala-form__save {
+  margin-top: 1.25rem;
+  min-height: 2.75rem;
+  padding: 0.5rem 1.5rem;
+  border: 0;
+  border-radius: 0.25rem;
+  background: #111;
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.gala-form__note {
+  margin: 0 0 0.75rem;
+  color: #333;
+}
+
+.gala-form__ok {
+  color: #0a5c2b;
+  font-weight: 600;
+}
+
+.gala-form__error {
+  color: #a00d0d;
+  font-weight: 600;
+}
 .admin h1 {
   margin-bottom: 1rem;
 }

@@ -1,0 +1,45 @@
+
+Running 9 tests using 2 workers
+
+  ✓  1 [chromium] › e2e/zold/b.spec.ts:54:5 › a signed-out visitor to /admin/setup is sent to sign-in (442ms)
+  ✓  2 [chromium] › e2e/zold/a.spec.ts:51:5 › the admin home links to Gala Setup (843ms)
+  ✓  3 [chromium] › e2e/zold/b.spec.ts:59:5 › a signed-in non-admin gets the 403 page at /admin/setup and sees no gala form (642ms)
+  ✓  4 [chromium] › e2e/zold/a.spec.ts:57:5 › saving a new event creates exactly three tiers at $150, $200 and $250 (1.3s)
+  ✓  6 [chromium] › e2e/zold/a.spec.ts:80:5 › creating a second active event shows an error and saves nothing (1.9s)
+  ✓  7 [chromium] › e2e/zold/a.spec.ts:94:5 › the status control saves open and closed (1.3s)
+  ✓  8 [chromium] › e2e/zold/a.spec.ts:106:5 › an archived event is listed with every field read-only (1.2s)
+  ✘  5 [chromium] › e2e/zold/b.spec.ts:66:5 › AC1 + AC2 + AC3 + AC4 through the admin UI (6.1s)
+  -  9 [chromium] › e2e/zold/b.spec.ts:124:5 › a forged save on an archived gala is refused by the server
+
+
+  1) [chromium] › e2e/zold/b.spec.ts:66:5 › AC1 + AC2 + AC3 + AC4 through the admin UI ─────────────
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('form', { name: 'QA setup gala 3960 (3960) · draft' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('form', { name: 'QA setup gala 3960 (3960) · draft' }) with timeout 5000ms
+      - waiting for getByRole('form', { name: 'QA setup gala 3960 (3960) · draft' })
+
+
+      76 |   await fresh.getByLabel("Year").fill(String(year));
+      77 |   await fresh.getByRole("button", { name: "Save" }).click();
+    > 78 |   await expect(galaForm(page, `${name} (${year}) · draft`)).toBeVisible();
+         |                                                             ^
+      79 |   const { data: created } = await db()
+      80 |     .from("events")
+      81 |     .select("id, seating_tiers (name, seat_price_cents)")
+        at /Users/akhil/myapps/ssfGala/.claude/worktrees/issue-10-qa/e2e/zold/b.spec.ts:78:61
+
+    Error Context: test-results/zold-b-AC1-AC2-AC3-AC4-through-the-admin-UI-chromium/error-context.md
+
+    Error Context: test-results/zold-b-AC1-AC2-AC3-AC4-through-the-admin-UI-chromium/error-context.md
+
+  1 failed
+    [chromium] › e2e/zold/b.spec.ts:66:5 › AC1 + AC2 + AC3 + AC4 through the admin UI ──────────────
+  1 did not run
+  7 passed (8.7s)
