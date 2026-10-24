@@ -17,6 +17,13 @@ describe("GET /auth/test-signin", () => {
     expect(res.status).toBe(404);
   });
 
+  it("returns 404 on a deployed environment even with E2E_AUTH=1", async () => {
+    vi.stubEnv("E2E_AUTH", "1");
+    vi.stubEnv("RAILWAY_ENVIRONMENT", "production");
+    const res = await GET(new NextRequest("http://localhost/auth/test-signin"));
+    expect(res.status).toBe(404);
+  });
+
   it("rejects an email outside the .test domain", async () => {
     vi.stubEnv("E2E_AUTH", "1");
     const res = await GET(

@@ -1,0 +1,39 @@
+
+Running 33 tests using 4 workers
+
+  ✓   2 [chromium] › e2e/smoke.spec.ts:3:5 › GET / returns 200 with the gala heading (612ms)
+  ✓   4 [chromium] › e2e/homepage.spec.ts:5:7 › homepage › shows the event date, time, venue and reception time (774ms)
+  ✓   1 [chromium] › e2e/auth-qa.spec.ts:18:9 › AC2: a next on another origin is ignored › test sign-in drops //evil.example/phish (1.1s)
+  ✓   3 [chromium] › e2e/auth.spec.ts:12:5 › after sign-in the user returns to the exact next path, incl. /invite/<token> (1.3s)
+  ✓   5 [chromium] › e2e/homepage.spec.ts:21:7 › homepage › header links: Gala, About, Buy Tickets, Sponsor a Table, Sign In (514ms)
+  ✓   6 [chromium] › e2e/auth-qa.spec.ts:18:9 › AC2: a next on another origin is ignored › test sign-in drops /\evil.example (662ms)
+  ✓   8 [chromium] › e2e/homepage.spec.ts:41:7 › homepage › hero calls to action link to /tickets and /sponsor (558ms)
+  ✓   7 [chromium] › e2e/auth.spec.ts:17:5 › a next on another origin is ignored and the user lands on / (649ms)
+  ✓   9 [chromium] › e2e/auth-qa.spec.ts:18:9 › AC2: a next on another origin is ignored › test sign-in drops https:evil.example (564ms)
+  ✓  12 [chromium] › e2e/auth-qa.spec.ts:18:9 › AC2: a next on another origin is ignored › test sign-in drops javascript:alert(1) (542ms)
+  ✓  13 [chromium] › e2e/auth-qa.spec.ts:24:7 › AC2: a next on another origin is ignored › the callback drops an off-origin next on its error path (276ms)
+  ✓  11 [chromium] › e2e/auth.spec.ts:22:5 › the first sign-in creates one profiles row; a second creates none (1.3s)
+  ✓  10 [chromium] › e2e/homepage.spec.ts:59:9 › homepage › meets WCAG AA (axe) on desktop (1.5s)
+  ✓  14 [chromium] › e2e/auth-qa.spec.ts:30:7 › AC2: a next on another origin is ignored › the sign-in form posts / when next is on another origin (281ms)
+  ✓  17 [chromium] › e2e/auth-qa.spec.ts:35:7 › AC2: a next on another origin is ignored › Google OAuth callback drops an off-origin next (633ms)
+  ✓  15 [chromium] › e2e/auth.spec.ts:42:5 › sign-out clears the session and the header shows Sign In again (993ms)
+  ✓  16 [chromium] › e2e/homepage.spec.ts:59:9 › homepage › meets WCAG AA (axe) on tablet (1.4s)
+  ✓  19 [chromium] › e2e/auth.spec.ts:54:5 › Sign in with Google starts OAuth with a callback that carries next (645ms)
+  ✓  18 [chromium] › e2e/auth-qa.spec.ts:48:7 › AC1: the user comes back to the page they started on › Buy Tickets, then Sign In carries /tickets through to the form (1.1s)
+  ✓  21 [chromium] › e2e/auth.spec.ts:68:5 › the header Sign In link carries the current page as next (559ms)
+  ✓  22 [chromium] › e2e/auth-qa.spec.ts:58:7 › AC1: the user comes back to the page they started on › an invite link keeps its token and query in the Sign In link (437ms)
+  ✓  20 [chromium] › e2e/homepage.spec.ts:59:9 › homepage › meets WCAG AA (axe) on mobile (1.0s)
+  ✓  24 [chromium] › e2e/homepage.spec.ts:69:7 › homepage › no horizontal scroll at 375 px wide (222ms)
+  ✓  25 [chromium] › e2e/homepage.spec.ts:80:7 › homepage › no element extends past the right edge at 375 px wide (234ms)
+  ✓  23 [chromium] › e2e/auth-qa.spec.ts:63:7 › AC1: the user comes back to the page they started on › signing in from an invite link lands back on it (672ms)
+  ✓  26 [chromium] › e2e/auth-qa.spec.ts:73:7 › AC4: sign-out on a phone › the Account menu's Sign out button is on screen and signs out (595ms)
+  ✓  27 [chromium] › e2e/auth-qa.spec.ts:88:9 › AC4: Sign out stays on screen around the 40rem breakpoint › at 320 px wide (943ms)
+  ✓  28 [chromium] › e2e/auth-qa.spec.ts:88:9 › AC4: Sign out stays on screen around the 40rem breakpoint › at 640 px wide (878ms)
+  ✓  29 [chromium] › e2e/auth-qa.spec.ts:88:9 › AC4: Sign out stays on screen around the 40rem breakpoint › at 641 px wide (857ms)
+  ✓  30 [chromium] › e2e/auth-qa.spec.ts:88:9 › AC4: Sign out stays on screen around the 40rem breakpoint › at 768 px wide (910ms)
+  -  31 [chromium] › e2e/auth-qa.spec.ts:113:9 › screenshots › capture desktop
+  -  32 [chromium] › e2e/auth-qa.spec.ts:113:9 › screenshots › capture tablet
+  -  33 [chromium] › e2e/auth-qa.spec.ts:113:9 › screenshots › capture mobile
+
+  3 skipped
+  30 passed (19.9s)
