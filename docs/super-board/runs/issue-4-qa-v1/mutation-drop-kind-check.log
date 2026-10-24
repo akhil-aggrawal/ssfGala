@@ -1,0 +1,9 @@
+not ok 1 - a complimentary registration with a sponsored_table_id is rejected
+not ok 2 - an offline_paid registration with a sponsored_table_id is rejected
+ok 3 - a complimentary registration without a sponsored_table_id is accepted
+not ok 4 - an update that strips the table from a sponsored registration is rejected
+ok 5 - a registration cannot reference a sponsored table from another event
+ok 6 - an attendee cannot point at a registration from another event
+ok 7 - an unknown registration kind is rejected
+ok 8 - one attendee can move tables without moving the rest of the registration
+# Looks like you failed 3 tests of 8
