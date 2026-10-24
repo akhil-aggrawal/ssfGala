@@ -1,0 +1,7 @@
+▲ Next.js 16.4.3
+- Local:         http://localhost:3736
+- Network:       http://10.0.0.31:3736
+✓ Ready in 178ms
+✓ Running next.config.ts took 42ms
+{"level":"error","msg":"refusing to start","time":"2026-10-24T02:29:26.507Z","error":"Missing required environment variable(s): SUPABASE_SERVICE_ROLE_KEY"}
+exit=1

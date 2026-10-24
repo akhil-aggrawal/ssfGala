@@ -1,0 +1,24 @@
+## ac4-sentry-dsn-set.txt
+POST count: 3
+POST /api/1/envelope/
+  item: client_report
+  discarded: [{"reason": "sample_rate", "category": "span", "quantity": 14}]
+POST /api/1/envelope/
+  item: event
+  tags: {"turbopack": true, "request_id": "req-qa36-a"} · transaction: GET /api/qa-boom · exception: qa-36 boom
+POST /api/1/envelope/
+  item: client_report
+  discarded: [{"reason": "sample_rate", "category": "span", "quantity": 5}, {"reason": "event_processor", "category": "error", "quantity": 1}]
+
+## ac4-sentry-dsn-set-noheader.txt
+POST count: 2
+POST /api/1/envelope/
+  item: client_report
+  discarded: [{"reason": "sample_rate", "category": "span", "quantity": 14}]
+POST /api/1/envelope/
+  item: event
+  tags: {"turbopack": true, "request_id": "99f7cf12-01a1-4f92-af77-b7555fdd3720"} · transaction: GET /api/qa-boom · exception: qa-36 boom
+
+## ac4-sentry-dsn-unset.txt
+POST count: 0
+

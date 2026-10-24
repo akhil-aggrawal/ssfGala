@@ -1,0 +1,11 @@
+$ curl -i /api/health  (wrong service-role key)
+HTTP/1.1 503 Service Unavailable
+vary: rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch
+cache-control: no-store
+content-type: application/json
+Date: Sat, 24 Oct 2026 02:29:57 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+Transfer-Encoding: chunked
+
+{"status":"error","commit":"165e31366c56202d0ba47e9143ac6e50f3165258","database":"error"}

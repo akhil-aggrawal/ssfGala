@@ -1,0 +1,12 @@
+
+  ✓  2 [chromium] › e2e/homepage.spec.ts:5:7 › homepage › shows the event date, time, venue and reception time (623ms)
+  ✓  1 [chromium] › e2e/smoke.spec.ts:3:5 › GET / returns 200 with the gala heading (645ms)
+  ✓  3 [chromium] › e2e/homepage.spec.ts:21:7 › homepage › header links: Gala, About, Buy Tickets, Sponsor a Table, Sign In (433ms)
+  ✓  4 [chromium] › e2e/homepage.spec.ts:41:7 › homepage › hero calls to action link to /tickets and /sponsor (307ms)
+  ✓  5 [chromium] › e2e/homepage.spec.ts:59:9 › homepage › meets WCAG AA (axe) on desktop (1.7s)
+  ✓  6 [chromium] › e2e/homepage.spec.ts:59:9 › homepage › meets WCAG AA (axe) on tablet (2.1s)
+  ✓  7 [chromium] › e2e/homepage.spec.ts:59:9 › homepage › meets WCAG AA (axe) on mobile (2.1s)
+  ✓  8 [chromium] › e2e/homepage.spec.ts:69:7 › homepage › no horizontal scroll at 375 px wide (719ms)
+  ✓  9 [chromium] › e2e/homepage.spec.ts:80:7 › homepage › no element extends past the right edge at 375 px wide (614ms)
+
+  9 passed (13.8s)
