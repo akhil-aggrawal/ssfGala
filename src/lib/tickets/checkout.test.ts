@@ -102,7 +102,10 @@ describe("startTicketCheckout", () => {
     const gateway = fakeGateway();
     const result = await startTicketCheckout(db.client, gateway, BUYER);
 
-    expect(gateway.create).toHaveBeenCalledWith(checkoutSessionParams(ORDER, BUYER), "ticket-checkout-reg-1-0");
+    expect(gateway.create).toHaveBeenCalledWith(
+      checkoutSessionParams(ORDER, BUYER),
+      expect.stringMatching(/^ticket-checkout-reg-1-0-[0-9a-f]{16}$/),
+    );
     expect(db.inserted).toEqual([
       [
         {
@@ -160,7 +163,7 @@ describe("startTicketCheckout", () => {
     const result = await startTicketCheckout(db.client, gateway, BUYER);
 
     expect(gateway.expire).toHaveBeenCalledWith("cs_old");
-    expect(gateway.create).toHaveBeenCalledWith(expect.anything(), "ticket-checkout-reg-1-1");
+    expect(gateway.create).toHaveBeenCalledWith(expect.anything(), expect.stringMatching(/^ticket-checkout-reg-1-1-/));
     expect(db.inserted).toHaveLength(1);
     expect(result).toEqual({ kind: "redirect", url: "https://checkout.stripe.com/c/pay/cs_new" });
   });
@@ -171,6 +174,32 @@ describe("startTicketCheckout", () => {
     await startTicketCheckout(db.client, gateway, BUYER);
 
     expect(gateway.expire).not.toHaveBeenCalled();
-    expect(gateway.create).toHaveBeenCalledWith(expect.anything(), "ticket-checkout-reg-1-1");
+    expect(gateway.create).toHaveBeenCalledWith(expect.anything(), expect.stringMatching(/^ticket-checkout-reg-1-1-/));
+  });
+
+  it("retries the same attempt with the same idempotency key", async () => {
+    const gateway = fakeGateway();
+    await expect(startTicketCheckout(fakeDb([], { message: "boom" }).client, gateway, BUYER)).rejects.toThrow(/boom/);
+    await startTicketCheckout(fakeDb().client, gateway, BUYER);
+
+    const [first, second] = gateway.create.mock.calls.map((call) => (call as unknown[])[1]);
+    expect(second).toBe(first);
+  });
+
+  // R1: Stripe rejects a reused key with different params for 24 h. If the
+  // payment insert failed after Stripe created the session, no row was added,
+  // so the next attempt has the same count; the key must still change when
+  // the priced params change, or the buyer is locked out of paying.
+  it("sends a new idempotency key when the order changed after a failed payment insert", async () => {
+    const gateway = fakeGateway();
+    await expect(startTicketCheckout(fakeDb([], { message: "boom" }).client, gateway, BUYER)).rejects.toThrow(/boom/);
+
+    order.loadPendingOrder.mockResolvedValue({ ...ORDER, attendees: ORDER.attendees.slice(0, 2) });
+    gateway.create.mockResolvedValue(session({ amount_total: 40000 }));
+    await startTicketCheckout(fakeDb().client, gateway, BUYER);
+
+    const [first, second] = gateway.create.mock.calls.map((call) => (call as unknown[])[1]);
+    expect(second).not.toBe(first);
+    expect(second).toMatch(/^ticket-checkout-reg-1-0-/);
   });
 });

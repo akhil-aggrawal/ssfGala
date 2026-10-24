@@ -2,6 +2,7 @@
 // The amount is the tier's seat price × live attendees, read on the server;
 // nothing from the browser is priced. This only starts a payment: the
 // Stripe webhook alone marks it paid and confirms the registration.
+import { createHash } from "node:crypto";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type Stripe from "stripe";
 import type { Database } from "@/lib/database.types";
@@ -80,12 +81,14 @@ export async function startTicketCheckout(
     }
   }
 
-  // One key per attempt: a retry or a double click of the same attempt gets
-  // the same session back from Stripe instead of a second one.
-  const session = await stripe.create(
-    checkoutSessionParams(order, buyer),
-    `ticket-checkout-${order.registrationId}-${payments.length}`,
-  );
+  // One key per attempt and params: a retry or a double click of the same
+  // attempt gets the same session back from Stripe instead of a second one.
+  // The params hash matters when a session was created but its payment row
+  // was not stored: the count stays the same, and Stripe refuses a reused key
+  // with different params for 24 h, so a changed order must get a new key.
+  const params = checkoutSessionParams(order, buyer);
+  const paramsHash = createHash("sha256").update(JSON.stringify(params)).digest("hex").slice(0, 16);
+  const session = await stripe.create(params, `ticket-checkout-${order.registrationId}-${payments.length}-${paramsHash}`);
   if (session.amount_total !== amount || !session.url) {
     throw new Error(`startTicketCheckout: session amount ${session.amount_total} does not match ${amount}`);
   }
