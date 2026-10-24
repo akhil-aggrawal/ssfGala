@@ -1,0 +1,28 @@
+
+> ssf-gala@0.1.0 verify
+> npm run lint && npm run typecheck && npm run test
+
+
+> ssf-gala@0.1.0 lint
+> eslint --max-warnings 0
+
+
+> ssf-gala@0.1.0 typecheck
+> next typegen && tsc --noEmit
+
+Generating route types...
+✓ Types generated successfully
+
+> ssf-gala@0.1.0 test
+> vitest run
+
+
+ RUN  v5.0.5 /Users/akhil/myapps/ssfGala/.claude/worktrees/issue-1-qa
+
+
+ Test Files  1 passed (1)
+      Tests  7 passed (7)
+   Start at  18:34:56
+   Duration  1.62s (tests 87%, import 10%, transform 2%)
+
+verify exit=0

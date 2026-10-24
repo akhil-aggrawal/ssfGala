@@ -1,0 +1,7 @@
+
+Running 1 test using 1 worker
+
+  ✓  1 [chromium] › e2e/smoke.spec.ts:3:5 › GET / returns 200 with placeholder text (276ms)
+
+  1 passed (1.3s)
+playwright exit=0
