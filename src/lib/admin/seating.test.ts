@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { computeOverview } from "./overview";
 import { buildSeating, parseTableNumber, seatingErrorMessage, type SeatingRows } from "./seating";
 
 const rows = (): SeatingRows => ({
@@ -79,6 +80,24 @@ describe("buildSeating", () => {
     seated.attendees[0].assigned_table_number = "7"; // Ann moved away
     seated.attendees[1].assigned_table_number = "8"; // Ben moved away
     expect(buildSeating(seated).tables[0]).toMatchObject({ guestCount: 2, capacity: 2, overbooked: false });
+  });
+
+  // QA v2: the admin overview's "Overbooked tables" must agree with this page.
+  it("agrees with the admin overview on how many tables are overbooked after a move", () => {
+    const seated = rows();
+    seated.attendees[1].assigned_table_number = null; // Ben back at table 12: 4 on a table of 2
+    seated.attendees[0].assigned_table_number = "7"; // Ann moved away
+    seated.attendees[2].assigned_table_number = "8"; // Cat moved away
+    const page = buildSeating(seated).tables.filter((t) => t.overbooked).length;
+    const overview = computeOverview({
+      payments: [],
+      sponsorships: seated.sponsorships.map((s) => ({ id: s.id, status: s.status, pledged_cents: 0 })),
+      tables: seated.tables,
+      registrations: seated.registrations,
+      attendees: seated.attendees,
+    }).overbookedTables;
+    expect(page).toBe(0);
+    expect(overview).toBe(page);
   });
 
   it("still counts a guest moved to their own table's number", () => {
