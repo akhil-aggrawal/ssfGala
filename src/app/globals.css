@@ -273,10 +273,16 @@ a:focus-visible {
   cursor: pointer;
 }
 
-/* Admin */
+/* Admin: plain, high-contrast. Sidebar stacks above content on mobile. */
+.admin-shell {
+  display: flex;
+  flex-direction: column;
+}
+
 .admin {
+  flex: 1;
+  min-width: 0;
   max-width: 60rem;
-  margin: 0 auto;
   padding: 2rem 1rem;
 }
 
@@ -388,4 +394,80 @@ a:focus-visible {
 .gala-form__error {
   color: #a00d0d;
   font-weight: 600;
+}
+.admin h1 {
+  margin-bottom: 1rem;
+}
+
+.admin-nav {
+  border-bottom: 1px solid var(--rule);
+  padding: 0.5rem 1rem;
+}
+
+.admin-nav ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.admin-nav a {
+  display: block;
+  padding: 0.5rem 0.75rem;
+  color: var(--foreground);
+  text-decoration: none;
+  border-radius: 0.25rem;
+}
+
+.admin-nav a:hover,
+.admin-nav a:focus-visible {
+  text-decoration: underline;
+}
+
+.admin-nav a[aria-current="page"] {
+  background: var(--foreground);
+  color: var(--background);
+  font-weight: 600;
+}
+
+.admin-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0 0;
+}
+
+.admin-metric {
+  border: 1px solid var(--muted);
+  border-radius: 0.25rem;
+  padding: 1rem;
+}
+
+.admin-metric dt {
+  color: var(--muted);
+}
+
+.admin-metric dd {
+  margin: 0.25rem 0 0;
+  font-size: 1.75rem;
+  font-weight: 600;
+}
+
+@media (min-width: 48rem) {
+  .admin-shell {
+    flex-direction: row;
+  }
+
+  .admin-nav {
+    flex: 0 0 13rem;
+    border-bottom: 0;
+    border-right: 1px solid var(--rule);
+    padding: 2rem 0.75rem;
+  }
+
+  .admin-nav ul {
+    flex-direction: column;
+  }
 }

@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { Suspense } from "react";
 import { requireRole } from "@/lib/auth/guard";
 import { DEFAULT_TIERS, TIER_NAMES, toLocalInput, type EventStatus } from "@/lib/gala/setup";
 import { createSupabaseAdminClient } from "@/lib/supabase/server";
 import { GalaForm, type GalaFormEvent } from "./gala-form";
 
-export const metadata: Metadata = { title: "Gala Setup — SSF Gala" };
+export const metadata: Metadata = { title: "Gala Setup — SSF Gala admin" };
 
 const NEW_GALA: GalaFormEvent = {
   id: null,
@@ -64,15 +63,12 @@ async function Setup() {
 
 export default function GalaSetupPage() {
   return (
-    <main className="admin">
-      <p>
-        <Link href="/admin">← Admin</Link>
-      </p>
+    <>
       <h1>Gala Setup</h1>
       <p>Only one gala can be draft or open at a time.</p>
       <Suspense fallback={<p>Checking access…</p>}>
         <Setup />
       </Suspense>
-    </main>
+    </>
   );
 }

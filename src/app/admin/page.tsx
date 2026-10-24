@@ -1,34 +1,52 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { Suspense } from "react";
+import { formatCents, loadOverview } from "@/lib/admin/overview";
 import { requireRole } from "@/lib/auth/guard";
+import { createSupabaseAdminClient } from "@/lib/supabase/server";
 
-export const metadata: Metadata = { title: "Admin — SSF Gala" };
+export const metadata: Metadata = { title: "Overview — SSF Gala admin" };
 
-async function AdminHome() {
+async function Overview() {
   const access = await requireRole("admin", "/admin");
+  const signedIn = <p>Signed in as {access.user.email ?? "admin"}.</p>;
+  if (access.eventId === null) {
+    return (
+      <>
+        {signedIn}
+        <p>No active gala is set up yet.</p>
+      </>
+    );
+  }
+  const o = await loadOverview(createSupabaseAdminClient(), access.eventId);
+  const metrics = [
+    { label: "Attendees", value: o.attendeeCount.toLocaleString("en-US") },
+    { label: "Stripe collected", value: formatCents(o.stripeCollectedCents) },
+    { label: "Offline receipts", value: formatCents(o.offlineReceiptsCents) },
+    { label: "Outstanding sponsorship", value: formatCents(o.outstandingSponsorshipCents) },
+    { label: "Overbooked tables", value: o.overbookedTables.toLocaleString("en-US") },
+  ];
   return (
     <>
-      <p>Signed in as {access.user.email ?? "admin"}.</p>
-      {access.eventId === null && <p>No active gala is set up yet.</p>}
-      <nav aria-label="Admin tools">
-        <ul>
-          <li>
-            <Link href="/admin/setup">Gala Setup</Link>
-          </li>
-        </ul>
-      </nav>
+      {signedIn}
+      <dl className="admin-metrics">
+        {metrics.map((m) => (
+          <div key={m.label} className="admin-metric">
+            <dt>{m.label}</dt>
+            <dd>{m.value}</dd>
+          </div>
+        ))}
+      </dl>
     </>
   );
 }
 
-export default function AdminPage() {
+export default function AdminOverviewPage() {
   return (
-    <main className="admin">
-      <h1>Admin</h1>
+    <>
+      <h1>Overview</h1>
       <Suspense fallback={<p>Checking access…</p>}>
-        <AdminHome />
+        <Overview />
       </Suspense>
-    </main>
+    </>
   );
 }
