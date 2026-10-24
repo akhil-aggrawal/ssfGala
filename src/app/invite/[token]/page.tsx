@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { connection } from "next/server";
+import Link from "next/link";
 import { Suspense } from "react";
 import { signInWithGoogle } from "@/lib/auth/actions";
 import { getSessionUser } from "@/lib/auth/session";
 import { invitePath, loadInvite } from "@/lib/invite/landing";
+import { registerPath } from "@/lib/invite/register";
 import { createSupabaseAdminClient } from "@/lib/supabase/server";
 
 // The token is a secret: keep invite pages out of search results.
@@ -60,7 +62,12 @@ async function Invitation({ params }: { params: Params }) {
     <>
       {intro}
       {user ? (
-        <p className="invite__signed-in">Signed in as {user.email ?? "your Google account"}.</p>
+        <>
+          <p className="invite__signed-in">Signed in as {user.email ?? "your Google account"}.</p>
+          <Link href={registerPath(token)} className="button button--primary">
+            Register Guests
+          </Link>
+        </>
       ) : (
         <form action={signInWithGoogle} className="invite__signin">
           <p>Sign in with Google to register for this table. You will come back to this page.</p>
