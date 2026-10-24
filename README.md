@@ -58,8 +58,28 @@ Names only; keep values in `.env.local` and never commit them.
 | `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` | Stripe payments and webhook verification |
 | `RESEND_API_KEY` | Transactional email |
 | `NEXT_PUBLIC_APP_URL` | Base URL for links and redirects |
+| `SENTRY_DSN` | Optional. Server errors go to Sentry only when it is set |
+
+Every variable above except `SENTRY_DSN` is required: the server logs the missing names and exits at startup (`src/lib/env.ts`). Placeholder values are fine locally for services you are not using yet.
 
 Google sign-in is configured in the Supabase dashboard (Auth → Providers → Google).
+
+## Deploy (Railway)
+
+The Railway project `ssf-gala-dev` builds and starts the app from [`railway.json`](railway.json).
+
+| Railway environment | Deploys branch |
+|---|---|
+| `staging` | `staging` |
+| `production` | `main` |
+
+Set the branch per environment in the Railway dashboard: service → Settings → Source. Set the variables above per environment in Railway → Variables. Railway supplies `RAILWAY_GIT_COMMIT_SHA`.
+
+| Check | What it does |
+|---|---|
+| `GET /api/health` | `200` `{"status":"ok","commit":"<sha>","database":"ok"}` when Supabase answers, `503` otherwise. Railway's healthcheck uses it |
+| `npm run build` | Fails if `SUPABASE_SERVICE_ROLE_KEY` appears in the browser bundle (`scripts/check-client-bundle.mjs`) |
+| Logs | One JSON object per line; server errors carry a `request_id`, also tagged on the Sentry event |
 
 ## How work gets built
 
