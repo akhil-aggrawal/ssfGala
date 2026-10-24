@@ -65,6 +65,8 @@ const TIERS: TicketTier[] = [
   { name: "Gold", seatPriceCents: 20000 },
 ];
 const PENDING: PendingOrder = {
+  registrationId: "reg-1",
+  eventId: "event-1",
   tier: { name: "Silver", seatPriceCents: 15000 },
   attendees: [
     { full_name: "Asha Rao", email: "asha@example.test" },
@@ -89,6 +91,7 @@ describe("attendeeStep", () => {
 
 type Row = {
   id: string;
+  event_id: string;
   seating_tiers: { name: string; seat_price_cents: number } | null;
   attendees: { full_name: string; email: string; created_at: string; cancelled_at: string | null }[];
 };
@@ -112,6 +115,7 @@ describe("loadPendingOrder", () => {
     const { client, calls } = fakeDb({
       data: {
         id: "reg-1",
+        event_id: "event-1",
         seating_tiers: { name: "Gold", seat_price_cents: 22500 },
         attendees: [
           { full_name: "Ben Li", email: "ben@example.test", created_at: "2026-10-24T10:00:02Z", cancelled_at: null },
@@ -122,6 +126,8 @@ describe("loadPendingOrder", () => {
       error: null,
     });
     await expect(loadPendingOrder(client as never, "user-1")).resolves.toEqual({
+      registrationId: "reg-1",
+      eventId: "event-1",
       tier: { name: "Gold", seatPriceCents: 22500 },
       attendees: [
         { full_name: "Asha Rao", email: "asha@example.test" },

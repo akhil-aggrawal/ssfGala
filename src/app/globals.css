@@ -680,6 +680,10 @@ a:focus-visible {
   overflow-wrap: anywhere;
 }
 
+.ticket-review__pay {
+  margin-top: 1rem;
+}
+
 .ticket-review__edit {
   display: inline-block;
   margin-top: 1rem;

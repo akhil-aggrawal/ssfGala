@@ -1,0 +1,17 @@
+
+ RUN  v5.0.5 /Users/akhil/myapps/ssfGala/.claude/worktrees/issue-13-qa
+
+ ✓ src/lib/tickets/checkout.db.test.ts > startTicketCheckout on a real database (issue #13 QA) > AC1: charges the DB tier price × live attendees, and follows a DB price change 223ms
+ ✓ src/lib/tickets/checkout.db.test.ts > startTicketCheckout on a real database (issue #13 QA) > AC1: a cancelled attendee is not charged 200ms
+ ✓ src/lib/tickets/checkout.db.test.ts > startTicketCheckout on a real database (issue #13 QA) > AC2: the pending payment row with the session ID exists when the redirect URL comes back 155ms
+ ✓ src/lib/tickets/checkout.db.test.ts > startTicketCheckout on a real database (issue #13 QA) > AC3: two clicks in a row reuse the open session and store one payment 161ms
+ ✓ src/lib/tickets/checkout.db.test.ts > startTicketCheckout on a real database (issue #13 QA) > AC3: two clicks at the same time store one payment for one session 148ms
+ ✓ src/lib/tickets/checkout.db.test.ts > startTicketCheckout on a real database (issue #13 QA) > AC4: no payment path in checkout changes the registration status 168ms
+ ✓ src/lib/tickets/checkout.db.test.ts > startTicketCheckout on a real database (issue #13 QA) > R1: a failed payment insert then an unchanged retry reuses the same Stripe session 185ms
+ ✓ src/lib/tickets/checkout.db.test.ts > startTicketCheckout on a real database (issue #13 QA) > R1: a failed payment insert then a changed order still reaches Stripe (no idempotency lockout) 190ms
+
+ Test Files  1 passed (1)
+      Tests  8 passed (8)
+   Start at  13:38:52
+   Duration  1.73s (tests 96%, import 3%, transform 1%)
+
