@@ -191,12 +191,13 @@ select set_config('request.jwt.claims',
 select results_eq(
   $$ select a.full_name from public.attendees a
      join public.events e on e.id = a.event_id
-     where e.status in ('draft', 'open') order by a.full_name $$,
+     where e.id = '00000000-0000-0000-0000-000000000610' and e.status in ('draft', 'open')
+     order by a.full_name $$,
   array['Table One Guest', 'Table Two Guest', 'Ticket Guest'],
   'an admin selects every attendee of the active event'
 );
 select is(
-  (select count(*)::int from public.sponsors),
+  (select count(*)::int from public.sponsors where event_id = '00000000-0000-0000-0000-000000000610'),
   2,
   'an admin sees every sponsor'
 );

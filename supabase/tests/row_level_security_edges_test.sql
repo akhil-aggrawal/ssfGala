@@ -157,7 +157,8 @@ select set_config('request.jwt.claims',
   '{"sub":"00000000-0000-0000-0000-000000000701","role":"authenticated"}', true);
 
 select is(
-  (select count(*)::int from public.audit_logs),
+  (select count(*)::int from public.audit_logs
+   where event_id = '00000000-0000-0000-0000-000000000710'),
   1,
   'an admin reads the audit log'
 );
@@ -191,11 +192,11 @@ select set_config('request.jwt.claims',
   '{"sub":"00000000-0000-0000-0000-000000000704","role":"authenticated"}', true);
 
 select is_empty(
-  $$ select 1 from public.events $$,
+  $$ select 1 from public.events where id = '00000000-0000-0000-0000-000000000710' $$,
   'a guest cannot see a draft event'
 );
 select is_empty(
-  $$ select 1 from public.seating_tiers $$,
+  $$ select 1 from public.seating_tiers where event_id = '00000000-0000-0000-0000-000000000710' $$,
   'a guest cannot see a draft event''s tiers'
 );
 
@@ -203,7 +204,7 @@ select set_config('request.jwt.claims',
   '{"sub":"00000000-0000-0000-0000-000000000701","role":"authenticated"}', true);
 
 select is(
-  (select count(*)::int from public.events),
+  (select count(*)::int from public.events where id = '00000000-0000-0000-0000-000000000710'),
   1,
   'an admin sees the draft event'
 );
