@@ -149,6 +149,59 @@ test("AC4: each move writes its own audit row with before and after", async () =
   expect(tableId).not.toBe("");
 });
 
+// R6: a guest moved onto another sponsored table's number counts there, so a
+// full destination table turns Overbooked on both pages and the source clears.
+test("AC3: a guest moved onto a full table makes that table Overbooked", async ({ page }) => {
+  const event_id = await activeEventId();
+  const { data: tier } = await db().from("seating_tiers").select("id").eq("event_id", event_id).eq("name", "Gold").single();
+  const destSponsor = `QA Seating Dest ${tag}`;
+  const destNumber = `D-${tag}`;
+  const [s] = await insert("sponsors", [{ event_id, display_name: destSponsor, email: `dest-${tag}@example.test` }]);
+  const [p] = await insert("sponsorships", [{ event_id, sponsor_id: s.id, pledged_cents: 200000 }]);
+  const [t] = await insert("sponsored_tables", [
+    {
+      event_id,
+      sponsorship_id: p.id,
+      tier_id: tier!.id,
+      invite_token_hash: randomUUID(),
+      capacity: 2,
+      physical_table_number: destNumber,
+    },
+  ]);
+  const [r] = await insert("registrations", [{ event_id, kind: "sponsored", tier_id: tier!.id, sponsored_table_id: t.id }]);
+  await insert(
+    "attendees",
+    [1, 2].map((n) => ({ event_id, registration_id: r.id, full_name: `QA Dest ${tag} ${n}`, email: `qa-dest${n}-${tag}@example.test` })),
+  );
+  const destRow = (pg: Page) => tablesRegion(pg).getByRole("row").filter({ hasText: destSponsor });
+
+  await signInAdmin(page);
+  await page.goto("/admin/tables");
+  await expect(destRow(page).getByRole("cell").nth(2)).toHaveText("2 / 2");
+  const before = await overbookedOnSeating(page);
+
+  await expect(await move(page, 2, destNumber)).toHaveText("Saved.");
+  await page.reload();
+  await expect(destRow(page).getByRole("cell").nth(2)).toHaveText("3 / 2Overbooked");
+  await expect(tableRow(page).getByRole("cell").nth(2)).toHaveText("2 / 2");
+  // Source cleared, destination turned Overbooked: the gala total is unchanged.
+  const after = await overbookedOnSeating(page);
+  expect(after).toBe(before);
+  expect(await overbookedOnOverview(page)).toBe(after);
+  if (process.env.QA_SHOTS) {
+    mkdirSync(process.env.QA_SHOTS, { recursive: true });
+    await page.setViewportSize({ width: 1920, height: 1080 });
+    await page.goto("/admin/tables");
+    await expect(destRow(page).getByRole("cell").nth(2)).toHaveText("3 / 2Overbooked");
+    await page.screenshot({ path: `${process.env.QA_SHOTS}/ac3-moved-onto-full-table-desktop.png`, fullPage: true });
+  }
+
+  // Put the guest back so the screenshot steps below see the seeded table as is.
+  await expect(await move(page, 2, "")).toHaveText("Saved.");
+  await page.reload();
+  await expect(destRow(page).getByRole("cell").nth(2)).toHaveText("2 / 2");
+});
+
 test.describe("screenshots", () => {
   test.skip(!process.env.QA_SHOTS, "set QA_SHOTS=<dir> to capture");
   const viewports = [
@@ -182,6 +235,7 @@ test.describe("screenshots", () => {
     await expect(page.locator(".admin-metric").first()).toBeVisible();
     await page.screenshot({ path: `${dir}/ac3-overview-after-move-desktop.png`, fullPage: true });
     await page.goto("/admin/tables?show=overbooked");
+    await expect(page.getByRole("navigation", { name: "Table filter" })).toBeVisible();
     await page.screenshot({ path: `${dir}/ac3-overbooked-filter-desktop.png`, fullPage: true });
   });
 });
