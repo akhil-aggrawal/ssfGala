@@ -1,0 +1,9 @@
+
+Running 4 tests using 1 worker
+
+  ✓  1 [chromium] › e2e/sponsor-pledge-qa.spec.ts:91:5 › AC1 AC2 AC4: 2 Gold + 1 Silver pledge, links hash to the stored rows, confirmation (1.8s)
+  ✓  2 [chromium] › e2e/sponsor-pledge-qa.spec.ts:135:5 › AC3: a pledge past what is left after the page loaded is refused and creates nothing (1.1s)
+  ✓  3 [chromium] › e2e/sponsor-pledge-qa.spec.ts:154:5 › AC3: two pledges racing for the last table — one wins, the other creates nothing (514ms)
+  ✓  4 [chromium] › e2e/sponsor-pledge-qa.spec.ts:174:5 › AC4: /sponsor form and confirmation at desktop, tablet and mobile (3.3s)
+
+  4 passed (8.2s)

@@ -1,0 +1,7 @@
+# issue-75 QA v1 — live --deps on #26 / PR #66 (read-only), 2026-10-24T19:01:35Z
+## before (staging helper 8d40d35)
+{"26": {"number": 26, "needsYou": true, "needsYouDone": false, "approvalRefresh": false, "approvalWhy": "request issue is not linked to this PR"}}
+
+## after (branch helper af60795)
+{"26": {"number": 26, "needsYou": true, "needsYouDone": true, "approvalRefresh": false, "approvalWhy": "trusted human confirmed the current request"}}
+

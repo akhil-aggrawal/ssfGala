@@ -454,8 +454,10 @@ on the base branch**.
        --subject "<PR title>" --body-file <msg.md>
    <msg.md> = the PR's commit bullets, deduplicated, plus `Closes #<issue>` (writing-standard.md § 1).
    The gate takes the merge mutex, checks the PR head is still $HEAD, merges the CURRENT
-   base into a scratch worktree at $HEAD, runs `config.verify_commands`, and only then
-   squash-merges with `--match-head-commit $HEAD`. After a merge it runs `cleanup-wt --post-merge`
+   base into a scratch worktree at $HEAD, re-stamps any migration the PR adds that sorts at or
+   before the newest one on the base (renamed to sort after it, pushed to the PR branch, and that
+   new head is what gets verified and merged), runs `config.verify_commands`, and only then
+   squash-merges with `--match-head-commit` on that head. After a merge it runs `cleanup-wt --post-merge`
    when the `.claude/hooks/cleanup-wt.py` hook is installed (local only; a cleanup failure never changes the exit). Route by exit code:
      0 → merged; continue to step 4
      2 → the branch no longer builds against the base → **rebase pass** (see below)
@@ -464,7 +466,7 @@ on the base branch**.
      4 → another card holds the merge lock → leave the card in Review, next wave retries
      5 → the base does not merge in cleanly → **rebase pass** (see below)
      6 → the PR head is not the commit you reviewed (a push after review, or during
-          verify). Your evidence is void: leave the card in Review with a `[reviewer]`
+          verify; the gate's own base merge + migration re-stamp does not count). Your evidence is void: leave the card in Review with a `[reviewer]`
           comment naming both shas; the next wave reviews the new head
      7 → merge_policy: a human merges this one. Stdout carries one
           `human-gate: <money|auth|schema|size|default|policy> — <evidence>` line per
