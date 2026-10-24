@@ -26,10 +26,8 @@ ok 12 - a second Gold tier on the same event is rejected
 ok 13 - updating a tier to a negative price is rejected
 ok 14 - a role other than admin, sponsor or attendee is rejected
 ok 15 - row level security is enabled on all four tables
-ERROR:  permission denied for table events
-ERROR:  current transaction is aborted, commands ignored until end of transaction block
-ERROR:  current transaction is aborted, commands ignored until end of transaction block
-ERROR:  current transaction is aborted, commands ignored until end of transaction block
+ok 16 - anon sees no events
+ok 17 - anon sees no seating tiers
 == supabase/tests/events_tiers_test.sql
 1..9
 ok 1 - events table exists
