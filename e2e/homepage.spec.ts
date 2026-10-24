@@ -53,6 +53,7 @@ test.describe("homepage", () => {
 
   for (const viewport of [
     { name: "desktop", width: 1920, height: 1080 },
+    { name: "tablet", width: 1024, height: 768 },
     { name: "mobile", width: 375, height: 667 },
   ]) {
     test(`meets WCAG AA (axe) on ${viewport.name}`, async ({ page }) => {
@@ -74,5 +75,19 @@ test.describe("homepage", () => {
         document.documentElement.clientWidth,
     );
     expect(overflow).toBeLessThanOrEqual(0);
+  });
+
+  test("no element extends past the right edge at 375 px wide", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 375, height: 667 });
+    await page.goto("/");
+    const offenders = await page.evaluate(() => {
+      const width = document.documentElement.clientWidth;
+      return Array.from(document.body.querySelectorAll("*"))
+        .filter((el) => el.getBoundingClientRect().right > width + 0.5)
+        .map((el) => el.tagName.toLowerCase() + "." + el.className);
+    });
+    expect(offenders).toEqual([]);
   });
 });
