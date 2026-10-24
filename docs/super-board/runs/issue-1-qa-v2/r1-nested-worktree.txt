@@ -1,0 +1,13 @@
+# R1 check: nested .claude/worktrees/issue-9-build with copied .next build + type error + lint error
+ RUN  v5.0.5 /Users/akhil/myapps/ssfGala/.claude/worktrees/issue-1-qa
+
+
+ Test Files  1 passed (1)
+      Tests  7 passed (7)
+   Start at  18:35:37
+   Duration  1.56s (tests 88%, import 11%, transform 1%)
+
+verify exit=0
+# Controls (mutations reverted)
+same type error placed in src/bad.ts -> verify exit=2 (expect non-zero)
+tsconfig exclude without .claude/worktrees -> vitest exit=1 (expect non-zero)
