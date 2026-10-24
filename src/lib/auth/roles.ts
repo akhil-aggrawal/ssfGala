@@ -14,7 +14,8 @@ export type AccessDecision = "signin" | "forbidden" | "allow";
 const isRole = (value: string): value is Role => (ROLES as readonly string[]).includes(value);
 
 // Load the user's roles and the active event with the service-role client:
-// RLS has no policies yet, so the user's own client would see no rows.
+// RLS hides a draft event from non-admins, so the user's own client would
+// miss the active gala before it opens.
 // A failed query throws, so a DB error never reads as "no role".
 export async function loadAccess(
   admin: SupabaseClient<Database>,
