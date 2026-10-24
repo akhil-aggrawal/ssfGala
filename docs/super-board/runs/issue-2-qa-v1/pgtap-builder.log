@@ -1,0 +1,6 @@
+Connecting to local database...
+/Users/akhil/myapps/ssfGala/.claude/worktrees/issue-2-qa/supabase/tests/events_tiers_test.sql .. ok
+All tests successful.
+Files=1, Tests=9,  0 wallclock secs ( 0.03 usr  0.04 sys +  0.01 cusr  0.00 csys =  0.08 CPU)
+Result: PASS
+exit=0
