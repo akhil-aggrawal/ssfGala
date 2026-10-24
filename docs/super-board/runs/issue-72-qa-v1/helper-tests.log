@@ -1,0 +1,25 @@
+
+ RUN  v5.0.5 <path>
+
+ ✓ test/super-board-github-read.test.ts > super-board-github-read: gh usage errors > exits 64 on the first attempt for an unknown --json field, without a halt file 464ms
+ ✓ test/super-board-github-read.test.ts > super-board-github-read: gh usage errors > exits 64 on the first attempt for --slurp with --jq, without a halt file 437ms
+ ✓ test/super-board-github-read.test.ts > super-board-github-read: gh usage errors > exits 64 on the first attempt for an unknown flag, without a halt file 427ms
+ ✓ test/super-board-github-read.test.ts > super-board-github-read: gh usage errors > still halts with exit 79 under SB_GITHUB_READ_STRICT=1 835ms
+ ✓ test/super-board-github-read.test.ts > super-board-github-read: outages still halt > retries an HTTP 5xx three times, then exits 79 with a halt file 480ms
+ ✓ test/super-board-github-read.test.ts > super-board-github-read: outages still halt > retries a network timeout three times, then exits 79 with a halt file 477ms
+ ✓ test/super-board-github-read.test.ts > super-board-github-read: outages still halt > matches usage text on the first stderr line only: an outage that quotes it later still retries and halts 485ms
+ ✓ test/super-board-github-read.test.ts > super-board-github-read: outages still halt > ignores usage-like stderr when gh exits 0 463ms
+ ✓ test/super-board-github-read.test.ts > super-board-github-read: malformed reads of any kind fail only that call > exits 64 on the first attempt when --kind quota gets plain text from --jq, without a halt file 438ms
+ ✓ test/super-board-github-read.test.ts > super-board-github-read: malformed reads of any kind fail only that call > exits 64 on the first attempt for a gh usage error on a kind not in FORMS, without a halt file 477ms
+ ✓ test/super-board-github-read.test.ts > super-board-github-read: malformed reads of any kind fail only that call > exits 64 for a graphql query with literal {owner}/{repo}, before asking GitHub, without a halt file 72ms
+ ✓ test/super-board-github-read.test.ts > super-board-github-read: malformed reads of any kind fail only that call > still halts on the first attempt for real auth and permission errors 884ms
+ ✓ test/super-board-github-read.test.ts > super-board-github-read: malformed reads of any kind fail only that call > still halts with exit 79 under SB_GITHUB_READ_STRICT=1 1310ms
+ ✓ test/super-board-github-read.test.ts > super-board-github-read: malformed reads of any kind fail only that call > exits 64 after three attempts when a kind not in FORMS gets JSON of the wrong shape, without a halt file 468ms
+ ✓ test/super-board-github-read.test.ts > super-board-github-read: malformed reads of any kind fail only that call > retries an HTTP 5xx on a kind not in FORMS three times, then exits 79 with a halt file 492ms
+ ✓ test/super-board-github-read.test.ts > super-board-github-read: malformed reads of any kind fail only that call > retries a timeout on a kind not in FORMS three times, then exits 79 with a halt file 469ms
+
+ Test Files  1 passed (1)
+      Tests  16 passed (16)
+   Start at  09:15:03
+   Duration  8.87s (tests 100%)
+
