@@ -1,0 +1,132 @@
+== supabase/tests/append_only_history_test.sql
+1..9
+ok 1 - service role cannot update audit_logs
+ok 2 - service role cannot delete audit_logs
+ok 3 - the owning role cannot update audit_logs
+ok 4 - audit_logs cannot be truncated
+ok 5 - a payment allocation cannot be deleted
+ok 6 - a payment cannot be deleted
+ok 7 - a payment status can still change
+ok 8 - the status change was saved
+ok 9 - audit_logs still accepts new rows
+== supabase/tests/events_tiers_edges_test.sql
+1..17
+ok 1 - an open event is accepted while the others are closed or archived
+ok 2 - a new draft event fails while one is open
+ok 3 - reopening a closed event fails while another is open
+ok 4 - a new draft event is accepted once the open one is closed
+ok 5 - a negative suggested contribution is rejected
+ok 6 - a negative sponsorship amount is rejected
+ok 7 - a negative table inventory is rejected
+ok 8 - a zero price is accepted
+ok 9 - a lowercase tier name is rejected
+ok 10 - a null tier name is rejected
+ok 11 - a valid Platinum tier is accepted
+ok 12 - a second Gold tier on the same event is rejected
+ok 13 - updating a tier to a negative price is rejected
+ok 14 - a role other than admin, sponsor or attendee is rejected
+ok 15 - row level security is enabled on all four tables
+ERROR:  permission denied for table events
+ERROR:  current transaction is aborted, commands ignored until end of transaction block
+ERROR:  current transaction is aborted, commands ignored until end of transaction block
+ERROR:  current transaction is aborted, commands ignored until end of transaction block
+== supabase/tests/events_tiers_test.sql
+1..9
+ok 1 - events table exists
+ok 2 - profiles table exists
+ok 3 - user_roles table exists
+ok 4 - seating_tiers table exists
+ok 5 - a second open event fails while one is draft
+ok 6 - a second open event fails while one is open
+ok 7 - a negative seat price is rejected
+ok 8 - a tier name other than Silver, Gold or Platinum is rejected
+ok 9 - a valid Silver tier is accepted
+== supabase/tests/payments_allocations_edges_test.sql
+1..11
+ok 1 - an attendee whose only allocation is refunded is not paid
+ok 2 - an attendee whose only allocation failed is not paid
+ok 3 - an attendee with one refunded and one succeeded allocation is paid
+ok 4 - refunding the succeeded payment makes the attendee unpaid
+ok 5 - two offline payments with no stripe_session_id are both accepted
+ok 6 - a payment cannot reference a registration from another event
+ok 7 - an allocation cannot pair a payment with an attendee from another event
+ok 8 - a zero-cent allocation is rejected
+ok 9 - a negative payment amount is rejected
+ok 10 - a payment with allocations cannot be deleted
+ok 11 - an unknown payment status is rejected
+== supabase/tests/payments_allocations_test.sql
+1..16
+ok 1 - payments table exists
+ok 2 - payment_allocations table exists
+ok 3 - stripe_webhook_events table exists
+ok 4 - audit_logs table exists
+ok 5 - a stripe ticket payment is accepted
+ok 6 - a second payment with the same stripe_session_id is rejected
+ok 7 - a sponsorship payment with a registration_id is rejected
+ok 8 - an offline sponsorship receipt with only a sponsorship_id is accepted
+ok 9 - a ticket payment without a registration_id is rejected
+ok 10 - an attendee with a succeeded allocation is paid
+ok 11 - an attendee whose only allocation is pending is not paid
+ok 12 - an attendee with no allocation is not paid
+ok 13 - one payment allocates to one attendee at most once
+ok 14 - a Stripe event id is recorded once
+ok 15 - an audit log row is accepted
+ok 16 - RLS is enabled on all four tables
+== supabase/tests/registrations_attendees_edges_test.sql
+1..8
+ok 1 - a complimentary registration with a sponsored_table_id is rejected
+ok 2 - an offline_paid registration with a sponsored_table_id is rejected
+ok 3 - a complimentary registration without a sponsored_table_id is accepted
+ok 4 - an update that strips the table from a sponsored registration is rejected
+ok 5 - a registration cannot reference a sponsored table from another event
+ok 6 - an attendee cannot point at a registration from another event
+ok 7 - an unknown registration kind is rejected
+ok 8 - one attendee can move tables without moving the rest of the registration
+== supabase/tests/registrations_attendees_test.sql
+1..13
+ok 1 - registrations table exists
+ok 2 - attendees table exists
+ok 3 - attendees carry their own assigned_table_number
+ok 4 - a sponsored registration without sponsored_table_id is rejected
+ok 5 - an individual registration with a sponsored_table_id is rejected
+ok 6 - a sponsored registration with a sponsored_table_id is accepted
+ok 7 - an individual registration without a sponsored_table_id is accepted
+ok 8 - a registration cannot reference a tier from another event
+ok 9 - eleven attendees can be inserted against one sponsored table
+ok 10 - all eleven attendees are stored
+ok 11 - an attendee without full_name is rejected
+ok 12 - an attendee without email is rejected
+ok 13 - RLS is enabled on registrations and attendees
+== supabase/tests/sponsors_tables_edges_test.sql
+1..17
+ok 1 - a sponsored table cannot reference a sponsorship from another event
+ok 2 - a sponsored table cannot claim an event its tier and sponsorship are not in
+ok 3 - the same invite_token_hash is rejected in a different event
+ok 4 - a sponsored table without an invite_token_hash is rejected
+ok 5 - capacity 1 is accepted
+ok 6 - a negative capacity is rejected
+ok 7 - an explicit null capacity is rejected
+ok 8 - updating capacity to 0 is rejected
+ok 9 - a zero pledge is accepted
+ok 10 - sponsorship status defaults to committed
+ok 11 - a sponsor cannot reference a missing profile
+ok 12 - RLS is enabled on sponsors
+ok 13 - RLS is enabled on sponsorships
+ok 14 - sponsors has an (event_id, user_id) index
+ok 15 - sponsorships has an (event_id, sponsor_id) index
+ok 16 - sponsored_tables has an (event_id, sponsorship_id) index
+ok 17 - capacity column default is 10
+== supabase/tests/sponsors_tables_test.sql
+1..12
+ok 1 - sponsors table exists
+ok 2 - sponsorships table exists
+ok 3 - sponsored_tables table exists
+ok 4 - a sponsored table with a new invite_token_hash is accepted
+ok 5 - a second sponsored table with the same invite_token_hash is rejected
+ok 6 - a sponsored table cannot reference a tier from another event
+ok 7 - a sponsorship cannot reference a sponsor from another event
+ok 8 - capacity defaults to 10
+ok 9 - capacity 0 is rejected
+ok 10 - a negative pledge is rejected
+ok 11 - a sponsorship status other than committed or cancelled is rejected
+ok 12 - RLS is enabled on sponsored_tables
