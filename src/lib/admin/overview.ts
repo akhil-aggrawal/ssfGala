@@ -68,11 +68,11 @@ const PAGE = 1000; // PostgREST max_rows (supabase/config.toml)
 type Page<T> = PromiseLike<{ data: T[] | null; error: { message: string } | null }>;
 
 // Reads every row by paging; a failed page throws so an error never reads as zero.
-async function readAll<T>(label: string, page: (from: number, to: number) => Page<T>): Promise<T[]> {
+export async function readAll<T>(label: string, page: (from: number, to: number) => Page<T>): Promise<T[]> {
   const rows: T[] = [];
   for (let from = 0; ; from += PAGE) {
     const { data, error } = await page(from, from + PAGE - 1);
-    if (error) throw new Error(`loadOverview ${label} failed: ${error.message}`);
+    if (error) throw new Error(`${label} failed: ${error.message}`);
     rows.push(...(data ?? []));
     if (!data || data.length < PAGE) return rows;
   }
@@ -85,7 +85,7 @@ export async function loadOverview(
   eventId: string,
 ): Promise<Overview> {
   const [payments, sponsorships, tables, registrations, attendees] = await Promise.all([
-    readAll("payments", (f, t) =>
+    readAll("loadOverview payments", (f, t) =>
       admin
         .from("payments")
         .select("provider, purpose, status, amount_cents, sponsorship_id")
@@ -93,7 +93,7 @@ export async function loadOverview(
         .order("id")
         .range(f, t),
     ),
-    readAll("sponsorships", (f, t) =>
+    readAll("loadOverview sponsorships", (f, t) =>
       admin
         .from("sponsorships")
         .select("id, pledged_cents, status")
@@ -101,7 +101,7 @@ export async function loadOverview(
         .order("id")
         .range(f, t),
     ),
-    readAll("sponsored_tables", (f, t) =>
+    readAll("loadOverview sponsored_tables", (f, t) =>
       admin
         .from("sponsored_tables")
         .select("id, capacity")
@@ -109,7 +109,7 @@ export async function loadOverview(
         .order("id")
         .range(f, t),
     ),
-    readAll("registrations", (f, t) =>
+    readAll("loadOverview registrations", (f, t) =>
       admin
         .from("registrations")
         .select("id, status, sponsored_table_id")
@@ -117,7 +117,7 @@ export async function loadOverview(
         .order("id")
         .range(f, t),
     ),
-    readAll("attendees", (f, t) =>
+    readAll("loadOverview attendees", (f, t) =>
       admin
         .from("attendees")
         .select("registration_id, cancelled_at")
