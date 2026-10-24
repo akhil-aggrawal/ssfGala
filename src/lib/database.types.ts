@@ -375,8 +375,11 @@ isOneToOne: false
 "is_admin":
 { Args: Record<PropertyKey, never>; Returns: boolean
                            },
+"move_attendee":
+{ Args: { "p_actor_id": string,"p_attendee_id": string,"p_event_id": string,"p_number": string }; Returns: undefined
+                           },
 "pledge_sponsorship":
-{ Args: { "p_display_name": string,"p_email": string,"p_event_id": string,"p_tables": Json,"p_token_hashes": string[],"p_user_id": string }; Returns: Json
+{ Args: { "p_display_name": string,"p_email": string,"p_event_id": string,"p_tables": Json,"p_token_hashes": (string)[],"p_user_id": string }; Returns: Json
                            },
 "record_audit_log":
 { Args: { "p_action": string,"p_actor_id": string,"p_after_data": Json,"p_before_data": Json,"p_entity_id": string,"p_entity_type": string,"p_event_id": string }; Returns: number
@@ -386,6 +389,12 @@ isOneToOne: false
                            },
 "save_pending_ticket_order":
 { Args: { "p_attendees": Json,"p_tier_name": string,"p_user_id": string }; Returns: string
+                           },
+"seating_check_event":
+{ Args: { "p_event_id": string }; Returns: undefined
+                           },
+"set_table_number":
+{ Args: { "p_actor_id": string,"p_event_id": string,"p_number": string,"p_table_id": string }; Returns: undefined
                            }
           }
           Enums: {
