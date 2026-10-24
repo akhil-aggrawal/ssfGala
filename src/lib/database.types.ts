@@ -372,11 +372,17 @@ isOneToOne: false
             "add_admin_attendees":
 { Args: { "p_actor_id": string,"p_amount_cents"?: number,"p_attendees": Json,"p_event_id": string,"p_kind": string,"p_tier_id": string }; Returns: string
                            },
+"correct_sponsorship_receipt":
+{ Args: { "p_actor_id": string,"p_amount_cents": number,"p_event_id": string,"p_payment_id": string,"p_received_on": string }; Returns: string
+                           },
 "is_admin":
 { Args: Record<PropertyKey, never>; Returns: boolean
                            },
 "record_audit_log":
 { Args: { "p_action": string,"p_actor_id": string,"p_after_data": Json,"p_before_data": Json,"p_entity_id": string,"p_entity_type": string,"p_event_id": string }; Returns: number
+                           },
+"record_sponsorship_receipt":
+{ Args: { "p_actor_id": string,"p_amount_cents": number,"p_event_id": string,"p_received_on": string,"p_sponsorship_id": string }; Returns: string
                            },
 "save_gala_setup":
 { Args: { "p_actor_id": string,"p_event": Json,"p_event_id"?: string,"p_tiers": Json }; Returns: string

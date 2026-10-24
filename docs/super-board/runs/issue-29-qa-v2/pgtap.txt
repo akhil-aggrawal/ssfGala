@@ -1,0 +1,27 @@
+== sponsorship_receipts_test.sql
+1..13
+ok 1 - two partial receipts total $800
+ok 2 - a receipt stores amount source, recorded_by and the received date (Pacific)
+ok 3 - recording a receipt writes an audit row
+ok 4 - the corrected receipt is kept, marked refunded
+ok 5 - the corrected receipt keeps its original amount
+ok 6 - the correction is a new succeeded row on the same sponsorship
+ok 7 - the correction writes an audit row naming the original and the replacement
+ok 8 - an already-corrected receipt cannot be corrected again
+ok 9 - a zero correction voids the receipt without a new row
+ok 10 - a sponsorship from another event is refused
+ok 11 - a receipt must be more than $0
+ok 12 - an archived gala is read-only
+ok 13 - signed-in users cannot call the writer directly
+exit=0
+== sponsorship_receipts_edges_test.sql
+NOTICE:  extension "pgtap" already exists, skipping
+1..7
+ok 1 - a receipt cannot be corrected through another gala
+ok 2 - a Stripe payment is not an offline receipt and cannot be corrected here
+ok 3 - a negative correction is refused
+ok 4 - a receipt needs a received date
+ok 5 - signed-in users cannot call the correction directly
+ok 6 - an archived gala refuses corrections
+ok 7 - refused corrections leave the receipt untouched
+exit=0

@@ -659,3 +659,28 @@ a:focus-visible {
   display: inline-block;
   text-decoration: none;
 }
+
+/* Offline sponsorship receipts (/admin/payments): reuses .gala-form. */
+.receipt-list {
+  margin: 1rem 0;
+  padding-left: 1.25rem;
+}
+
+.receipt-list li {
+  margin-bottom: 0.5rem;
+}
+
+.receipt-list__void {
+  color: #444;
+  text-decoration: line-through;
+}
+
+.receipt-list summary {
+  min-height: 2.75rem;
+  cursor: pointer;
+}
+
+.receipt-list summary:focus-visible {
+  outline: 3px solid #1a56db;
+  outline-offset: 2px;
+}
