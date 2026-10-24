@@ -1,0 +1,18 @@
+## mutation 1: drop RESEND_API_KEY, set a value, NEXT_PUBLIC_ a secret
+     × lists every variable named in the architecture doc 10ms
+     × holds no real values 1ms
+     × keeps server secrets out of the browser bundle 2ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  test/scaffold.test.ts > .env.example > lists every variable named in the architecture doc
+ FAIL  test/scaffold.test.ts > .env.example > holds no real values
+ FAIL  test/scaffold.test.ts > .env.example > keeps server secrets out of the browser bundle
+      Tests  3 failed | 3 passed (6)
+## mutation 2: push trigger, drop verify step
+     × runs on every pull request 6ms
+     × installs from the lockfile and runs npm run verify 2ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  test/scaffold.test.ts > CI workflow > runs on every pull request
+ FAIL  test/scaffold.test.ts > CI workflow > installs from the lockfile and runs npm run verify
+      Tests  2 failed | 4 passed (6)
+## restored
+      Tests  6 passed (6)
