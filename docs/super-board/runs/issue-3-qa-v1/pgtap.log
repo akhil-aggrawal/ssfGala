@@ -1,0 +1,8 @@
+Connecting to local database...
+/Users/akhil/myapps/ssfGala/.claude/worktrees/issue-3-qa/supabase/tests/events_tiers_edges_test.sql ..... ok
+/Users/akhil/myapps/ssfGala/.claude/worktrees/issue-3-qa/supabase/tests/events_tiers_test.sql ........... ok
+/Users/akhil/myapps/ssfGala/.claude/worktrees/issue-3-qa/supabase/tests/sponsors_tables_edges_test.sql .. ok
+/Users/akhil/myapps/ssfGala/.claude/worktrees/issue-3-qa/supabase/tests/sponsors_tables_test.sql ........ ok
+All tests successful.
+Files=4, Tests=55,  1 wallclock secs ( 0.06 usr  0.02 sys +  0.05 cusr  0.02 csys =  0.15 CPU)
+Result: PASS
