@@ -120,6 +120,11 @@ test("AC2 + AC3: the 11th attendee is accepted with the normal confirmation, tie
   await expect(page.locator("main")).not.toContainText(/table (number|#)?\s*7|full|capacity|overbook/i);
   const total = (await attendeesOnTable()).reduce((n, r) => n + r.attendees.length, 0);
   expect(total).toBe(11);
+  const dir = process.env.QA_SHOTS_DIR;
+  if (dir) {
+    mkdirSync(dir, { recursive: true });
+    await page.screenshot({ path: `${dir}/ac2-ac3-confirmation-11th.png`, fullPage: true });
+  }
 });
 
 test("AC4: the page offers no pledge option", async ({ page }) => {

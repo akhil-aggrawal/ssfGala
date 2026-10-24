@@ -1,6 +1,6 @@
 -- Run with: supabase test db
 begin;
-select plan(12);
+select plan(13);
 
 insert into auth.users (id, email)
 values ('00000000-0000-0000-0000-0000000000c1', 'guest-c1@example.test');
@@ -85,6 +85,9 @@ select throws_ok(
 select is(
   has_function_privilege('authenticated', 'public.register_sponsored_guests(uuid, text, jsonb)', 'execute'),
   false, 'signed-in browsers cannot call it directly');
+select is(
+  has_function_privilege('anon', 'public.register_sponsored_guests(uuid, text, jsonb)', 'execute'),
+  false, 'signed-out browsers cannot call it directly');
 
 select * from finish();
 rollback;
