@@ -50,6 +50,7 @@ a:focus-visible {
 
 /* Header */
 .site-header {
+  position: relative;
   border-bottom: 1px solid var(--rule);
   padding: 0.75rem 1rem;
 }
@@ -187,4 +188,87 @@ a:focus-visible {
 
 .about p {
   margin: 0 0 1rem;
+}
+
+/* Account menu (signed in) */
+.account-menu {
+  position: relative;
+}
+
+.account-menu summary {
+  padding: 0.5rem 0;
+  cursor: pointer;
+  font-size: 0.9375rem;
+}
+
+.account-menu summary:focus-visible,
+.account-menu button:focus-visible,
+.button:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 3px;
+}
+
+.account-menu__panel {
+  position: absolute;
+  right: 0;
+  z-index: 10;
+  min-width: 12rem;
+  padding: 0.75rem 1rem;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+}
+
+/* Phone: the nav wraps, so anchor the panel to the header, not to the
+   Account link, and keep it inside the viewport. */
+@media (max-width: 40rem) {
+  .account-menu {
+    position: static;
+  }
+
+  .account-menu__panel {
+    left: 1rem;
+    right: 1rem;
+    min-width: 0;
+  }
+}
+
+.account-menu__email {
+  margin: 0 0 0.5rem;
+  color: var(--muted);
+  font-size: 0.875rem;
+  overflow-wrap: anywhere;
+}
+
+.account-menu button {
+  padding: 0.5rem 0;
+  border: 0;
+  background: none;
+  color: var(--gold);
+  font: inherit;
+  cursor: pointer;
+}
+
+/* Sign in */
+.signin {
+  max-width: 28rem;
+  margin: 0 auto;
+  padding: 4rem 1rem;
+  text-align: center;
+}
+
+.signin h1 {
+  color: var(--gold);
+  font-size: 2.25rem;
+  margin-bottom: 1rem;
+}
+
+.signin__error {
+  color: var(--amber);
+}
+
+.signin .button {
+  margin-top: 1.5rem;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
 }
