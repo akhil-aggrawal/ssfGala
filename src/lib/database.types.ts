@@ -31,6 +31,32 @@ isOneToOne: false
       referencedColumns: ["id","event_id"]
     }
                   ]
+                },"audit_logs": {
+                  Row: {
+                    "action": string,"actor_id": string | null,"after_data": Json | null,"before_data": Json | null,"created_at": string,"entity_id": string | null,"entity_type": string,"event_id": string | null,"id": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "action": string,"actor_id"?: string | null,"after_data"?: Json | null,"before_data"?: Json | null,"created_at"?: string,"entity_id"?: string | null,"entity_type": string,"event_id"?: string | null,"id"?: never
+                  }
+                  Update: {
+                    "action"?: string,"actor_id"?: string | null,"after_data"?: Json | null,"before_data"?: Json | null,"created_at"?: string,"entity_id"?: string | null,"entity_type"?: string,"event_id"?: string | null,"id"?: never
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "audit_logs_actor_id_fkey"
+      columns: ["actor_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "audit_logs_event_id_fkey"
+      columns: ["event_id"]
+isOneToOne: false
+      referencedRelation: "events"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"events": {
                   Row: {
                     "created_at": string,"date_at": string | null,"id": string,"name": string,"status": string,"venue": string | null,"year": number
@@ -44,6 +70,82 @@ isOneToOne: false
                   }
                   Relationships: [
                     
+                  ]
+                },"payment_allocations": {
+                  Row: {
+                    "amount_cents": number,"attendee_id": string,"created_at": string,"event_id": string,"id": string,"payment_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "amount_cents": number,"attendee_id": string,"created_at"?: string,"event_id": string,"id"?: string,"payment_id": string
+                  }
+                  Update: {
+                    "amount_cents"?: number,"attendee_id"?: string,"created_at"?: string,"event_id"?: string,"id"?: string,"payment_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "payment_allocations_attendee_id_event_id_fkey"
+      columns: ["attendee_id","event_id"]
+isOneToOne: false
+      referencedRelation: "attendee_payment_status"
+      referencedColumns: ["attendee_id","event_id"]
+    },{
+      foreignKeyName: "payment_allocations_attendee_id_event_id_fkey"
+      columns: ["attendee_id","event_id"]
+isOneToOne: false
+      referencedRelation: "attendees"
+      referencedColumns: ["id","event_id"]
+    },{
+      foreignKeyName: "payment_allocations_event_id_fkey"
+      columns: ["event_id"]
+isOneToOne: false
+      referencedRelation: "events"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "payment_allocations_payment_id_event_id_fkey"
+      columns: ["payment_id","event_id"]
+isOneToOne: false
+      referencedRelation: "payments"
+      referencedColumns: ["id","event_id"]
+    }
+                  ]
+                },"payments": {
+                  Row: {
+                    "amount_cents": number,"created_at": string,"event_id": string,"id": string,"provider": string,"purpose": string,"received_at": string | null,"recorded_by": string | null,"registration_id": string | null,"sponsorship_id": string | null,"status": string,"stripe_payment_intent_id": string | null,"stripe_session_id": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "amount_cents": number,"created_at"?: string,"event_id": string,"id"?: string,"provider": string,"purpose": string,"received_at"?: string | null,"recorded_by"?: string | null,"registration_id"?: string | null,"sponsorship_id"?: string | null,"status": string,"stripe_payment_intent_id"?: string | null,"stripe_session_id"?: string | null
+                  }
+                  Update: {
+                    "amount_cents"?: number,"created_at"?: string,"event_id"?: string,"id"?: string,"provider"?: string,"purpose"?: string,"received_at"?: string | null,"recorded_by"?: string | null,"registration_id"?: string | null,"sponsorship_id"?: string | null,"status"?: string,"stripe_payment_intent_id"?: string | null,"stripe_session_id"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "payments_event_id_fkey"
+      columns: ["event_id"]
+isOneToOne: false
+      referencedRelation: "events"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "payments_recorded_by_fkey"
+      columns: ["recorded_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "payments_registration_id_event_id_fkey"
+      columns: ["registration_id","event_id"]
+isOneToOne: false
+      referencedRelation: "registrations"
+      referencedColumns: ["id","event_id"]
+    },{
+      foreignKeyName: "payments_sponsorship_id_event_id_fkey"
+      columns: ["sponsorship_id","event_id"]
+isOneToOne: false
+      referencedRelation: "sponsorships"
+      referencedColumns: ["id","event_id"]
+    }
                   ]
                 },"profiles": {
                   Row: {
@@ -201,6 +303,20 @@ isOneToOne: false
       referencedColumns: ["id","event_id"]
     }
                   ]
+                },"stripe_webhook_events": {
+                  Row: {
+                    "event_id": string,"processed_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "event_id": string,"processed_at"?: string
+                  }
+                  Update: {
+                    "event_id"?: string,"processed_at"?: string
+                  }
+                  Relationships: [
+                    
+                  ]
                 },"user_roles": {
                   Row: {
                     "role": string,"user_id": string
@@ -224,7 +340,33 @@ isOneToOne: false
                 }
           }
           Views: {
-            [_ in never]: never
+            "attendee_payment_status": {
+                  Row: {
+                    "attendee_id": string,"event_id": string,"paid": boolean | null,"registration_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                           "attendee_id"?: string | null,"event_id"?: string | null,"paid"?: never,"registration_id"?: string | null
+                         }
+                        Update: {
+                           "attendee_id"?: string | null,"event_id"?: string | null,"paid"?: never,"registration_id"?: string | null
+                         }
+                        Relationships: [
+                    {
+      foreignKeyName: "attendees_event_id_fkey"
+      columns: ["event_id"]
+isOneToOne: false
+      referencedRelation: "events"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "attendees_registration_id_event_id_fkey"
+      columns: ["registration_id","event_id"]
+isOneToOne: false
+      referencedRelation: "registrations"
+      referencedColumns: ["id","event_id"]
+    }
+                  ]
+                }
           }
           Functions: {
             [_ in never]: never
