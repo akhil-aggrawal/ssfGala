@@ -106,6 +106,17 @@ describe("super-board-approval links a held PR to its issue", () => {
     expect(run({ base: "staging", body: `Closes #2` }).needsYouDone).toBe(false);
   });
 
+  it("matches keywords in any case with an optional colon, but not inside another word", () => {
+    expect(run({ base: "staging", body: `CLOSES: #${ISSUE}` }).needsYouDone).toBe(true);
+    expect(run({ base: "staging", body: `This encloses #${ISSUE}` }).needsYouDone).toBe(false);
+    expect(run({ base: "staging", body: `unfixed #${ISSUE}` }).needsYouDone).toBe(false);
+  });
+
+  it("does not link a repository whose name only starts like this one", () => {
+    expect(run({ base: "staging", body: `Closes acme/gala-old#${ISSUE}` }).needsYouDone).toBe(false);
+    expect(run({ base: "staging", body: `Closes xacme/gala#${ISSUE}` }).needsYouDone).toBe(false);
+  });
+
   it("uses closingIssuesReferences only for a PR into the default branch", () => {
     expect(run({ base: "main", body: "", closing: [ISSUE] }).needsYouDone).toBe(true);
     const bodyOnly = run({ base: "main", body: `Closes #${ISSUE}` });
