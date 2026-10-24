@@ -32,6 +32,9 @@ Rules, from references/config-schema.json → merge_policy / migrations:
 - merge_policy.always_human.<category>: any label, path glob or added-line
   keyword match → human. Categories ship as money, auth, schema; setting
   always_human replaces them all (`{}` turns category gating off).
+- merge_policy.keyword_exclude: added lines in files matching these globs are
+  not searched for keywords (default: test and e2e files; [] searches every
+  file). Label and path matches still apply to those files.
 - migrations: a changed path matching migrations.globs makes this a migration
   PR. Every env in allowed_envs with a command runs (a command of "-" means the
   deploy pipeline applies it: nothing to run). target_env not in allowed_envs, or
@@ -81,6 +84,12 @@ DEFAULT_SIZE_EXCLUDE = [
     # snapshots
     "**/__snapshots__/**", "**/*.snap",
 ]
+# Test files only: a glob that matches app code would let a real auth or
+# schema change auto-merge.
+DEFAULT_KEYWORD_EXCLUDE = [
+    "e2e/**", "test/**", "tests/**", "**/*.test.ts", "**/*.test.tsx", "**/*.spec.ts",
+    "supabase/tests/**",
+]
 
 
 def glob_re(pattern: str) -> re.Pattern:
@@ -106,6 +115,21 @@ def matches(path: str, globs) -> str | None:
     return None
 
 
+def added_lines(diff: str):
+    """Yield (path, line) for every added line of a unified diff."""
+    path, in_hunk = "", False
+    for line in diff.splitlines():
+        if line.startswith("diff --git "):
+            path, in_hunk = "", False
+        elif not in_hunk and line.startswith("+++ "):
+            target = line[4:].strip().strip('"')
+            path = target[2:] if target.startswith("b/") else target
+        elif line.startswith("@@"):
+            in_hunk = True
+        elif in_hunk and line.startswith("+"):
+            yield path, line[1:]
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--config", required=True)
@@ -124,11 +148,12 @@ def main() -> int:
 
     labels = {(l.get("name") or "").lower() for l in meta.get("labels") or []}
     paths = [f.get("path") or "" for f in meta.get("files") or []]
-    added = "\n".join(l[1:] for l in diff.splitlines()
-                      if l.startswith("+") and not l.startswith("+++")).lower()
     body = meta.get("body") or ""
 
     policy = cfg.get("merge_policy") or {}
+    kw_excl = policy.get("keyword_exclude")
+    kw_excl = DEFAULT_KEYWORD_EXCLUDE if kw_excl is None else kw_excl
+    added = "\n".join(l for p, l in added_lines(diff) if not matches(p, kw_excl)).lower()
     human = []
     if (policy.get("default") or "auto") == "human":
         human.append({"category": "default", "why": "merge_policy.default is \"human\""})
