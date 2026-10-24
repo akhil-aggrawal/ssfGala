@@ -659,3 +659,128 @@ a:focus-visible {
   display: inline-block;
   text-decoration: none;
 }
+
+/* Sponsor pledge: poster heading, high-contrast form. */
+.pledge {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 3rem 1rem;
+}
+
+.pledge h1 {
+  color: var(--gold);
+  font-size: 2.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.pledge__lede,
+.pledge__note {
+  color: var(--muted);
+}
+
+.pledge__form,
+.pledge__confirm {
+  margin-top: 1.5rem;
+  padding: 1.25rem 1rem;
+  background: #fff;
+  color: #111;
+  border-radius: 0.5rem;
+}
+
+.pledge__form h2,
+.pledge__confirm h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.pledge__confirm h3 {
+  font-size: 1.25rem;
+  margin: 1.25rem 0 0.25rem;
+}
+
+.pledge__form fieldset {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.pledge__tiers {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.pledge__tiers th,
+.pledge__tiers td {
+  padding: 0.35rem 0.5rem 0.35rem 0;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.pledge__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.25rem;
+  margin-top: 1.25rem;
+}
+
+.pledge__grid label {
+  font-weight: 600;
+  margin-top: 0.5rem;
+}
+
+.pledge__form input,
+.pledge__links input {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.5rem;
+  border: 1px solid #555;
+  border-radius: 0.25rem;
+  background: #fff;
+  color: #111;
+  font: inherit;
+}
+
+.pledge__tiers input {
+  max-width: 5.5rem;
+}
+
+.pledge__form input:focus-visible,
+.pledge__links input:focus-visible,
+.pledge__submit:focus-visible {
+  outline: 3px solid #1a56db;
+  outline-offset: 2px;
+}
+
+.pledge__total {
+  margin: 1.25rem 0 0;
+}
+
+.pledge__submit {
+  margin-top: 1rem;
+  min-height: 2.75rem;
+  padding: 0.5rem 1.5rem;
+  border: 0;
+  border-radius: 0.25rem;
+  background: #111;
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.pledge__error {
+  color: #a00d0d;
+  font-weight: 600;
+}
+
+.pledge__links {
+  display: grid;
+  gap: 0.75rem;
+  padding-left: 1.25rem;
+}
+
+.pledge__links li span {
+  display: block;
+  font-weight: 600;
+}

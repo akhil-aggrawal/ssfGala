@@ -1,0 +1,15 @@
+psql:/private/tmp/claude-502/-Users-akhil-myapps-ssfGala/992db0ae-49ca-49ff-beea-cdea145f6e6f/scratchpad/pgtap16.sql:2: NOTICE:  extension "pgtap" already exists, skipping
+1..13
+ok 1 - pledging 3 tables creates 3 sponsored tables
+ok 2 - each table gets its own token hash
+ok 3 - pledged amount: 2 Gold at 10 seats x $200 + 1 Silver at $1,500
+ok 4 - the sponsorship stores the pledged cents
+ok 5 - the pledger gets the sponsor role
+ok 6 - the pledge writes an audit_logs row
+ok 7 - a pledge past remaining inventory is rejected
+ok 8 - the rejected pledge created no sponsorship
+ok 9 - the rejected pledge created no tables
+ok 10 - tables on a cancelled sponsorship count as available again
+ok 11 - a raw token instead of a SHA-256 hash is refused
+ok 12 - a closed event takes no pledges
+ok 13 - signed-in browsers cannot call pledge_sponsorship directly
