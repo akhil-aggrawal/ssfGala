@@ -1,0 +1,5 @@
+Repeat runs of e2e/gala-setup.spec.ts on c476813 + QA v3 spec (default parallel config):
+run 1: 8 passed
+run 2: 1 failed, 3 passed - another lane (issue-22 QA) inserted an open "QA audit gala" (year 5485, 07:43:23Z)
+       into the shared local Supabase mid-run, so the one-active-gala rule refused AC1's save. Not a PR defect.
+run 3: 8 passed (the other lane's open gala was parked and restored by beforeAll/afterAll)

@@ -1,0 +1,11 @@
+ ok 1 - a new event gets exactly three tiers
+ ok 2 - seat prices are saved in cents
+ ok 3 - the date is read as gala-local (Pacific) time
+ ok 4 - the create writes an audit_logs row
+ ok 5 - a second active event is rejected
+ ok 6 - the rejected second event saved nothing
+ ok 7 - anything but exactly three tiers is rejected
+ ok 8 - an edit saves the new status
+ ok 9 - an edit updates the tier in place
+ ok 10 - an archived event is read-only
+ ok 11 - signed-in users cannot call save_gala_setup directly

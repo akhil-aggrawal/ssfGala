@@ -371,6 +371,9 @@ isOneToOne: false
           Functions: {
             "is_admin":
 { Args: Record<PropertyKey, never>; Returns: boolean
+                           },
+"save_gala_setup":
+{ Args: { "p_actor_id": string,"p_event": Json,"p_event_id"?: string,"p_tiers": Json }; Returns: string
                            }
           }
           Enums: {

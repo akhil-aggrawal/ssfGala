@@ -1,0 +1,14 @@
+Connecting to local database...
+/Users/akhil/myapps/ssfGala/.claude/worktrees/issue-10-qa/supabase/tests/append_only_history_test.sql ............ ok
+/Users/akhil/myapps/ssfGala/.claude/worktrees/issue-10-qa/supabase/tests/events_tiers_edges_test.sql ............. ok
+/Users/akhil/myapps/ssfGala/.claude/worktrees/issue-10-qa/supabase/tests/events_tiers_test.sql ................... ok
+/Users/akhil/myapps/ssfGala/.claude/worktrees/issue-10-qa/supabase/tests/payments_allocations_edges_test.sql ..... ok
+/Users/akhil/myapps/ssfGala/.claude/worktrees/issue-10-qa/supabase/tests/payments_allocations_test.sql ........... ok
+/Users/akhil/myapps/ssfGala/.claude/worktrees/issue-10-qa/supabase/tests/registrations_attendees_edges_test.sql .. ok
+/Users/akhil/myapps/ssfGala/.claude/worktrees/issue-10-qa/supabase/tests/registrations_attendees_test.sql ........ ok
+/Users/akhil/myapps/ssfGala/.claude/worktrees/issue-10-qa/supabase/tests/save_gala_setup_test.sql ................ ok
+/Users/akhil/myapps/ssfGala/.claude/worktrees/issue-10-qa/supabase/tests/sponsors_tables_edges_test.sql .......... ok
+/Users/akhil/myapps/ssfGala/.claude/worktrees/issue-10-qa/supabase/tests/sponsors_tables_test.sql ................ ok
+All tests successful.
+Files=10, Tests=123,  1 wallclock secs ( 0.06 usr  0.03 sys +  0.11 cusr  0.05 csys =  0.25 CPU)
+Result: PASS
