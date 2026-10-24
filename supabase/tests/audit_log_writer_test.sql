@@ -75,7 +75,7 @@ select is(
   (select count(*)::int from public.audit_logs
     where entity_id = '00000000-0000-0000-0000-000000000223'),
   1,
-  'the rolled-back edit leaves no audit row'
+  'the rolled-back edit adds no audit row (only the AC1 row remains)'
 );
 
 select is(
