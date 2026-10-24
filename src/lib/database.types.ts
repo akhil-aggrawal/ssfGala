@@ -53,6 +53,90 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"sponsored_tables": {
+                  Row: {
+                    "capacity": number,"created_at": string,"event_id": string,"id": string,"invite_token_hash": string,"physical_table_number": string | null,"sponsorship_id": string,"tier_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "capacity"?: number,"created_at"?: string,"event_id": string,"id"?: string,"invite_token_hash": string,"physical_table_number"?: string | null,"sponsorship_id": string,"tier_id": string
+                  }
+                  Update: {
+                    "capacity"?: number,"created_at"?: string,"event_id"?: string,"id"?: string,"invite_token_hash"?: string,"physical_table_number"?: string | null,"sponsorship_id"?: string,"tier_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "sponsored_tables_event_id_fkey"
+      columns: ["event_id"]
+isOneToOne: false
+      referencedRelation: "events"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "sponsored_tables_sponsorship_id_event_id_fkey"
+      columns: ["sponsorship_id","event_id"]
+isOneToOne: false
+      referencedRelation: "sponsorships"
+      referencedColumns: ["id","event_id"]
+    },{
+      foreignKeyName: "sponsored_tables_tier_id_event_id_fkey"
+      columns: ["tier_id","event_id"]
+isOneToOne: false
+      referencedRelation: "seating_tiers"
+      referencedColumns: ["id","event_id"]
+    }
+                  ]
+                },"sponsors": {
+                  Row: {
+                    "created_at": string,"display_name": string,"email": string,"event_id": string,"id": string,"user_id": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"display_name": string,"email": string,"event_id": string,"id"?: string,"user_id"?: string | null
+                  }
+                  Update: {
+                    "created_at"?: string,"display_name"?: string,"email"?: string,"event_id"?: string,"id"?: string,"user_id"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "sponsors_event_id_fkey"
+      columns: ["event_id"]
+isOneToOne: false
+      referencedRelation: "events"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "sponsors_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"sponsorships": {
+                  Row: {
+                    "created_at": string,"event_id": string,"id": string,"pledged_cents": number,"sponsor_id": string,"status": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"event_id": string,"id"?: string,"pledged_cents": number,"sponsor_id": string,"status"?: string
+                  }
+                  Update: {
+                    "created_at"?: string,"event_id"?: string,"id"?: string,"pledged_cents"?: number,"sponsor_id"?: string,"status"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "sponsorships_event_id_fkey"
+      columns: ["event_id"]
+isOneToOne: false
+      referencedRelation: "events"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "sponsorships_sponsor_id_event_id_fkey"
+      columns: ["sponsor_id","event_id"]
+isOneToOne: false
+      referencedRelation: "sponsors"
+      referencedColumns: ["id","event_id"]
+    }
+                  ]
                 },"user_roles": {
                   Row: {
                     "role": string,"user_id": string
