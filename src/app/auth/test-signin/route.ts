@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { ensureProfile } from "@/lib/auth/profile";
 import { safeNextPath } from "@/lib/auth/next-path";
+import { testSigninEnabled } from "@/lib/env";
 import { DEFAULT_TEST_EMAIL } from "@/lib/auth/test-user";
 import {
   createSupabaseAdminClient,
@@ -8,10 +9,10 @@ import {
 } from "@/lib/supabase/server";
 
 // Test-only sign-in for browser tests: signs in a seeded user without
-// Google. It does not exist (404) unless E2E_AUTH=1, and only accepts
-// addresses on the reserved .test domain.
+// Google. It does not exist (404) unless E2E_AUTH=1 off a deployed
+// environment, and only accepts addresses on the reserved .test domain.
 export async function GET(request: NextRequest) {
-  if (process.env.E2E_AUTH !== "1") return new NextResponse(null, { status: 404 });
+  if (!testSigninEnabled(process.env)) return new NextResponse(null, { status: 404 });
 
   const url = request.nextUrl;
   const email = url.searchParams.get("email") ?? DEFAULT_TEST_EMAIL;
