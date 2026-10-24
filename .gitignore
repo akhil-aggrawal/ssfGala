@@ -28,3 +28,11 @@ docs/super-board/runs/*-workers/
 
 # Local Isaac tool state
 .isaac/
+
+# Playwright
+node_modules/
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/
