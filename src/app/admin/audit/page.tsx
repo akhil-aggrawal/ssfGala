@@ -4,7 +4,7 @@ import { listRecentAuditLogs, AUDIT_PAGE_SIZE, type AuditEntry } from "@/lib/aud
 import { requireRole } from "@/lib/auth/guard";
 import { createSupabaseAdminClient } from "@/lib/supabase/server";
 
-export const metadata: Metadata = { title: "Audit log — Admin — SSF Gala" };
+export const metadata: Metadata = { title: "Audit log — SSF Gala admin" };
 
 const when = new Intl.DateTimeFormat("en-US", {
   dateStyle: "medium",
@@ -64,11 +64,11 @@ async function AuditList() {
 
 export default function AuditPage() {
   return (
-    <main className="admin">
+    <>
       <h1>Audit log</h1>
       <Suspense fallback={<p>Checking access…</p>}>
         <AuditList />
       </Suspense>
-    </main>
+    </>
   );
 }
