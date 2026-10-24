@@ -965,3 +965,35 @@ a:focus-visible {
   color: #444;
   font-size: 0.9rem;
 }
+
+/* Table invite landing */
+.invite {
+  max-width: 36rem;
+  margin: 0 auto;
+  padding: 4rem 1rem;
+  text-align: center;
+}
+
+.invite h1 {
+  color: var(--gold);
+  font-family: var(--font-serif);
+  font-size: 2.25rem;
+  margin-bottom: 1rem;
+}
+
+.invite__sponsor,
+.invite__tier strong {
+  color: var(--gold);
+}
+
+.invite__closed {
+  color: var(--amber);
+  font-weight: 600;
+}
+
+.invite__signin .button {
+  margin-top: 0.5rem;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
