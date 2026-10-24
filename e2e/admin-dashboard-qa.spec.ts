@@ -103,9 +103,9 @@ test.describe("screenshots", () => {
       await page.goto("/admin");
       await expect(page.locator(".admin-metric").first()).toBeVisible();
       await page.screenshot({ path: `${dir}/overview-${vp.name}.png`, fullPage: true });
-      await page.getByRole("navigation", { name: "Admin" }).getByRole("link", { name: "Tables & Seating" }).click();
+      await page.getByRole("navigation", { name: "Admin" }).getByRole("link", { name: "Payments" }).click();
       await expect(page.getByText("This section is coming soon.")).toBeVisible();
-      await page.screenshot({ path: `${dir}/placeholder-tables-${vp.name}.png`, fullPage: true });
+      await page.screenshot({ path: `${dir}/placeholder-payments-${vp.name}.png`, fullPage: true });
       await context.close();
     });
   }
