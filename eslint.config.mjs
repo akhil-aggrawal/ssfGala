@@ -16,6 +16,8 @@ const eslintConfig = defineConfig([
     "test-results/**",
     "playwright-report/**",
     "blob-report/**",
+    // Super-board lane worktrees (their own checkout and .next output).
+    ".claude/worktrees/**",
   ]),
 ]);
 

@@ -1,4 +1,6 @@
 import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { ESLint } from "eslint";
 import { describe, expect, it } from "vitest";
 
 const read = (path: string) =>
@@ -61,5 +63,21 @@ describe("CI workflow", () => {
   it("installs from the lockfile and runs npm run verify", () => {
     expect(workflow).toMatch(/run: npm ci\s*$/m);
     expect(workflow).toMatch(/run: npm run verify\s*$/m);
+  });
+});
+
+// Lane worktrees live under .claude/worktrees/ and carry their own .next
+// build output; the main checkout must not lint or type-check them.
+describe("lane worktrees", () => {
+  const worktreeFile = ".claude/worktrees/issue-9-build/.next/server/app.js";
+
+  it("are ignored by ESLint", async () => {
+    const eslint = new ESLint({ cwd: fileURLToPath(new URL("..", import.meta.url)) });
+    expect(await eslint.isPathIgnored(worktreeFile)).toBe(true);
+  });
+
+  it("are excluded from the TypeScript project", () => {
+    const tsconfig = JSON.parse(read("tsconfig.json")) as { exclude: string[] };
+    expect(tsconfig.exclude).toContain(".claude/worktrees");
   });
 });
