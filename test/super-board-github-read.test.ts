@@ -156,6 +156,12 @@ describe("super-board-github-read: malformed reads of any kind fail only that ca
     expect(runRead(placeholderQuery, unresolved, 1, strict)).toMatchObject({ status: 79, halted: true });
   });
 
+  it("exits 64 after three attempts when a kind not in FORMS gets JSON of the wrong shape, without a halt file", () => {
+    const run = runRead(["api", "rate_limit"], "", 0, {}, { ...quota, stdout: '{"resources":{}}\n' });
+    expect(run).toMatchObject({ status: 64, attempts: 3, halted: false });
+    expect(run.stderr).toContain("--kind quota");
+  });
+
   it("retries an HTTP 5xx on a kind not in FORMS three times, then exits 79 with a halt file", () => {
     const run = runRead(["api", "rate_limit"], "HTTP 502: Bad Gateway (https://api.github.com/rate_limit)\n", 1, {}, quota);
     expect(run).toMatchObject({ status: 79, attempts: 3, halted: true });
