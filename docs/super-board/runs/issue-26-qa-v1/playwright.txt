@@ -1,0 +1,8 @@
+
+Running 3 tests using 1 worker
+
+  ✓  1 [chromium] › e2e/admin-attendees-qa.spec.ts:109:5 › AC1: partial name or email search returns only the active gala's attendees (3.1s)
+  ✓  2 [chromium] › e2e/admin-attendees-qa.spec.ts:137:5 › AC3: editing an attendee writes an audit row with before and after values (2.0s)
+  ✓  3 [chromium] › e2e/admin-attendees-qa.spec.ts:168:5 › AC2 + AC4: cancel keeps payments; cancelled rows hide until the filter is ticked (2.7s)
+
+  3 passed (22.5s)
