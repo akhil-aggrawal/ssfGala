@@ -1,7 +1,7 @@
 -- Issue #22: shared audit log writer.
 -- Run with: supabase test db
 begin;
-select plan(6);
+select plan(8);
 
 insert into public.events (id, name, year, status) values
   ('00000000-0000-0000-0000-000000000221', 'Gala 2027', 2027, 'open');
@@ -83,6 +83,36 @@ select is(
     where id = '00000000-0000-0000-0000-000000000223'),
   20000::bigint,
   'the rolled-back edit leaves the tier unchanged'
+);
+
+-- Same transaction, other direction: the audit write fails (unknown event,
+-- foreign key violation), so the edit made before it must not stay either.
+create function pg_temp.edit_tier_then_bad_audit() returns void
+language plpgsql as $$
+begin
+  update public.seating_tiers set seat_price_cents = 40000
+   where id = '00000000-0000-0000-0000-000000000223';
+  perform public.record_audit_log(
+    '00000000-0000-0000-0000-0000000002ff',
+    '00000000-0000-0000-0000-000000000222',
+    'tier.update', 'seating_tier', '00000000-0000-0000-0000-000000000223',
+    '{"seat_price_cents": 20000}'::jsonb, '{"seat_price_cents": 40000}'::jsonb
+  );
+end;
+$$;
+
+select throws_ok(
+  'select pg_temp.edit_tier_then_bad_audit()',
+  '23503',
+  null,
+  'a failed audit write raises (foreign key violation)'
+);
+
+select is(
+  (select seat_price_cents from public.seating_tiers
+    where id = '00000000-0000-0000-0000-000000000223'),
+  20000::bigint,
+  'a failed audit write leaves the tier unchanged'
 );
 
 -- Only the server (service role) may call the writer.
