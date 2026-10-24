@@ -5,7 +5,33 @@ export type Database = {
   
   "public": {
           Tables: {
-            "events": {
+            "attendees": {
+                  Row: {
+                    "assigned_table_number": string | null,"cancelled_at": string | null,"created_at": string,"email": string,"event_id": string,"full_name": string,"id": string,"registration_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "assigned_table_number"?: string | null,"cancelled_at"?: string | null,"created_at"?: string,"email": string,"event_id": string,"full_name": string,"id"?: string,"registration_id": string
+                  }
+                  Update: {
+                    "assigned_table_number"?: string | null,"cancelled_at"?: string | null,"created_at"?: string,"email"?: string,"event_id"?: string,"full_name"?: string,"id"?: string,"registration_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "attendees_event_id_fkey"
+      columns: ["event_id"]
+isOneToOne: false
+      referencedRelation: "events"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "attendees_registration_id_event_id_fkey"
+      columns: ["registration_id","event_id"]
+isOneToOne: false
+      referencedRelation: "registrations"
+      referencedColumns: ["id","event_id"]
+    }
+                  ]
+                },"events": {
                   Row: {
                     "created_at": string,"date_at": string | null,"id": string,"name": string,"status": string,"venue": string | null,"year": number
                   }
@@ -32,6 +58,44 @@ export type Database = {
                   }
                   Relationships: [
                     
+                  ]
+                },"registrations": {
+                  Row: {
+                    "created_at": string,"created_by": string | null,"event_id": string,"id": string,"kind": string,"sponsored_table_id": string | null,"status": string,"tier_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"created_by"?: string | null,"event_id": string,"id"?: string,"kind": string,"sponsored_table_id"?: string | null,"status"?: string,"tier_id": string
+                  }
+                  Update: {
+                    "created_at"?: string,"created_by"?: string | null,"event_id"?: string,"id"?: string,"kind"?: string,"sponsored_table_id"?: string | null,"status"?: string,"tier_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "registrations_created_by_fkey"
+      columns: ["created_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "registrations_event_id_fkey"
+      columns: ["event_id"]
+isOneToOne: false
+      referencedRelation: "events"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "registrations_sponsored_table_id_event_id_fkey"
+      columns: ["sponsored_table_id","event_id"]
+isOneToOne: false
+      referencedRelation: "sponsored_tables"
+      referencedColumns: ["id","event_id"]
+    },{
+      foreignKeyName: "registrations_tier_id_event_id_fkey"
+      columns: ["tier_id","event_id"]
+isOneToOne: false
+      referencedRelation: "seating_tiers"
+      referencedColumns: ["id","event_id"]
+    }
                   ]
                 },"seating_tiers": {
                   Row: {
