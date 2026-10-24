@@ -128,9 +128,10 @@
   "usage_pause_pct": 95,
   "usage_fallback": "none",
   "verify_commands": [
-    "npm ci --silent && npm run verify"
+    "npm ci --silent && npm run verify",
+    "supabase db reset"
   ],
-  "max_workers": 1,
+  "max_workers": 2,
   "rebuild_cap": 2,
   "block_rate_alert_pct": 30,
   "collect": {
