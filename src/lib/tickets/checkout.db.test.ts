@@ -104,6 +104,30 @@ async function paymentsOf(userId: string) {
   return { registration: reg, payments: data };
 }
 
+// A client whose payments upsert is refused, as if the row could not be
+// stored after Stripe had already made the session (the R1 case).
+function refusePaymentInsert(client: ReturnType<typeof db>): ReturnType<typeof db> {
+  const bind = (target: object, prop: string | symbol) => {
+    const value = Reflect.get(target, prop);
+    return typeof value === "function" ? value.bind(target) : value;
+  };
+  return new Proxy(client, {
+    get(target, prop) {
+      if (prop !== "from") return bind(target, prop);
+      return (table: string) => {
+        const query = target.from(table as "payments");
+        if (table !== "payments") return query;
+        return new Proxy(query, {
+          get(q, qp) {
+            if (qp === "upsert") return async () => ({ data: null, error: { message: "insert refused" } });
+            return bind(q, qp);
+          },
+        });
+      };
+    },
+  });
+}
+
 describe.skipIf(!enabled)("startTicketCheckout on a real database (issue #13 QA)", () => {
   beforeAll(async () => {
     const { data } = await db().from("events").select("id, status").in("status", ["draft", "open"]).maybeSingle();
@@ -224,5 +248,33 @@ describe.skipIf(!enabled)("startTicketCheckout on a real database (issue #13 QA)
     const after = await paymentsOf(b.userId);
     expect(after.registration.status).toBe("pending_payment");
     expect(after.payments.map((p) => p.status)).toEqual(["pending"]);
+  });
+
+  it("R1: a failed payment insert then an unchanged retry reuses the same Stripe session", async () => {
+    const b = await buyer("Silver", 2);
+    const stripe = fakeStripe();
+    await expect(startTicketCheckout(refusePaymentInsert(db()), stripe.gateway, b)).rejects.toThrow(/insert refused/);
+    expect((await paymentsOf(b.userId)).payments).toHaveLength(0);
+
+    const result = await startTicketCheckout(db(), stripe.gateway, b);
+    expect(stripe.sessions.size).toBe(1);
+    const [session] = [...stripe.sessions.values()];
+    const { payments } = await paymentsOf(b.userId);
+    expect(payments.map((p) => [p.amount_cents, p.stripe_session_id])).toEqual([[30000, session.id]]);
+    expect(result).toEqual({ kind: "redirect", url: session.url });
+  });
+
+  it("R1: a failed payment insert then a changed order still reaches Stripe (no idempotency lockout)", async () => {
+    const b = await buyer("Silver", 3);
+    const stripe = fakeStripe();
+    await expect(startTicketCheckout(refusePaymentInsert(db()), stripe.gateway, b)).rejects.toThrow(/insert refused/);
+
+    await save(b.userId, "Silver", 2);
+    const result = await startTicketCheckout(db(), stripe.gateway, b);
+    expect(result.kind).toBe("redirect");
+    expect(stripe.sessions.size).toBe(2);
+    const { registration, payments } = await paymentsOf(b.userId);
+    expect(payments.map((p) => [p.amount_cents, p.status])).toEqual([[30000, "pending"]]);
+    expect(registration.status).toBe("pending_payment");
   });
 });
