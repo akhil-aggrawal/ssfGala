@@ -1,0 +1,187 @@
+
+Running 12 tests using 1 worker
+
+  ✓   1 [chromium] › e2e/admin-dashboard-qa.spec.ts:56:9 › AC1: placeholder sections keep the admin guard › signed out, /admin/attendees goes to sign-in (169ms)
+  ✘   2 [chromium] › e2e/admin-dashboard-qa.spec.ts:62:9 › AC1: placeholder sections keep the admin guard › a sponsor at /admin/attendees gets 403 and no sidebar (5.7s)
+  ✓   3 [chromium] › e2e/admin-dashboard-qa.spec.ts:56:9 › AC1: placeholder sections keep the admin guard › signed out, /admin/sponsors goes to sign-in (176ms)
+  ✘   4 [chromium] › e2e/admin-dashboard-qa.spec.ts:62:9 › AC1: placeholder sections keep the admin guard › a sponsor at /admin/sponsors gets 403 and no sidebar (5.5s)
+  ✓   5 [chromium] › e2e/admin-dashboard-qa.spec.ts:56:9 › AC1: placeholder sections keep the admin guard › signed out, /admin/tables goes to sign-in (155ms)
+  ✘   6 [chromium] › e2e/admin-dashboard-qa.spec.ts:62:9 › AC1: placeholder sections keep the admin guard › a sponsor at /admin/tables gets 403 and no sidebar (5.4s)
+  ✓   7 [chromium] › e2e/admin-dashboard-qa.spec.ts:56:9 › AC1: placeholder sections keep the admin guard › signed out, /admin/payments goes to sign-in (143ms)
+  ✘   8 [chromium] › e2e/admin-dashboard-qa.spec.ts:62:9 › AC1: placeholder sections keep the admin guard › a sponsor at /admin/payments gets 403 and no sidebar (5.4s)
+  ✓   9 [chromium] › e2e/admin-dashboard-qa.spec.ts:56:9 › AC1: placeholder sections keep the admin guard › signed out, /admin/setup goes to sign-in (153ms)
+  ✘  10 [chromium] › e2e/admin-dashboard-qa.spec.ts:62:9 › AC1: placeholder sections keep the admin guard › a sponsor at /admin/setup gets 403 and no sidebar (5.5s)
+  ✓  11 [chromium] › e2e/admin-dashboard-qa.spec.ts:56:9 › AC1: placeholder sections keep the admin guard › signed out, /admin/exports goes to sign-in (158ms)
+  ✘  12 [chromium] › e2e/admin-dashboard-qa.spec.ts:62:9 › AC1: placeholder sections keep the admin guard › a sponsor at /admin/exports gets 403 and no sidebar (5.5s)
+
+
+  1) [chromium] › e2e/admin-dashboard-qa.spec.ts:62:9 › AC1: placeholder sections keep the admin guard › a sponsor at /admin/attendees gets 403 and no sidebar 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: /403/ })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: /403/ }) with timeout 5000ms
+      - waiting for getByRole('heading', { name: /403/ })
+
+
+      63 |       await signInAs(page, "sponsor");
+      64 |       await page.goto(path);
+    > 65 |       await expect(page.getByRole("heading", { name: /403/ })).toBeVisible();
+         |                                                                ^
+      66 |       await expect(page.getByRole("navigation", { name: "Admin" })).toHaveCount(0);
+      67 |       await expect(page.getByText("This section is coming soon.")).toHaveCount(0);
+      68 |     });
+        at /Users/akhil/myapps/ssfGala/.claude/worktrees/issue-24-qa/e2e/admin-dashboard-qa.spec.ts:65:64
+
+    Error Context: test-results/admin-dashboard-qa-AC1-pla-74893-ees-gets-403-and-no-sidebar-chromium/error-context.md
+
+    Error Context: test-results/admin-dashboard-qa-AC1-pla-74893-ees-gets-403-and-no-sidebar-chromium/error-context.md
+
+  2) [chromium] › e2e/admin-dashboard-qa.spec.ts:62:9 › AC1: placeholder sections keep the admin guard › a sponsor at /admin/sponsors gets 403 and no sidebar 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: /403/ })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: /403/ }) with timeout 5000ms
+      - waiting for getByRole('heading', { name: /403/ })
+
+
+      63 |       await signInAs(page, "sponsor");
+      64 |       await page.goto(path);
+    > 65 |       await expect(page.getByRole("heading", { name: /403/ })).toBeVisible();
+         |                                                                ^
+      66 |       await expect(page.getByRole("navigation", { name: "Admin" })).toHaveCount(0);
+      67 |       await expect(page.getByText("This section is coming soon.")).toHaveCount(0);
+      68 |     });
+        at /Users/akhil/myapps/ssfGala/.claude/worktrees/issue-24-qa/e2e/admin-dashboard-qa.spec.ts:65:64
+
+    Error Context: test-results/admin-dashboard-qa-AC1-pla-f514f-ors-gets-403-and-no-sidebar-chromium/error-context.md
+
+    Error Context: test-results/admin-dashboard-qa-AC1-pla-f514f-ors-gets-403-and-no-sidebar-chromium/error-context.md
+
+  3) [chromium] › e2e/admin-dashboard-qa.spec.ts:62:9 › AC1: placeholder sections keep the admin guard › a sponsor at /admin/tables gets 403 and no sidebar 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: /403/ })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: /403/ }) with timeout 5000ms
+      - waiting for getByRole('heading', { name: /403/ })
+
+
+      63 |       await signInAs(page, "sponsor");
+      64 |       await page.goto(path);
+    > 65 |       await expect(page.getByRole("heading", { name: /403/ })).toBeVisible();
+         |                                                                ^
+      66 |       await expect(page.getByRole("navigation", { name: "Admin" })).toHaveCount(0);
+      67 |       await expect(page.getByText("This section is coming soon.")).toHaveCount(0);
+      68 |     });
+        at /Users/akhil/myapps/ssfGala/.claude/worktrees/issue-24-qa/e2e/admin-dashboard-qa.spec.ts:65:64
+
+    Error Context: test-results/admin-dashboard-qa-AC1-pla-cba26-les-gets-403-and-no-sidebar-chromium/error-context.md
+
+    Error Context: test-results/admin-dashboard-qa-AC1-pla-cba26-les-gets-403-and-no-sidebar-chromium/error-context.md
+
+  4) [chromium] › e2e/admin-dashboard-qa.spec.ts:62:9 › AC1: placeholder sections keep the admin guard › a sponsor at /admin/payments gets 403 and no sidebar 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: /403/ })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: /403/ }) with timeout 5000ms
+      - waiting for getByRole('heading', { name: /403/ })
+
+
+      63 |       await signInAs(page, "sponsor");
+      64 |       await page.goto(path);
+    > 65 |       await expect(page.getByRole("heading", { name: /403/ })).toBeVisible();
+         |                                                                ^
+      66 |       await expect(page.getByRole("navigation", { name: "Admin" })).toHaveCount(0);
+      67 |       await expect(page.getByText("This section is coming soon.")).toHaveCount(0);
+      68 |     });
+        at /Users/akhil/myapps/ssfGala/.claude/worktrees/issue-24-qa/e2e/admin-dashboard-qa.spec.ts:65:64
+
+    Error Context: test-results/admin-dashboard-qa-AC1-pla-3563e-nts-gets-403-and-no-sidebar-chromium/error-context.md
+
+    Error Context: test-results/admin-dashboard-qa-AC1-pla-3563e-nts-gets-403-and-no-sidebar-chromium/error-context.md
+
+  5) [chromium] › e2e/admin-dashboard-qa.spec.ts:62:9 › AC1: placeholder sections keep the admin guard › a sponsor at /admin/setup gets 403 and no sidebar 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: /403/ })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: /403/ }) with timeout 5000ms
+      - waiting for getByRole('heading', { name: /403/ })
+
+
+      63 |       await signInAs(page, "sponsor");
+      64 |       await page.goto(path);
+    > 65 |       await expect(page.getByRole("heading", { name: /403/ })).toBeVisible();
+         |                                                                ^
+      66 |       await expect(page.getByRole("navigation", { name: "Admin" })).toHaveCount(0);
+      67 |       await expect(page.getByText("This section is coming soon.")).toHaveCount(0);
+      68 |     });
+        at /Users/akhil/myapps/ssfGala/.claude/worktrees/issue-24-qa/e2e/admin-dashboard-qa.spec.ts:65:64
+
+    Error Context: test-results/admin-dashboard-qa-AC1-pla-39f77-tup-gets-403-and-no-sidebar-chromium/error-context.md
+
+    Error Context: test-results/admin-dashboard-qa-AC1-pla-39f77-tup-gets-403-and-no-sidebar-chromium/error-context.md
+
+  6) [chromium] › e2e/admin-dashboard-qa.spec.ts:62:9 › AC1: placeholder sections keep the admin guard › a sponsor at /admin/exports gets 403 and no sidebar 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: /403/ })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: /403/ }) with timeout 5000ms
+      - waiting for getByRole('heading', { name: /403/ })
+
+
+      63 |       await signInAs(page, "sponsor");
+      64 |       await page.goto(path);
+    > 65 |       await expect(page.getByRole("heading", { name: /403/ })).toBeVisible();
+         |                                                                ^
+      66 |       await expect(page.getByRole("navigation", { name: "Admin" })).toHaveCount(0);
+      67 |       await expect(page.getByText("This section is coming soon.")).toHaveCount(0);
+      68 |     });
+        at /Users/akhil/myapps/ssfGala/.claude/worktrees/issue-24-qa/e2e/admin-dashboard-qa.spec.ts:65:64
+
+    Error Context: test-results/admin-dashboard-qa-AC1-pla-b3dbf-rts-gets-403-and-no-sidebar-chromium/error-context.md
+
+    Error Context: test-results/admin-dashboard-qa-AC1-pla-b3dbf-rts-gets-403-and-no-sidebar-chromium/error-context.md
+
+  6 failed
+    [chromium] › e2e/admin-dashboard-qa.spec.ts:62:9 › AC1: placeholder sections keep the admin guard › a sponsor at /admin/attendees gets 403 and no sidebar 
+    [chromium] › e2e/admin-dashboard-qa.spec.ts:62:9 › AC1: placeholder sections keep the admin guard › a sponsor at /admin/sponsors gets 403 and no sidebar 
+    [chromium] › e2e/admin-dashboard-qa.spec.ts:62:9 › AC1: placeholder sections keep the admin guard › a sponsor at /admin/tables gets 403 and no sidebar 
+    [chromium] › e2e/admin-dashboard-qa.spec.ts:62:9 › AC1: placeholder sections keep the admin guard › a sponsor at /admin/payments gets 403 and no sidebar 
+    [chromium] › e2e/admin-dashboard-qa.spec.ts:62:9 › AC1: placeholder sections keep the admin guard › a sponsor at /admin/setup gets 403 and no sidebar 
+    [chromium] › e2e/admin-dashboard-qa.spec.ts:62:9 › AC1: placeholder sections keep the admin guard › a sponsor at /admin/exports gets 403 and no sidebar 
+  6 passed (48.8s)

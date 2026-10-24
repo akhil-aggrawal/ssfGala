@@ -369,7 +369,10 @@ isOneToOne: false
                 }
           }
           Functions: {
-            "record_audit_log":
+            "is_admin":
+{ Args: Record<PropertyKey, never>; Returns: boolean
+                           },
+"record_audit_log":
 { Args: { "p_action": string,"p_actor_id": string,"p_after_data": Json,"p_before_data": Json,"p_entity_id": string,"p_entity_type": string,"p_event_id": string }; Returns: number
                            }
           }

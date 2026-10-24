@@ -41,6 +41,6 @@ test("a signed-in non-admin gets the 403 page at /admin", async ({ page }) => {
 test("a user with admin and sponsor can open /admin", async ({ page }) => {
   await signInWithRoles(page, ["admin", "sponsor"]);
   await page.goto("/admin");
-  await expect(page.getByRole("heading", { name: "Admin" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Overview" })).toBeVisible();
   await expect(page.getByText(/Signed in as/)).toBeVisible();
 });
