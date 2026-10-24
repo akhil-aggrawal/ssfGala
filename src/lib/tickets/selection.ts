@@ -16,9 +16,13 @@ export function orderTotalCents(tier: TicketTier, quantity: number): number {
 
 // 15000 → "$150", 60150 → "$601.50".
 export function formatUsd(cents: number): string {
-  const dollars = Math.trunc(cents / 100).toLocaleString("en-US");
-  const rest = cents % 100;
-  return rest === 0 ? `$${dollars}` : `$${dollars}.${String(rest).padStart(2, "0")}`;
+  const digits = cents % 100 === 0 ? 0 : 2;
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits,
+  }).format(cents / 100);
 }
 
 // A choice from the URL or a form. Unknown tiers and out-of-range
