@@ -1,0 +1,30 @@
+
+> ssf-gala@0.1.0 verify
+> npm run lint && npm run typecheck && npm run test
+
+
+> ssf-gala@0.1.0 lint
+> eslint --max-warnings 0
+
+
+> ssf-gala@0.1.0 typecheck
+> next typegen && tsc --noEmit
+
+Generating route types...
+✓ Types generated successfully
+
+> ssf-gala@0.1.0 test
+> vitest run
+
+
+ RUN  v5.0.5 /Users/akhil/myapps/ssfGala/.claude/worktrees/issue-10-qa
+
+
+ Test Files  18 passed | 1 skipped (19)
+      Tests  130 passed | 1 skipped (131)
+   Start at  00:39:39
+   Duration  1.98s (tests 57%, import 33%, transform 6%, worker 4%)
+
+    Isolate  19 workers spawned · ~218ms startup each (spawn + environment, per file)
+             at least ~374ms faster with isolate: false — reuses workers across files instead of one per file
+
