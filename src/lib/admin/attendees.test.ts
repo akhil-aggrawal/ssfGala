@@ -36,6 +36,17 @@ describe("parseAddAttendeesForm", () => {
     expect(parsed.ok && parsed.value.attendees).toHaveLength(1);
   });
 
+  // QA (issue #25): the 1-cent-per-attendee money guard at its boundary.
+  it("accepts exactly 1 cent per attendee and rejects less", () => {
+    const two: [string, string][] = [["Asha Rao", "asha@example.test"], ["Ben Li", "ben@example.test"]];
+    expect(parseAddAttendeesForm(form({ kind: "offline_paid", amount: "0.01" }, two))).toEqual({
+      ok: false,
+      error: "Amount received must be at least 1 cent per attendee.",
+    });
+    const ok = parseAddAttendeesForm(form({ kind: "offline_paid", amount: "0.02" }, two));
+    expect(ok.ok && ok.value.amount_cents).toBe(2);
+  });
+
   it.each([
     [{ kind: "individual" }, undefined, "Choose Complimentary or Paid offline."],
     [{ tier_id: "gold" }, undefined, "Choose a tier."],

@@ -1,6 +1,6 @@
 -- Run with: supabase test db
 begin;
-select plan(16);
+select plan(20);
 
 insert into auth.users (id, email)
 values ('00000000-0000-0000-0000-0000000000b1', 'admin-b1@example.test');
@@ -104,6 +104,38 @@ select throws_ok(
        '00000000-0000-0000-0000-00000000e002', 'complimentary',
        '00000000-0000-0000-0000-0000000000f2', '[{"full_name":"X","email":"x@example.test"}]') $$,
   '55000', 'admin_attendees_archived', 'an archived event is read-only');
+
+-- QA (issue #25): money guards at the 1-cent-per-attendee boundary.
+select throws_ok(
+  $$ select public.add_admin_attendees('00000000-0000-0000-0000-0000000000b1',
+       '00000000-0000-0000-0000-00000000e001', 'complimentary',
+       '00000000-0000-0000-0000-0000000000f1', '[{"full_name":"X","email":"x@example.test"}]', 500) $$,
+  '22023', null, 'a complimentary registration with an amount is rejected');
+select throws_ok(
+  $$ select public.add_admin_attendees('00000000-0000-0000-0000-0000000000b1',
+       '00000000-0000-0000-0000-00000000e001', 'offline_paid',
+       '00000000-0000-0000-0000-0000000000f1',
+       '[{"full_name":"X","email":"x@example.test"},{"full_name":"Y","email":"y@example.test"}]', 1) $$,
+  '22023', null, 'paid offline under 1 cent per attendee is rejected');
+create temp table boundary as
+select public.add_admin_attendees(
+  '00000000-0000-0000-0000-0000000000b1',
+  '00000000-0000-0000-0000-00000000e001',
+  'offline_paid',
+  '00000000-0000-0000-0000-0000000000f1',
+  '[{"full_name":"X","email":"x@example.test"},{"full_name":"Y","email":"y@example.test"}]',
+  2
+) as id;
+select is(
+  (select array_agg(pa.amount_cents order by pa.amount_cents) from public.payment_allocations pa
+   join public.payments p on p.id = pa.payment_id
+   where p.registration_id = (select id from boundary)),
+  array[1, 1]::bigint[], 'exactly 1 cent per attendee is accepted and allocated');
+select throws_ok(
+  $$ select public.add_admin_attendees('00000000-0000-0000-0000-0000000000b1',
+       '00000000-0000-0000-0000-00000000e001', 'complimentary',
+       '00000000-0000-0000-0000-0000000000f1', '[]') $$,
+  '22023', null, 'an empty attendee list is rejected');
 
 select ok(
   not has_function_privilege('authenticated',
