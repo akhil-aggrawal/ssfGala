@@ -54,6 +54,16 @@ describe("buildSeating", () => {
     expect(byName.Eve).toMatchObject({ sponsorName: null, tierName: "Silver", tableNumber: null, moved: false });
   });
 
+  // QA #28: a full table (guests == capacity) is not overbooked; one more is.
+  it("flags a table only when active guests exceed capacity", () => {
+    const full = rows();
+    full.tables[0].capacity = 3;
+    expect(buildSeating(full).tables[0]).toMatchObject({ guestCount: 3, capacity: 3, overbooked: false });
+    full.tables[0].capacity = 4;
+    expect(buildSeating(full).tables[0]).toMatchObject({ guestCount: 3, overbooked: false });
+    expect(buildSeating(rows()).tables[0]).toMatchObject({ guestCount: 3, capacity: 2, overbooked: true });
+  });
+
   it("leaves out cancelled guests and guests of cancelled registrations", () => {
     const names = buildSeating(rows()).guests.map((g) => g.fullName);
     expect(names).toEqual(["Ann", "Ben", "Cat", "Eve"]);

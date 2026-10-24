@@ -1,7 +1,7 @@
 -- Issue #28: table numbers, single-guest moves, audit rows.
 -- Run with: supabase test db
 begin;
-select plan(14);
+select plan(16);
 
 insert into public.events (id, name, year, status) values
   ('00000000-0000-0000-0000-000000000281', 'Gala 2027', 2027, 'open'),
@@ -117,6 +117,25 @@ select throws_ok(
        '00000000-0000-0000-0000-000000000296', '3') $$,
   'P0002', null,
   'a table of another event is refused'
+);
+
+-- QA #28: a guest of another event cannot be moved from this gala either.
+insert into public.registrations (id, event_id, kind, tier_id, sponsored_table_id) values
+  ('00000000-0000-0000-0000-000000000297', '00000000-0000-0000-0000-000000000289', 'sponsored', '00000000-0000-0000-0000-000000000293', '00000000-0000-0000-0000-000000000296');
+insert into public.attendees (id, event_id, registration_id, full_name, email) values
+  ('00000000-0000-0000-0000-0000000002b1', '00000000-0000-0000-0000-000000000289', '00000000-0000-0000-0000-000000000297', 'Old Guest', 'old-guest@example.test');
+select throws_ok(
+  $$ select public.move_attendee(
+       '00000000-0000-0000-0000-000000000282', '00000000-0000-0000-0000-000000000281',
+       '00000000-0000-0000-0000-0000000002b1', '3') $$,
+  'P0002', null,
+  'a guest of another event is refused'
+);
+select is(
+  (select assigned_table_number from public.attendees
+    where id = '00000000-0000-0000-0000-0000000002b1'),
+  null,
+  'the other event''s guest is unchanged'
 );
 
 -- Archived events are read-only.
