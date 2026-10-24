@@ -1,0 +1,16 @@
+
+ RUN  v5.0.5 /Users/akhil/myapps/ssfGala/.claude/worktrees/issue-80-qa
+
+ ✓ test/super-board-merge-policy.test.ts > super-board-merge-policy: keyword_exclude > gives no auth hold when the only service_role line is in an e2e spec 72ms
+ ✓ test/super-board-merge-policy.test.ts > super-board-merge-policy: keyword_exclude > gives no schema hold when the only drop table line is in a test/**/*.test.ts file 69ms
+ ✓ test/super-board-merge-policy.test.ts > super-board-merge-policy: keyword_exclude > still holds service_role in a migration or src file 129ms
+ ✓ test/super-board-merge-policy.test.ts > super-board-merge-policy: keyword_exclude > searches every added line again when keyword_exclude is [] 66ms
+ ✓ test/super-board-merge-policy.test.ts > super-board-merge-policy: keyword_exclude > does not let a +++ content line inside a hunk relabel a src file as a test file 70ms
+ ✓ test/super-board-merge-policy.test.ts > super-board-merge-policy: keyword_exclude > checks each hunk of a multi-file diff against its own file 65ms
+ ✓ test/super-board-merge-policy.test.ts > super-board-merge-policy: keyword_exclude > still holds on labels and paths when every file matches keyword_exclude 130ms
+
+ Test Files  1 passed (1)
+      Tests  7 passed (7)
+   Start at  14:31:36
+   Duration  796ms (tests 96%, import 2%, transform 1%, worker 1%)
+

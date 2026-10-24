@@ -7,11 +7,13 @@ import { getSessionUser } from "@/lib/auth/session";
 import { createSupabaseAdminClient } from "@/lib/supabase/server";
 import { loadPendingOrder } from "@/lib/tickets/order";
 import { formatUsd, orderTotalCents } from "@/lib/tickets/selection";
+import { PayButton } from "./pay-button";
 
 export const metadata: Metadata = { title: "Review Order — SSF Gala" };
 
 // The buyer's saved pending order, read back from the database: tier,
-// quantity, attendee names and total. Nothing is paid or confirmed here.
+// quantity, attendee names and total. Pay starts Stripe Checkout; nothing
+// is confirmed here.
 async function Review() {
   await connection();
   const user = await getSessionUser();
@@ -39,6 +41,7 @@ async function Review() {
       <p className="ticket-form__total">
         Total: <strong>{formatUsd(orderTotalCents(order.tier, quantity))}</strong>
       </p>
+      <PayButton />
       <Link
         className="ticket-review__edit"
         href={`/tickets/attendees?tier=${encodeURIComponent(order.tier.name)}&quantity=${quantity}`}

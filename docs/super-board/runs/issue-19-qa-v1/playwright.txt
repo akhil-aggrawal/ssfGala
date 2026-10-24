@@ -1,0 +1,41 @@
+
+Running 35 tests using 1 worker
+
+  ✓   1 [chromium] › e2e/auth-qa.spec.ts:18:9 › AC2: a next on another origin is ignored › test sign-in drops //evil.example/phish (622ms)
+  ✓   2 [chromium] › e2e/auth-qa.spec.ts:18:9 › AC2: a next on another origin is ignored › test sign-in drops /\evil.example (392ms)
+  ✓   3 [chromium] › e2e/auth-qa.spec.ts:18:9 › AC2: a next on another origin is ignored › test sign-in drops https:evil.example (352ms)
+  ✓   4 [chromium] › e2e/auth-qa.spec.ts:18:9 › AC2: a next on another origin is ignored › test sign-in drops javascript:alert(1) (376ms)
+  ✓   5 [chromium] › e2e/auth-qa.spec.ts:24:7 › AC2: a next on another origin is ignored › the callback drops an off-origin next on its error path (448ms)
+  ✓   6 [chromium] › e2e/auth-qa.spec.ts:30:7 › AC2: a next on another origin is ignored › the sign-in form posts / when next is on another origin (217ms)
+  ✓   7 [chromium] › e2e/auth-qa.spec.ts:35:7 › AC2: a next on another origin is ignored › Google OAuth callback drops an off-origin next (336ms)
+  ✓   8 [chromium] › e2e/auth-qa.spec.ts:48:7 › AC1: the user comes back to the page they started on › Buy Tickets, then Sign In carries /tickets through to the form (484ms)
+  ✓   9 [chromium] › e2e/auth-qa.spec.ts:58:7 › AC1: the user comes back to the page they started on › an invite link keeps its token and query in the Sign In link (245ms)
+  ✓  10 [chromium] › e2e/auth-qa.spec.ts:63:7 › AC1: the user comes back to the page they started on › signing in from an invite link lands back on it (405ms)
+  ✓  11 [chromium] › e2e/auth-qa.spec.ts:73:7 › AC4: sign-out on a phone › the Account menu's Sign out button is on screen and signs out (884ms)
+  ✓  12 [chromium] › e2e/auth-qa.spec.ts:88:9 › AC4: Sign out stays on screen around the 40rem breakpoint › at 320 px wide (967ms)
+  ✓  13 [chromium] › e2e/auth-qa.spec.ts:88:9 › AC4: Sign out stays on screen around the 40rem breakpoint › at 640 px wide (977ms)
+  ✓  14 [chromium] › e2e/auth-qa.spec.ts:88:9 › AC4: Sign out stays on screen around the 40rem breakpoint › at 641 px wide (1.1s)
+  ✓  15 [chromium] › e2e/auth-qa.spec.ts:88:9 › AC4: Sign out stays on screen around the 40rem breakpoint › at 768 px wide (832ms)
+  -  16 [chromium] › e2e/auth-qa.spec.ts:113:9 › screenshots › capture desktop
+  -  17 [chromium] › e2e/auth-qa.spec.ts:113:9 › screenshots › capture tablet
+  -  18 [chromium] › e2e/auth-qa.spec.ts:113:9 › screenshots › capture mobile
+  ✓  19 [chromium] › e2e/auth.spec.ts:12:5 › after sign-in the user returns to the exact next path, incl. /invite/<token> (377ms)
+  ✓  20 [chromium] › e2e/auth.spec.ts:17:5 › a next on another origin is ignored and the user lands on / (366ms)
+  ✓  21 [chromium] › e2e/auth.spec.ts:22:5 › the first sign-in creates one profiles row; a second creates none (965ms)
+  ✓  22 [chromium] › e2e/auth.spec.ts:42:5 › sign-out clears the session and the header shows Sign In again (858ms)
+  ✓  23 [chromium] › e2e/auth.spec.ts:54:5 › Sign in with Google starts OAuth with a callback that carries next (551ms)
+  ✓  24 [chromium] › e2e/auth.spec.ts:68:5 › the header Sign In link carries the current page as next (445ms)
+  ✓  25 [chromium] › e2e/invite-landing-qa.spec.ts:62:5 › AC2: Sign in with Google on the invite page sends OAuth a callback that returns to the same token (544ms)
+  ✓  26 [chromium] › e2e/invite-landing-qa.spec.ts:76:5 › AC4: a signed-in guest on a closed gala's link still gets no registration form (373ms)
+  ✓  27 [chromium] › e2e/invite-landing-qa.spec.ts:85:7 › the open invite page meets WCAG AA (axe) at desktop and mobile (1.8s)
+  ✓  28 [chromium] › e2e/invite-landing-qa.spec.ts:85:7 › the invalid invite page meets WCAG AA (axe) at desktop and mobile (1.6s)
+  ✓  29 [chromium] › e2e/invite-landing-qa.spec.ts:85:7 › the closed invite page meets WCAG AA (axe) at desktop and mobile (1.8s)
+  ✓  30 [chromium] › e2e/invite-landing.spec.ts:66:5 › AC1: a valid token shows the sponsor name and tier (316ms)
+  ✓  31 [chromium] › e2e/invite-landing.spec.ts:74:5 › AC2: sign-in carries the same token and lands back on it (950ms)
+  ✓  32 [chromium] › e2e/invite-landing.spec.ts:89:5 › AC3: an unknown or malformed token shows the not-valid message and a contact hint (692ms)
+  ✓  33 [chromium] › e2e/invite-landing.spec.ts:98:5 › AC3: a cancelled sponsorship's link is not valid (473ms)
+  ✓  34 [chromium] › e2e/invite-landing.spec.ts:105:5 › AC4: a closed gala shows a closed message and no form (303ms)
+  ✓  35 [chromium] › e2e/invite-landing.spec.ts:116:5 › invite page at desktop, tablet and mobile (1.4s)
+
+  3 skipped
+  32 passed (36.6s)

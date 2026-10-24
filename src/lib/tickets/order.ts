@@ -7,7 +7,7 @@ import type { Database } from "@/lib/database.types";
 import { parseSelection, type Selection, type TicketTier } from "./selection";
 
 export type { AttendeeInput };
-export type PendingOrder = { tier: TicketTier; attendees: AttendeeInput[] };
+export type PendingOrder = { registrationId: string; eventId: string; tier: TicketTier; attendees: AttendeeInput[] };
 
 // Field keys: `name-<i>` and `email-<i>`, 0-based, one pair per ticket.
 export type AttendeeErrors = Record<string, string>;
@@ -55,7 +55,7 @@ export async function loadPendingOrder(db: SupabaseClient<Database>, userId: str
   const { data, error } = await db
     .from("registrations")
     .select(
-      "id, seating_tiers!registrations_tier_id_event_id_fkey (name, seat_price_cents), events!registrations_event_id_fkey!inner (status), attendees (full_name, email, created_at, cancelled_at)",
+      "id, event_id, seating_tiers!registrations_tier_id_event_id_fkey (name, seat_price_cents), events!registrations_event_id_fkey!inner (status), attendees (full_name, email, created_at, cancelled_at)",
     )
     .eq("created_by", userId)
     .eq("kind", "individual")
@@ -72,6 +72,8 @@ export async function loadPendingOrder(db: SupabaseClient<Database>, userId: str
     .map(({ full_name, email }) => ({ full_name, email }));
   if (attendees.length === 0) return null;
   return {
+    registrationId: data.id,
+    eventId: data.event_id,
     tier: { name: data.seating_tiers.name, seatPriceCents: data.seating_tiers.seat_price_cents },
     attendees,
   };
