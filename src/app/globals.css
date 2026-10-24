@@ -659,3 +659,96 @@ a:focus-visible {
   display: inline-block;
   text-decoration: none;
 }
+
+/* Attendees list: high-contrast filters and row forms. */
+.attendee-filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  gap: 0.75rem 1rem;
+  align-items: end;
+  margin: 1rem 0 1.5rem;
+  padding: 1rem;
+  background: #fff;
+  color: #111;
+  border-radius: 0.5rem;
+}
+
+.attendee-filters label,
+.attendee-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-weight: 600;
+}
+
+.attendee-filters .attendee-filters__check {
+  flex-direction: row;
+  align-items: center;
+  min-height: 2.75rem;
+}
+
+.attendee-filters input:not([type="checkbox"]),
+.attendee-filters select,
+.attendee-form input:not([type="hidden"]) {
+  min-height: 2.75rem;
+  padding: 0.5rem;
+  border: 1px solid #555;
+  border-radius: 0.25rem;
+  background: #fff;
+  color: #111;
+  font: inherit;
+}
+
+.attendee-filters button,
+.attendee-form button {
+  min-height: 2.75rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid #111;
+  border-radius: 0.25rem;
+  background: #111;
+  color: #fff;
+  font: inherit;
+  cursor: pointer;
+}
+
+.attendee-filters :focus-visible,
+.attendee-actions :focus-visible {
+  outline: 3px solid #1a56db;
+  outline-offset: 2px;
+}
+
+.attendee-actions summary {
+  cursor: pointer;
+  min-height: 2.75rem;
+  display: flex;
+  align-items: center;
+  text-decoration: underline;
+}
+
+.attendee-form {
+  display: grid;
+  gap: 0.5rem;
+  min-width: 14rem;
+  margin: 0.5rem 0;
+  padding: 0.75rem;
+  background: #fff;
+  color: #111;
+  border-radius: 0.25rem;
+}
+
+.attendee-form fieldset {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.attendee-form__ok {
+  color: #0a5c2b;
+}
+
+.attendee-form__error {
+  color: #a00;
+}

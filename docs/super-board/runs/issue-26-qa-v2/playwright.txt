@@ -1,0 +1,12 @@
+
+Running 7 tests using 1 worker
+
+  ✓  1 [chromium] › e2e/admin-attendees-list-qa.spec.ts:109:5 › AC1: partial name or email search returns only the active gala's attendees (2.9s)
+  ✓  2 [chromium] › e2e/admin-attendees-list-qa.spec.ts:137:5 › AC3: editing an attendee writes an audit row with before and after values (1.6s)
+  ✓  3 [chromium] › e2e/admin-attendees-list-qa.spec.ts:168:5 › AC2 + AC4: cancel keeps payments; cancelled rows hide until the filter is ticked (1.6s)
+  ✓  4 [chromium] › e2e/admin-attendees-qa.spec.ts:79:5 › AC1 + AC4: a complimentary add is registered, unpaid and audited (1.1s)
+  ✓  5 [chromium] › e2e/admin-attendees-qa.spec.ts:99:5 › AC2 + AC4: a paid-offline add stores an offline payment with recorded_by (1.1s)
+  ✓  6 [chromium] › e2e/admin-attendees-qa.spec.ts:132:5 › AC2: a refused amount keeps the form and saves nothing (1.1s)
+  ✓  7 [chromium] › e2e/admin-attendees-qa.spec.ts:149:5 › AC3: the attendees area makes no Stripe request; shots at three viewports (3.4s)
+
+  7 passed (14.8s)

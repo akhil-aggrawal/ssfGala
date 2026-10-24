@@ -1,0 +1,54 @@
+
+> ssf-gala@0.1.0 verify
+> npm run lint && npm run typecheck && npm run test
+
+
+> ssf-gala@0.1.0 lint
+> eslint --max-warnings 0
+
+
+> ssf-gala@0.1.0 typecheck
+> next typegen && tsc --noEmit
+
+Generating route types...
+✓ Types generated successfully
+
+> ssf-gala@0.1.0 test
+> vitest run
+
+
+ RUN  v5.0.5 /Users/akhil/myapps/ssfGala/.claude/worktrees/issue-26-qa
+
+ ❯ test/scaffold.test.ts (7 tests | 1 failed) 5378ms
+   ❯ lane worktrees (2)
+     × are ignored by ESLint 5353ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  test/scaffold.test.ts > lane worktrees > are ignored by ESLint
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ test/scaffold.test.ts:74:3
+     72|   const worktreeFile = ".claude/worktrees/issue-9-build/.next/server/a…
+     73|
+     74|   it("are ignored by ESLint", async () => {
+       |   ^
+     75|     const eslint = new ESLint({ cwd: fileURLToPath(new URL("..", impor…
+     76|     expect(await eslint.isPathIgnored(worktreeFile)).toBe(true);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 23 passed | 1 skipped (25)
+      Tests  1 failed | 182 passed | 1 skipped (184)
+   Start at  02:58:22
+   Duration  10.98s (tests 77%, import 15%, transform 6%, worker 1%)
+
+    Isolate  25 workers spawned · ~631ms startup each (spawn + environment, per file)
+             at least ~1.62s faster with isolate: false — reuses workers across files instead of one per file
+
+ Test Files  1 passed (1)
+      Tests  7 passed (7)
+   Start at  02:58:59
+   Duration  3.43s (tests 85%, import 14%)
+
