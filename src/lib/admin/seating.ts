@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/database.types";
-import { readAll } from "./overview";
+import { readAll, sitsAtSponsoredTable } from "./overview";
 
 // Tables & Seating (/admin/tables): who sits where, and which sponsored
 // tables are over capacity. Admin only: overbooking is never shown to guests.
@@ -65,9 +65,9 @@ export function buildSeating(rows: SeatingRows): { tables: SeatingTable[]; guest
     const reg = liveRegistrations.get(a.registration_id)!;
     const table = reg.sponsored_table_id ? tables.get(reg.sponsored_table_id) : undefined;
     // A guest moved to another number no longer sits at (or overbooks) this table.
-    const atTable =
-      a.assigned_table_number === null || a.assigned_table_number === table?.physical_table_number;
-    if (table && atTable) seated.set(table.id, (seated.get(table.id) ?? 0) + 1);
+    if (table && sitsAtSponsoredTable(a.assigned_table_number, table.physical_table_number)) {
+      seated.set(table.id, (seated.get(table.id) ?? 0) + 1);
+    }
     return {
       id: a.id,
       fullName: a.full_name,

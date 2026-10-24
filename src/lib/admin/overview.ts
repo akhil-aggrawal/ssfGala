@@ -8,9 +8,9 @@ type Row<T extends keyof Tables, K extends keyof Tables[T]["Row"]> = Pick<Tables
 export type OverviewRows = {
   payments: Row<"payments", "provider" | "purpose" | "status" | "amount_cents" | "sponsorship_id">[];
   sponsorships: Row<"sponsorships", "id" | "pledged_cents" | "status">[];
-  tables: Row<"sponsored_tables", "id" | "capacity">[];
+  tables: Row<"sponsored_tables", "id" | "capacity" | "physical_table_number">[];
   registrations: Row<"registrations", "id" | "status" | "sponsored_table_id">[];
-  attendees: Row<"attendees", "registration_id" | "cancelled_at">[];
+  attendees: Row<"attendees", "registration_id" | "assigned_table_number" | "cancelled_at">[];
 };
 
 // Amounts are integer USD cents.
@@ -24,6 +24,13 @@ export type Overview = {
 
 const sum = (values: number[]) => values.reduce((a, b) => a + b, 0);
 
+// One seat rule for /admin and /admin/tables: an active guest counts toward
+// their sponsored table unless an admin moved them to a different number.
+export const sitsAtSponsoredTable = (
+  assignedTableNumber: string | null,
+  tableNumber: string | null | undefined,
+) => assignedTableNumber === null || assignedTableNumber === tableNumber;
+
 export function computeOverview(rows: OverviewRows): Overview {
   const succeeded = rows.payments.filter((p) => p.status === "succeeded");
   const offline = succeeded.filter((p) => p.provider === "offline");
@@ -36,10 +43,13 @@ export function computeOverview(rows: OverviewRows): Overview {
     (a) => a.cancelled_at === null && liveRegistrations.has(a.registration_id),
   );
 
+  const tables = new Map(rows.tables.map((t) => [t.id, t]));
   const seated = new Map<string, number>();
   for (const a of active) {
-    const tableId = liveRegistrations.get(a.registration_id)!.sponsored_table_id;
-    if (tableId) seated.set(tableId, (seated.get(tableId) ?? 0) + 1);
+    const table = tables.get(liveRegistrations.get(a.registration_id)!.sponsored_table_id ?? "");
+    if (table && sitsAtSponsoredTable(a.assigned_table_number, table.physical_table_number)) {
+      seated.set(table.id, (seated.get(table.id) ?? 0) + 1);
+    }
   }
 
   // Outstanding per committed pledge, floored at zero so one overpaid
@@ -104,7 +114,7 @@ export async function loadOverview(
     readAll("loadOverview sponsored_tables", (f, t) =>
       admin
         .from("sponsored_tables")
-        .select("id, capacity")
+        .select("id, capacity, physical_table_number")
         .eq("event_id", eventId)
         .order("id")
         .range(f, t),
@@ -120,7 +130,7 @@ export async function loadOverview(
     readAll("loadOverview attendees", (f, t) =>
       admin
         .from("attendees")
-        .select("registration_id, cancelled_at")
+        .select("registration_id, assigned_table_number, cancelled_at")
         .eq("event_id", eventId)
         .order("id")
         .range(f, t),
