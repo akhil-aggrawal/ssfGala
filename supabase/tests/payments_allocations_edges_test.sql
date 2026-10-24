@@ -117,10 +117,10 @@ select throws_ok(
   'a negative payment amount is rejected'
 );
 
--- Payments are never deleted while allocations point at them
+-- Payments are never deleted (append-only trigger, issue #55)
 select throws_ok(
   $$ delete from public.payments where id = '00000000-0000-0000-0000-000000000771' $$,
-  '23503', null,
+  '23001', null,
   'a payment with allocations cannot be deleted'
 );
 
