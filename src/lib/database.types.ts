@@ -369,7 +369,13 @@ isOneToOne: false
                 }
           }
           Functions: {
-            "is_admin":
+            "admin_cancel_attendee":
+{ Args: { "p_actor_id": string,"p_attendee_id": string,"p_event_id": string }; Returns: undefined
+                           },
+"admin_update_attendee":
+{ Args: { "p_actor_id": string,"p_attendee_id": string,"p_email": string,"p_event_id": string,"p_full_name": string }; Returns: undefined
+                           },
+"is_admin":
 { Args: Record<PropertyKey, never>; Returns: boolean
                            },
 "record_audit_log":
