@@ -26,6 +26,8 @@ e. Save the files in the organizers' shared drive. They hold guest names and ema
 
 Each download is recorded in the audit log (`/admin/audit`).
 
+These files are a snapshot. Payments that settle in steps 3 and 4 are not in them, and the admin screens cannot export a closed gala. Step 4 has a query that lists those late payments, and the step 5 data dump holds them too.
+
 ## 2. Close registration
 
 a. Open `/admin/setup` (nav: Gala Setup).
@@ -72,7 +74,7 @@ where p.provider = 'stripe' and p.status = 'pending' and e.status = 'closed';
 ### In Stripe
 
 a. Stripe Dashboard → Developers → Webhooks → the gala endpoint (`/api/stripe/webhook`) → Event deliveries.
-b. Filter to **Failed**. Open each one and click **Resend**. Stripe resends the event, and the app ignores any event id it has already processed, so resending is safe.
+b. Filter to **Failed**. Open each one and click **Resend**. A failed delivery got a 4xx or 5xx, so the app recorded nothing and the resend is processed. Resending an event the app already answered with 2xx does nothing: the app ignores any event id it has already processed.
 c. Or from the Stripe CLI, list recent sessions and confirm none is `open`:
 
 ```bash
@@ -83,17 +85,31 @@ Each session must show `status` `complete` or `expired`. For a session still `op
 
 ### Fixing a pending row
 
-For each pending row from the query above, look up its `stripe_session_id` in Stripe, then:
+For each pending row from the query above, look up its `stripe_session_id` in Stripe and find that session's webhook delivery (step 4a), then:
 
-| Stripe says | Do this |
+| Delivery result | Do this |
 |---|---|
-| `complete`, paid | Resend that session's `checkout.session.completed` event (step 4b). The row becomes `succeeded` |
-| `expired` | Resend its `checkout.session.expired` event. The row becomes `failed` |
-| Event shows a 4xx or 5xx response | Read the Railway deploy logs for that time. Search for `amount_mismatch`: the paid amount differed from the stored amount, so nothing was confirmed. Ask the developer before changing the row |
+| Failed (4xx or 5xx) | Click **Resend**. The row becomes `succeeded` for a paid session or `failed` for an expired one |
+| Succeeded (2xx), row still `pending` | Resending will not change it. Search the Railway deploy logs for the time of the delivery for `paid amount does not match the order` (the paid amount differed from the stored amount, so nothing was confirmed) or `no stored payment for this session`. Ask the developer before changing the row |
+| No delivery at all, session `complete` or `expired` | Stripe has not sent the event. Ask the developer |
 
 Never edit `payments` by hand and never charge a card from the admin screens.
 
 Repeat the first query. Stop here until no `pending` row remains.
+
+### Record late payments
+
+Exports from step 1 miss anything that settled after them. List those payments and save the result with the exports:
+
+```sql
+select p.id, p.stripe_session_id, p.amount_cents, p.status, p.updated_at
+from public.payments p
+join public.events e on e.id = p.event_id
+where p.provider = 'stripe' and e.status = 'closed' and p.status in ('succeeded', 'refunded')
+order by p.updated_at;
+```
+
+Compare it with the Paid tickets file from step 1 and note any payment that is not in the file. In the SQL Editor, use **Export** to save the result as CSV.
 
 ## 5. Verify Supabase backups
 
