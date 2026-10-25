@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { registeredText, toTableCards, type SponsorTableRow } from "./dashboard";
+import { hashInviteToken, tableInviteToken } from "./pledge";
 
 const guest = (full_name: string, cancelled_at: string | null = null) => ({
   id: `id-${full_name}`,
@@ -12,7 +13,10 @@ const row = (over: Partial<SponsorTableRow> = {}): SponsorTableRow => ({
   id: "t1",
   capacity: 10,
   created_at: "2026-10-24T10:00:00Z",
+  invite_token_hash: hashInviteToken(tableInviteToken(over.id ?? "t1")),
   seating_tiers: { name: "Gold" },
+  sponsorships: { sponsors: { display_name: "Acme Family" } },
+  events: { name: "An Evening That Moves You" },
   registrations: [],
   ...over,
 });
@@ -69,6 +73,20 @@ describe("toTableCards", () => {
       ["id-Ana", false],
       ["id-Ben", true],
     ]);
+  });
+
+  it("rebuilds each table's own invite link from its id (#18)", () => {
+    const cards = toTableCards([row({ id: "a" }), row({ id: "b", created_at: "2026-10-25T09:00:00Z" })], new Set(), "https://gala.test");
+    expect(cards.map((c) => c.inviteUrl)).toEqual([
+      `https://gala.test/invite/${tableInviteToken("a")}`,
+      `https://gala.test/invite/${tableInviteToken("b")}`,
+    ]);
+    expect(cards[0]).toMatchObject({ sponsorName: "Acme Family", eventName: "An Evening That Moves You" });
+  });
+
+  it("shows no link for a table whose stored hash is not its signed token", () => {
+    const [card] = toTableCards([row({ invite_token_hash: "f".repeat(64) })], new Set(), "https://gala.test");
+    expect(card.inviteUrl).toBeNull();
   });
 
   it("returns no cards for no tables", () => {

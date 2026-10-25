@@ -1,10 +1,10 @@
 import { headers } from "next/headers";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { appOrigin } from "@/lib/auth/origin";
+import { requestAppOrigin } from "@/lib/auth/origin";
 import type { Database, Json } from "@/lib/database.types";
 import { sendSponsorshipConfirmation } from "@/lib/email/sponsorship-confirmation";
 import { createEmailTransport } from "@/lib/email/transport";
-import { inviteUrl, loadPledgeTiers, newInviteTokens, parsePledgeForm, pledgeErrorMessage } from "./pledge";
+import { inviteUrl, loadPledgeTiers, newTableInvites, parsePledgeForm, pledgeErrorMessage } from "./pledge";
 
 export type PledgeState =
   | { ok: false; message: string }
@@ -23,9 +23,10 @@ type PledgeCall = (args: PledgeArgs) => PromiseLike<{ data: unknown; error: { co
 
 // One pledge for the public /sponsor flow and the admin /admin/sponsors flow.
 // The caller has already checked who may pledge and passes the RPC to run.
-// Prices and the pledged amount come from the database, never the form. Raw
-// invite tokens are returned once, for the links and the sponsor's
-// confirmation email; only their hashes are sent to the database.
+// Prices and the pledged amount come from the database, never the form. The
+// server picks each table's id and signs its invite token from it
+// (tableInviteToken), so the dashboard can rebuild the link later; only the
+// ids and token hashes are sent to the database.
 export async function submitPledge(
   admin: SupabaseClient<Database>,
   eventId: string,
@@ -37,20 +38,23 @@ export async function submitPledge(
   if (!parsed.ok) return { ok: false, message: `${parsed.error} Nothing was pledged.` };
 
   const total = parsed.value.tables.reduce((n, t) => n + t.count, 0);
-  const tokens = newInviteTokens(total);
+  const tokens = newTableInvites(total);
+  let next = 0;
   const { data, error } = await call({
     p_event_id: eventId,
     p_display_name: parsed.value.display_name,
     p_email: parsed.value.email,
-    p_tables: parsed.value.tables.map(({ tier_id, count }) => ({ tier_id, count })),
+    p_tables: parsed.value.tables.map(({ tier_id, count }) => ({
+      tier_id,
+      count,
+      table_ids: tokens.slice(next, (next += count)).map((t) => t.id),
+    })),
     p_token_hashes: tokens.map((t) => t.hash),
   });
   if (error) return { ok: false, message: pledgeErrorMessage(error) };
 
   // Tokens follow the order of p_tables, one per table.
-  const h = await headers();
-  const host = h.get("x-forwarded-host") ?? h.get("host") ?? "localhost:3000";
-  const origin = appOrigin(`${h.get("x-forwarded-proto") ?? "http"}://${host}`);
+  const origin = requestAppOrigin(await headers());
   const tierNames = parsed.value.tables.flatMap((t) => Array<string>(t.count).fill(t.tier_name));
   const saved = data as { sponsorship_id: string; pledged_cents: number };
   const state = {

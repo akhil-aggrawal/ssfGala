@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { outbox } from "@/lib/email/transport";
-import { hashInviteToken } from "@/lib/sponsor/pledge";
+import { hashInviteToken, tableInviteToken } from "@/lib/sponsor/pledge";
 
 // The Server Action is reachable by a direct POST, so it checks sign-in and
 // the active event itself, and sends only token hashes to the database.
@@ -72,10 +72,12 @@ describe("pledgeTables", () => {
     const [fn, args] = rpc.mock.calls[0];
     expect(fn).toBe("pledge_sponsorship");
     expect(args).toMatchObject({ p_user_id: "u1", p_event_id: "ev1" });
-    expect(args.p_tables).toEqual([
+    expect(args.p_tables).toMatchObject([
       { tier_id: "t-silver", count: 1 },
       { tier_id: "t-gold", count: 2 },
     ]);
+    expect(args.p_tables[0].table_ids).toHaveLength(1);
+    expect(args.p_tables[1].table_ids).toHaveLength(2);
     expect(args.p_token_hashes).toHaveLength(3);
 
     if (!state?.ok) throw new Error("expected ok");
@@ -85,6 +87,9 @@ describe("pledgeTables", () => {
     expect(new Set(tokens).size).toBe(3);
     expect(tokens.map(hashInviteToken)).toEqual(args.p_token_hashes);
     for (const t of tokens) expect(args.p_token_hashes).not.toContain(t);
+    // Each link is signed from the table id the server sent (#18).
+    const ids = args.p_tables.flatMap((t: { table_ids: string[] }) => t.table_ids);
+    expect(ids.map((id: string) => tableInviteToken(id))).toEqual(tokens);
   });
 
   it("emails the sponsor once with every table's link and the pledged amount (#33)", async () => {

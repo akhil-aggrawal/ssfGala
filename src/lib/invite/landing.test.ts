@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/database.types";
 import { safeNextPath } from "@/lib/auth/next-path";
-import { hashInviteToken, newInviteTokens } from "@/lib/sponsor/pledge";
+import { hashInviteToken, newTableInvites } from "@/lib/sponsor/pledge";
 import { invitePath, isTokenShape, loadInvite, toInvite, type InviteRow } from "./landing";
 
 const row = (over: { event?: string; sponsorship?: string } = {}): InviteRow => ({
@@ -48,8 +48,8 @@ describe("toInvite", () => {
 });
 
 describe("isTokenShape", () => {
-  it("accepts tokens from newInviteTokens and rejects anything else", () => {
-    expect(isTokenShape(newInviteTokens(1)[0].token)).toBe(true);
+  it("accepts tokens from newTableInvites and rejects anything else", () => {
+    expect(isTokenShape(newTableInvites(1)[0].token)).toBe(true);
     for (const bad of ["", "abc", "a".repeat(44), `${"a".repeat(42)}/`, `${"a".repeat(42)}=`]) {
       expect(isTokenShape(bad)).toBe(false);
     }
@@ -57,7 +57,7 @@ describe("isTokenShape", () => {
 });
 
 describe("loadInvite", () => {
-  const token = newInviteTokens(1)[0].token;
+  const token = newTableInvites(1)[0].token;
 
   it("looks the table up by token hash, never the raw token", async () => {
     const { client, calls } = fakeClient({ data: row(), error: null });
@@ -91,5 +91,5 @@ describe("invitePath", () => {
 });
 
 function token() {
-  return newInviteTokens(1)[0].token;
+  return newTableInvites(1)[0].token;
 }

@@ -1,12 +1,13 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import {
   formatUsd,
   hashInviteToken,
   inviteUrl,
-  newInviteTokens,
+  newTableInvites,
   parsePledgeForm,
   pledgeErrorMessage,
   tableCents,
+  tableInviteToken,
 } from "./pledge";
 
 const TIERS = [
@@ -21,17 +22,36 @@ const form = (fields: Record<string, string>) => {
   return fd;
 };
 
-describe("newInviteTokens", () => {
-  it("makes one distinct token per table, each with its SHA-256 hash", () => {
-    const tokens = newInviteTokens(3);
-    expect(tokens).toHaveLength(3);
-    expect(new Set(tokens.map((t) => t.token)).size).toBe(3);
-    for (const t of tokens) {
+describe("newTableInvites", () => {
+  it("makes one table id per table, its signed token and the token's SHA-256 hash", () => {
+    const invites = newTableInvites(3, "s3cret");
+    expect(invites).toHaveLength(3);
+    expect(new Set(invites.map((t) => t.id)).size).toBe(3);
+    expect(new Set(invites.map((t) => t.token)).size).toBe(3);
+    for (const t of invites) {
+      expect(t.id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/);
       expect(t.token).toMatch(/^[A-Za-z0-9_-]{43}$/);
-      expect(t.hash).toMatch(/^[0-9a-f]{64}$/);
+      expect(t.token).toBe(tableInviteToken(t.id, "s3cret"));
       expect(t.hash).toBe(hashInviteToken(t.token));
       expect(t.hash).not.toContain(t.token);
     }
+  });
+
+  it("refuses to make links without INVITE_LINK_SECRET", () => {
+    vi.stubEnv("INVITE_LINK_SECRET", "");
+    expect(() => newTableInvites(1)).toThrow("INVITE_LINK_SECRET");
+    vi.unstubAllEnvs();
+  });
+});
+
+describe("tableInviteToken", () => {
+  it("is HMAC-SHA256 of the table id, stable for the same id and secret", () => {
+    const a = tableInviteToken("00000000-0000-0000-0000-000000000001", "s3cret");
+    expect(a).toBe(tableInviteToken("00000000-0000-0000-0000-000000000001", "s3cret"));
+    expect(a).not.toBe(tableInviteToken("00000000-0000-0000-0000-000000000002", "s3cret"));
+    expect(a).not.toBe(tableInviteToken("00000000-0000-0000-0000-000000000001", "other"));
+    // Pinned with: printf t | openssl dgst -sha256 -hmac key -binary | base64url
+    expect(tableInviteToken("t", "key")).toBe("_UfQp2A4ysfnUp9_nJ88BatNxmx8eKOhRZO4NuZ28hc");
   });
 });
 

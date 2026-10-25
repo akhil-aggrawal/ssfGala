@@ -9,6 +9,7 @@ export const REQUIRED_ENV = [
   "STRIPE_WEBHOOK_SECRET",
   "RESEND_API_KEY",
   "NEXT_PUBLIC_APP_URL",
+  "INVITE_LINK_SECRET",
 ] as const;
 
 type Env = Record<string, string | undefined>;
