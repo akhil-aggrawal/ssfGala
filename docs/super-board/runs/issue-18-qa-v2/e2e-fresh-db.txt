@@ -1,0 +1,11 @@
+
+Running 6 tests using 1 worker
+
+  ✓  1 [chromium] › e2e/sponsor-share-qa.spec.ts:66:5 › AC4: Copy Invitation Email with the clipboard denied shows the whole invitation selected (2.2s)
+  ✓  2 [chromium] › e2e/sponsor-share-qa.spec.ts:87:5 › a table pledged before #18 shows the ask-the-team note and no copy buttons (1.8s)
+  ✓  3 [chromium] › e2e/sponsor-share.spec.ts:80:5 › AC1 AC3: Copy Link puts exactly that table's link on the clipboard and says Copied (1.9s)
+  ✓  4 [chromium] › e2e/sponsor-share.spec.ts:97:5 › AC2 AC3: Copy Invitation Email copies subject and body, edits included, and sends nothing (2.1s)
+  ✓  5 [chromium] › e2e/sponsor-share.spec.ts:126:5 › AC4: with the clipboard denied, the text is shown selected for a manual copy (1.8s)
+  ✓  6 [chromium] › e2e/sponsor-share.spec.ts:144:5 › share actions at desktop, tablet and mobile (3.0s)
+
+  6 passed (22.1s)

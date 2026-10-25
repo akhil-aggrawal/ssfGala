@@ -6,7 +6,7 @@ import { expect, test, type Page } from "@playwright/test";
 // - A table pledged before #18 (random token, hash not rebuildable) shows the
 //   "Ask the gala team" note and no copy buttons, never a wrong link.
 // Needs a local Supabase and the app started with E2E_AUTH=1 and
-// INVITE_LINK_SECRET. Runs after sponsor-share.spec.ts seeded tiers.
+// INVITE_LINK_SECRET.
 test.skip(process.env.E2E_AUTH !== "1", "set E2E_AUTH=1 with a local Supabase");
 test.describe.configure({ mode: "serial" });
 
@@ -15,10 +15,28 @@ const db = () =>
     auth: { persistSession: false },
   });
 
+// Seeds its own open gala and Gold tier, so it runs alone and in any file order.
 test.beforeAll(async () => {
-  const { data } = await db().from("events").select("id").in("status", ["draft", "open"]);
-  expect(data?.length, "an active gala with tiers (run sponsor-share.spec.ts first)").toBeGreaterThan(0);
-  const eventId = data![0].id as string;
+  const { data } = await db().from("events").select("id, status").in("status", ["draft", "open"]);
+  let eventId: string;
+  if (data?.length) {
+    eventId = data[0].id as string;
+    if (data[0].status !== "open") await db().from("events").update({ status: "open" }).eq("id", eventId);
+  } else {
+    const { data: ev, error } = await db()
+      .from("events")
+      .insert({ name: "QA share gala", year: 4000 + Math.floor(Math.random() * 5000), status: "open" })
+      .select("id")
+      .single();
+    expect(error).toBeNull();
+    eventId = ev!.id as string;
+  }
+  await db()
+    .from("seating_tiers")
+    .upsert(
+      [{ event_id: eventId, name: "Gold", seat_price_cents: 20000, suggested_contribution_cents: 20000, table_inventory: 0 }],
+      { onConflict: "event_id,name", ignoreDuplicates: true },
+    );
   const { data: tiers } = await db().from("seating_tiers").select("id").eq("event_id", eventId).eq("name", "Gold");
   expect(tiers?.length).toBe(1);
   const { count } = await db()
