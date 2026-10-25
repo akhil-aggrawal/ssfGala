@@ -1,0 +1,28 @@
+
+> ssf-gala@0.1.0 verify
+> npm run lint && npm run typecheck && npm run test
+
+
+> ssf-gala@0.1.0 lint
+> eslint --max-warnings 0
+
+
+> ssf-gala@0.1.0 typecheck
+> next typegen && tsc --noEmit
+
+Generating route types...
+✓ Types generated successfully
+
+> ssf-gala@0.1.0 test
+> vitest run
+
+
+ RUN  v5.0.5 /Users/akhil/myapps/ssfGala/.claude/worktrees/issue-23-qa
+
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+ Test Files  42 passed | 2 skipped (44)
+      Tests  352 passed | 14 skipped (366)
+   Start at  19:15:22
+   Duration  80.59s (tests 97%, import 1%, transform 1%)
+

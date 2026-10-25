@@ -4,7 +4,8 @@ import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { getAccess } from "@/lib/auth/guard";
 import { loadSponsorTables, registeredText } from "@/lib/sponsor/dashboard";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createSupabaseAdminClient, createSupabaseServerClient } from "@/lib/supabase/server";
+import { GuestRow } from "./guest-row";
 
 export const metadata: Metadata = { title: "Your Tables — SSF Gala" };
 
@@ -12,7 +13,12 @@ async function Tables() {
   const access = await getAccess();
   if (!access) redirect("/signin?next=%2Fsponsor%2Fdashboard");
   const cards = access.eventId
-    ? await loadSponsorTables(await createSupabaseServerClient(), access.user.id, access.eventId)
+    ? await loadSponsorTables(
+        await createSupabaseServerClient(),
+        createSupabaseAdminClient(),
+        access.user.id,
+        access.eventId,
+      )
     : [];
 
   if (cards.length === 0) {
@@ -42,10 +48,8 @@ async function Tables() {
                 <p>No guests have registered yet.</p>
               ) : (
                 <ol className="sponsor-dash__guests">
-                  {card.guests.map((g, i) => (
-                    <li key={i}>
-                      {g.full_name} <span className="sponsor-dash__email">{g.email}</span>
-                    </li>
+                  {card.guests.map((g) => (
+                    <GuestRow key={g.id} guest={g} />
                   ))}
                 </ol>
               )}
