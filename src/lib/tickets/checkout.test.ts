@@ -76,8 +76,8 @@ describe("checkoutSessionParams", () => {
 
   it("returns to a read-only success page and back to review on cancel", () => {
     const params = checkoutSessionParams(ORDER, BUYER);
-    expect(params.success_url).toBe("https://gala.example.test/tickets/checkout/success?session_id={CHECKOUT_SESSION_ID}");
-    expect(params.cancel_url).toBe("https://gala.example.test/tickets/review");
+    expect(params.success_url).toBe("https://gala.example.test/tickets/success?session_id={CHECKOUT_SESSION_ID}");
+    expect(params.cancel_url).toBe("https://gala.example.test/tickets/cancelled");
   });
 
   it("leaves the email for Stripe to ask when the buyer has none", () => {
@@ -154,7 +154,7 @@ describe("startTicketCheckout", () => {
     const result = await startTicketCheckout(db.client, gateway, BUYER);
 
     expect(gateway.create).not.toHaveBeenCalled();
-    expect(result).toEqual({ kind: "redirect", url: "https://gala.example.test/tickets/checkout/success?session_id=cs_old" });
+    expect(result).toEqual({ kind: "redirect", url: "https://gala.example.test/tickets/success?session_id=cs_old" });
   });
 
   it("expires an open session for an old amount, then starts a new one", async () => {

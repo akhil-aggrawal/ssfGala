@@ -244,7 +244,7 @@ describe.skipIf(!enabled)("startTicketCheckout on a real database (issue #13 QA)
     const id = payments[0].stripe_session_id!;
     stripe.sessions.set(id, { ...stripe.sessions.get(id)!, status: "complete" });
     const result = await startTicketCheckout(db(), stripe.gateway, b);
-    expect(result).toEqual({ kind: "redirect", url: `${ORIGIN}/tickets/checkout/success?session_id=${id}` });
+    expect(result).toEqual({ kind: "redirect", url: `${ORIGIN}/tickets/success?session_id=${id}` });
     const after = await paymentsOf(b.userId);
     expect(after.registration.status).toBe("pending_payment");
     expect(after.payments.map((p) => p.status)).toEqual(["pending"]);
