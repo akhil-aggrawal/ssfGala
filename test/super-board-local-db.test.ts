@@ -1,5 +1,5 @@
 import { spawn, spawnSync } from "node:child_process";
-import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { hostname, tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -62,6 +62,43 @@ describe("local-stack lock", () => {
     writeFileSync(join(lock, "at"), String(Math.floor(Date.now() / 1000)));
     const b = run(["lock", "--timeout", "5", "--", "true"], { SB_LOCAL_STACK_LOCK: lock });
     expect(await exited(b)).toBe(0);
+  });
+
+  it("makes reset-main wait for a live holder and not reset (exit 4 on timeout)", async () => {
+    const lock = freshLock();
+    mkdirSync(lock);
+    writeFileSync(join(lock, "pid"), String(process.pid));
+    writeFileSync(join(lock, "host"), hostname());
+    writeFileSync(join(lock, "at"), String(Math.floor(Date.now() / 1000)));
+    // A fake `supabase` first on PATH records whether a reset ran.
+    const bin = mkdtempSync(join(tmpdir(), "sb-fake-"));
+    const marker = join(bin, "reset-ran");
+    writeFileSync(join(bin, "supabase"), `#!/bin/sh\ntouch ${marker}\n`, { mode: 0o755 });
+    const r = run(["reset-main", "--timeout", "2"], { SB_LOCAL_STACK_LOCK: lock, PATH: `${bin}:${process.env.PATH}` });
+    const code = await exited(r);
+    // 5 = local stack not running (CI); otherwise it must have waited and given up.
+    expect([4, 5]).toContain(code);
+    expect(existsSync(marker)).toBe(false);
+    expect(existsSync(lock)).toBe(true);
+  });
+
+  it("runs reset-main once the holder releases the lock", async () => {
+    const lock = freshLock();
+    const bin = mkdtempSync(join(tmpdir(), "sb-fake-"));
+    const log = join(bin, "order");
+    writeFileSync(join(bin, "supabase"), `#!/bin/sh\necho "reset $*" >> ${log}\n`, { mode: 0o755 });
+    const env = { SB_LOCAL_STACK_LOCK: lock, PATH: `${bin}:${process.env.PATH}` };
+    const a = run(["lock", "--", "sh", "-c", `echo e2e-start >> ${log}; sleep 2; echo e2e-end >> ${log}`], env);
+    await until(() => existsSync(join(lock, "pid")));
+    const b = run(["reset-main"], env);
+    expect(await exited(a)).toBe(0);
+    const code = await exited(b);
+    if (code === 5) return; // no local stack here (CI): the wait/timeout test above covers the lock
+    expect(code).toBe(0);
+    const lines = readFileSync(log, "utf8").trim().split("\n");
+    expect(lines.slice(0, 2)).toEqual(["e2e-start", "e2e-end"]);
+    expect(lines[2]).toMatch(/^reset db reset --db-url postgresql:\/\/postgres:postgres@localhost:\d+\/postgres\?sslmode=disable --yes$/);
+    expect(existsSync(lock)).toBe(false);
   });
 
   it("releases the lock when the command fails", async () => {
@@ -144,6 +181,38 @@ describe.skipIf(!stackTests)("scratch databases (needs the local stack)", () => 
     },
     300_000,
   );
+
+  it("gate reset applies every repo migration to the scratch database, not to main", async () => {
+    const files = readdirSync(join(repo, "supabase/migrations")).filter((f) => f.endsWith(".sql")).length;
+    const mainBefore = sql("select count(*) from supabase_migrations.schema_migrations");
+    const gateReset = config.verify_commands.find((c) => c.includes("db reset"))!;
+    // The gate's own command, then a count of the migrations it recorded in the scratch db.
+    const count =
+      'db=${SB_SCRATCH_DB_URL##*/}; db=${db%%\\?*}; echo "db=$db"; ' +
+      'docker exec supabase_db_ssfGala psql -qAt -U supabase_admin -d "$db" -c "select count(*) from supabase_migrations.schema_migrations"';
+    const inner = gateReset.replace(/' *$/, `; ${count.replace(/'/g, "'\\''")}'`);
+    const r = spawnSync("sh", ["-c", inner], { cwd: repo });
+    expect(r.status).toBe(0);
+    const out = r.stdout.toString();
+    expect(out).toMatch(/db=sb_scratch_\d+_\d+/);
+    expect(out.trim().split("\n").at(-1)).toBe(String(files));
+    expect(sql("select count(*) from supabase_migrations.schema_migrations")).toBe(mainBefore);
+  }, 180_000);
+
+  it("a broken migration fails the scratch reset and leaves main alone", async () => {
+    const dir = laneRepo("broken", "none");
+    writeFileSync(join(dir, "supabase/migrations/29991231000001_broken.sql"), "create table public.nope (id int references public.missing(id));\n");
+    const r = spawnSync(script, ["scratch", "--", "sh", "-c", 'supabase db reset --db-url "$SB_SCRATCH_DB_URL" --yes'], { cwd: dir });
+    expect(r.status).not.toBe(0);
+    expect(sql("select to_regclass('public.lane_broken') is null")).toBe("t");
+  }, 180_000);
+
+  it("reaps a scratch database abandoned past --stale-after", async () => {
+    const old = `sb_scratch_${Math.floor(Date.now() / 1000) - 100}_1`;
+    sql(`create database "${old}"`);
+    expect(await exited(run(["scratch", "--stale-after", "10", "--", "true"]))).toBe(0);
+    expect(sql(`select count(*) from pg_database where datname = '${old}'`)).toBe("0");
+  }, 120_000);
 
   it("drops the scratch database when the command fails or is interrupted", async () => {
     const before = scratchCount();
