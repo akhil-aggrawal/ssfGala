@@ -131,7 +131,7 @@
     "npm ci --silent && npm run verify",
     ".claude/bin/super-board-local-db.sh scratch -- sh -c 'supabase db reset --db-url \"$SB_SCRATCH_DB_URL\" --yes'"
   ],
-  "max_workers": 2,
+  "max_workers": 3,
   "rebuild_cap": 2,
   "block_rate_alert_pct": 30,
   "collect": {
