@@ -89,6 +89,36 @@ describe("handleStripeWebhook", () => {
     expect(res.status).toBe(200);
   });
 
+  it("#32: runs the confirmation step once the database confirms the payment", async () => {
+    const onConfirmed = vi.fn().mockResolvedValue(undefined);
+    const payload = sessionEvent("checkout.session.completed", {});
+    await handleStripeWebhook(payload, sign(payload), { ...deps(), onConfirmed });
+    expect(onConfirmed).toHaveBeenCalledExactlyOnceWith("cs_test_1");
+  });
+
+  it("#32 AC3: a replayed or already settled event sends no emails", async () => {
+    const onConfirmed = vi.fn();
+    for (const outcome of ["duplicate", "already_settled"]) {
+      apply.mockResolvedValue({ outcome });
+      const payload = sessionEvent("checkout.session.completed", {});
+      const res = await handleStripeWebhook(payload, sign(payload), { ...deps(), onConfirmed });
+      expect(res.status).toBe(200);
+    }
+    expect(onConfirmed).not.toHaveBeenCalled();
+  });
+
+  it("#32 AC5: a failed confirmation step is logged and still answers 200", async () => {
+    const onConfirmed = vi.fn().mockRejectedValue(new Error("db down"));
+    const payload = sessionEvent("checkout.session.completed", {});
+    const res = await handleStripeWebhook(payload, sign(payload), { ...deps(), onConfirmed });
+    expect(res.status).toBe(200);
+    expect(logger.log).toHaveBeenCalledWith(
+      "error",
+      "stripe webhook: post-confirmation step failed",
+      expect.objectContaining({ sessionId: "cs_test_1" }),
+    );
+  });
+
   it("AC3: logs the session id with the expected and paid amounts on a mismatch", async () => {
     apply.mockResolvedValue({ outcome: "amount_mismatch", expected_cents: 40000 });
     const payload = sessionEvent("checkout.session.completed", { amount_total: 15000 });

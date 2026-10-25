@@ -20,6 +20,9 @@ export type WebhookDeps = {
   stripe: Stripe;
   secret: string | undefined;
   apply: (args: CheckoutEventArgs) => Promise<CheckoutEventResult>;
+  // Runs once, when the database first confirms the payment (never on a
+  // replay). Its failure is logged and never changes the 200 answer.
+  onConfirmed?: (sessionId: string) => Promise<void>;
 };
 
 export type WebhookResponse = { status: number; body: { received: true } | { error: string } };
@@ -82,6 +85,13 @@ export async function handleStripeWebhook(
   } else if (result.outcome === "unknown_session") {
     log("warn", "stripe webhook: no stored payment for this session", { eventId: event.id, sessionId: session.id });
   } else {
+    if (result.outcome === "confirmed" && deps.onConfirmed) {
+      try {
+        await deps.onConfirmed(session.id);
+      } catch (error) {
+        log("error", "stripe webhook: post-confirmation step failed", { eventId: event.id, sessionId: session.id, error: String(error) });
+      }
+    }
     log("info", "stripe webhook: processed", { eventId: event.id, type: event.type, sessionId: session.id, outcome: result.outcome });
   }
   return { status: 200, body: { received: true } };

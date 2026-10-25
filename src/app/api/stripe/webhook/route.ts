@@ -1,3 +1,5 @@
+import { loadTicketOrder, sendTicketConfirmation } from "@/lib/email/ticket-confirmation";
+import { createEmailTransport } from "@/lib/email/transport";
 import { createStripe } from "@/lib/stripe/server";
 import { handleStripeWebhook, type CheckoutEventResult } from "@/lib/stripe/webhook";
 import { createSupabaseAdminClient } from "@/lib/supabase/server";
@@ -13,6 +15,10 @@ export async function POST(request: Request) {
       const { data, error } = await createSupabaseAdminClient().rpc("apply_stripe_checkout_event", args);
       if (error) throw new Error(`apply_stripe_checkout_event failed: ${error.message}`);
       return data as CheckoutEventResult;
+    },
+    onConfirmed: async (sessionId) => {
+      const order = await loadTicketOrder(createSupabaseAdminClient(), sessionId);
+      if (order) await sendTicketConfirmation(order, createEmailTransport());
     },
   });
   return Response.json(body, { status, headers: { "Cache-Control": "no-store" } });
