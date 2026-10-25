@@ -44,11 +44,14 @@ Required reads use `.claude/bin/super-board-github-read.py --kind <shape> -- <gh
 Three total attempts means the first attempt plus two retries of that same read;
 unrelated successful calls do not reset its failures. Invalid GraphQL queries,
 authentication, and permission errors stop immediately. Do not retry mutations.
-A payload that misses an agent-facing `--kind` shape (`READ_SHAPES` in
-`workflows/super-board-wave.js`) exits 64 for that call only, printing the valid
-form; it never halts the run. So does a command gh rejects locally before sending
-it (unknown `--json` field, unknown flag, `--slurp` with `--jq`), on the first
-attempt. Fixed-command scripts set `SB_GITHUB_READ_STRICT=1` to halt on both.
+A payload that misses its `--kind` shape, for any kind, exits 64 for that call
+only, printing the valid form when the kind has one (`READ_SHAPES` in
+`workflows/super-board-wave.js`); it never halts the run. These exit 64 on the
+first attempt: a command gh rejects locally before sending it (unknown `--json`
+field, unknown flag, `--slurp` with `--jq`), plain text from `--jq` where the kind
+needs JSON, and a `gh api graphql` query sent with `-f`/`--raw-field` that holds
+literal `{owner}`/`{repo}` (gh fills them only in `-F`/`--field` values).
+Fixed-command scripts set `SB_GITHUB_READ_STRICT=1` to halt on all of them.
 
 Exit **79**, a workflow result with `halted: true`, or a failed `--check` ends this
 run. Check the helper's `--check` before claims, board/comment writes, each new

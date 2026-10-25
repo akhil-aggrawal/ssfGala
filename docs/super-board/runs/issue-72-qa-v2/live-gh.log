@@ -1,0 +1,21 @@
+# Real gh against akhil-aggrawal/ssfGala, helper at 49ca95f.
+# SB_GITHUB_HALT_FILE pointed at a temp file per run; SB_GITHUB_RETRY_DELAY=0.
+== ac1-quota-plain: --kind quota -- api rate_limit --jq '"x"'
+exit=64 halt_file=none
+[github-read] --kind quota needs JSON but --jq/--template printed plain text (Expecting value: line 1 column 1 (char 0)); this call failed, the run continues. fix this --kind quota read
+== ac2-quota-usage: --kind quota -- api rate_limit --bogus
+exit=64 halt_file=none
+[github-read] gh rejected the command before sending it: unknown flag: --bogus; this call failed, the run continues. fix this --kind quota read
+== ac3-f-placeholder: --kind json -- api graphql -f 'query=query{repository(owner:"{owner}",name:"{repo}"){nameWithOwner}}'
+exit=64 halt_file=none
+[github-read] GraphQL query contains literal {owner}/{repo}/{branch}; pass owner and name as -F variables; this call failed, the run continues. Valid form: --kind json -- <gh args> (JSON output; no --jq that prints a plain string)
+== ac3-F-placeholder (R1 fix): --kind json -- api graphql -F 'query=…{owner}…{repo}…'
+exit=0 halt_file=none
+{"data":{"repository":{"nameWithOwner":"akhil-aggrawal/ssfGala"}}}
+== ac4-strict-quota: SB_GITHUB_READ_STRICT=1 --kind quota -- api rate_limit --jq '"x"'
+exit=79 halt_file=written (after 3 attempts)
+== ac4-strict-placeholder: SB_GITHUB_READ_STRICT=1 --kind json -- api graphql -f 'query=…{owner}…'
+exit=79 halt_file=written (first attempt, GitHub rejected the query)
+== raw gh -f placeholder (what GitHub says without the helper)
+gh: Could not resolve to a Repository with the name '{owner}/{repo}'.
+== main checkout .claude/super-board/github-halt.json after all runs: absent
