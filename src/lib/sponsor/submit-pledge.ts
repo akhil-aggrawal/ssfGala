@@ -2,6 +2,8 @@ import { headers } from "next/headers";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { appOrigin } from "@/lib/auth/origin";
 import type { Database, Json } from "@/lib/database.types";
+import { sendSponsorshipConfirmation } from "@/lib/email/sponsorship-confirmation";
+import { createEmailTransport } from "@/lib/email/transport";
 import { inviteUrl, loadPledgeTiers, newInviteTokens, parsePledgeForm, pledgeErrorMessage } from "./pledge";
 
 export type PledgeState =
@@ -22,7 +24,8 @@ type PledgeCall = (args: PledgeArgs) => PromiseLike<{ data: unknown; error: { co
 // One pledge for the public /sponsor flow and the admin /admin/sponsors flow.
 // The caller has already checked who may pledge and passes the RPC to run.
 // Prices and the pledged amount come from the database, never the form. Raw
-// invite tokens are returned once, for the links; only their hashes are sent.
+// invite tokens are returned once, for the links and the sponsor's
+// confirmation email; only their hashes are sent to the database.
 export async function submitPledge(
   admin: SupabaseClient<Database>,
   eventId: string,
@@ -49,9 +52,23 @@ export async function submitPledge(
   const host = h.get("x-forwarded-host") ?? h.get("host") ?? "localhost:3000";
   const origin = appOrigin(`${h.get("x-forwarded-proto") ?? "http"}://${host}`);
   const tierNames = parsed.value.tables.flatMap((t) => Array<string>(t.count).fill(t.tier_name));
-  return {
-    ok: true,
-    pledged_cents: Number((data as { pledged_cents: number }).pledged_cents),
+  const saved = data as { sponsorship_id: string; pledged_cents: number };
+  const state = {
+    ok: true as const,
+    pledged_cents: Number(saved.pledged_cents),
     links: tokens.map((t, i) => ({ tier_name: tierNames[i], url: inviteUrl(origin, t.token) })),
   };
+  await sendSponsorshipConfirmation(
+    admin,
+    eventId,
+    {
+      sponsorshipId: saved.sponsorship_id,
+      sponsorEmail: parsed.value.email,
+      sponsorName: parsed.value.display_name,
+      pledgedCents: state.pledged_cents,
+      tables: state.links.map((l) => ({ tierName: l.tier_name, url: l.url })),
+    },
+    createEmailTransport(),
+  );
+  return state;
 }

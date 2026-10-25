@@ -149,3 +149,42 @@ export function contributionReceiptEmail(receipt: ContributionReceipt): Rendered
   ]);
   return { subject, html, text };
 }
+
+export type SponsorshipPledge = {
+  sponsorshipId: string;
+  sponsorEmail: string;
+  sponsorName: string;
+  pledgedCents: number;
+  tables: { tierName: string; url: string }[];
+  event: GalaEvent;
+};
+
+// One email per pledge: every table's tier and invite link, the pledged
+// amount, and that payment is collected offline (no online charge in v1).
+export function sponsorshipConfirmationEmail(pledge: SponsorshipPledge): Rendered {
+  const event = eventLines(pledge.event);
+  const subject = `Your table sponsorship for ${pledge.event.name}`;
+  const amount = `Pledged amount: ${formatUsd(pledge.pledgedCents)}`;
+  const offline = "No payment was taken online. Small Steps Foundation will contact you to collect your pledge offline.";
+  const share = "Share each table's link with your guests so they can register.";
+  const text = [
+    `Thank you, ${pledge.sponsorName}. Your table sponsorship is confirmed.`,
+    amount,
+    offline,
+    share,
+    ...pledge.tables.map((t, i) => `Table ${i + 1} (${t.tierName}): ${t.url}`),
+    ...event,
+  ].join("\n");
+  const html = layout("Thank you for sponsoring", [
+    `Thank you, ${escapeHtml(pledge.sponsorName)}. Your table sponsorship is confirmed.`,
+    `<strong>Pledged amount:</strong> ${formatUsd(pledge.pledgedCents)}`,
+    offline,
+    share,
+    ...pledge.tables.map(
+      (t, i) =>
+        `<strong>Table ${i + 1} (${escapeHtml(t.tierName)}):</strong> <a href="${escapeHtml(t.url)}" style="color:#d4a017">${escapeHtml(t.url)}</a>`,
+    ),
+    event.map(escapeHtml).join("<br>"),
+  ]);
+  return { subject, html, text };
+}
