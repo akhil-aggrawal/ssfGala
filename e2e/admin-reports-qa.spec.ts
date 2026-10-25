@@ -56,6 +56,7 @@ async function insert(table: string, rows: object[]) {
 // - $2,000 pledge, one table of 2 seats with 3 active guests and 1 cancelled
 // - offline receipts: $500 received, $700 refunded (corrected away)
 // - seat contributions: Ann $50 succeeded, Ben $99 failed, Dee (cancelled) $30 succeeded
+// - a ticket buyer Hal whose checkout failed: registration still pending_payment
 async function seedSponsor(eventId: string) {
   const tag = Math.random().toString(36).slice(2, 8);
   const sponsorName = `QA Reports ${tag}`;
@@ -96,6 +97,10 @@ async function seedSponsor(eventId: string) {
   });
   const now = new Date().toISOString();
   const [ann, ben, , dee] = await insert("attendees", [guest("Ann"), guest("Ben"), guest("Cy"), guest("Dee", now)]);
+  const [{ id: pending_id }] = await insert("registrations", [
+    { event_id: eventId, kind: "individual", tier_id: tier.id, sponsored_table_id: null, status: "pending_payment" },
+  ]);
+  const [hal] = await insert("attendees", [{ ...guest("Hal"), registration_id: pending_id }]);
   const pay = (p: object) => ({
     event_id: eventId,
     registration_id: null,
@@ -107,17 +112,19 @@ async function seedSponsor(eventId: string) {
     received_at: null,
     ...p,
   });
-  const [cAnn, cBen, cDee] = await insert("payments", [
+  const [cAnn, cBen, cDee, , , cHal] = await insert("payments", [
     pay({ registration_id, amount_cents: 5000 }),
     pay({ registration_id, amount_cents: 9900, status: "failed" }),
     pay({ registration_id, amount_cents: 3000 }),
     pay({ sponsorship_id, provider: "offline", purpose: "sponsorship", amount_cents: 50000, received_at: now }),
     pay({ sponsorship_id, provider: "offline", purpose: "sponsorship", amount_cents: 70000, status: "refunded", received_at: now }),
+    pay({ registration_id: pending_id, purpose: "ticket", amount_cents: 20000, status: "failed" }),
   ]);
   await insert("payment_allocations", [
     { event_id: eventId, payment_id: cAnn.id, attendee_id: ann.id, amount_cents: 5000 },
     { event_id: eventId, payment_id: cBen.id, attendee_id: ben.id, amount_cents: 9900 },
     { event_id: eventId, payment_id: cDee.id, attendee_id: dee.id, amount_cents: 3000 },
+    { event_id: eventId, payment_id: cHal.id, attendee_id: hal.id, amount_cents: 20000 },
   ]);
   return { sponsorName, tableNumber, tag, tierName: tier.name as string };
 }
@@ -150,6 +157,8 @@ test("AC1+AC2: seeded sponsor rows and every total match, cancelled and failed l
   // Roster: active guests only; Ann paid, Ben's failed payment is not paid.
   const roster = report(page, "Roster");
   await expect(roster.getByRole("rowheader", { name: `Dee ${s.tag}` })).toHaveCount(0);
+  // R1: a failed-checkout (pending_payment) buyer is not on the roster.
+  await expect(roster.getByRole("rowheader", { name: `Hal ${s.tag}` })).toHaveCount(0);
   expect(await cells(page, "Roster", `Ann ${s.tag}`)).toEqual([
     `ann-${s.tag}@example.test`, s.tierName, "Sponsored", s.sponsorName, s.tableNumber, "Yes",
   ]);
