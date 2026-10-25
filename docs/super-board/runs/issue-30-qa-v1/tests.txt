@@ -1,0 +1,14 @@
+ Test Files  3 passed (3)
+      Tests  15 passed (15)
+   Start at  22:00:50
+   Duration  483ms (tests 49%, import 40%, transform 8%, worker 4%)
+Running 8 tests using 1 worker
+  ✓  1 [chromium] › e2e/admin-reports-qa.spec.ts:136:5 › AC1+AC2: seeded sponsor rows and every total match, cancelled and failed left out (1.6s)
+  ✓  2 [chromium] › e2e/admin-reports-qa.spec.ts:189:5 › AC3: a signed-in user with no role gets 403 and no report (426ms)
+  ✓  3 [chromium] › e2e/admin-reports-qa.spec.ts:205:9 › screenshots › capture desktop (1.4s)
+  ✓  4 [chromium] › e2e/admin-reports-qa.spec.ts:205:9 › screenshots › capture tablet (1.2s)
+  ✓  5 [chromium] › e2e/admin-reports-qa.spec.ts:205:9 › screenshots › capture mobile (1.2s)
+  ✓  6 [chromium] › e2e/admin-reports.spec.ts:21:5 › signed out, /admin/reports goes to sign-in (117ms)
+  ✓  7 [chromium] › e2e/admin-reports.spec.ts:27:5 › a sponsor at /admin/reports gets 403 and no report (421ms)
+  ✓  8 [chromium] › e2e/admin-reports.spec.ts:34:5 › an admin opens Exports, then views the reports (867ms)
+  8 passed (17.6s)
