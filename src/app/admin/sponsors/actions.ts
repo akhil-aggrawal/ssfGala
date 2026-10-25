@@ -3,6 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { guestErrorMessage, parseGuestForm } from "@/lib/admin/sponsors";
 import { requireRole } from "@/lib/auth/guard";
+import { confirmRegistration } from "@/lib/email/guest-confirmation";
+import { createEmailTransport } from "@/lib/email/transport";
 import { submitPledge, type PledgeState } from "@/lib/sponsor/submit-pledge";
 import { createSupabaseAdminClient } from "@/lib/supabase/server";
 
@@ -35,13 +37,15 @@ export async function addSponsoredGuest(_prev: GuestState, formData: FormData): 
   const parsed = parseGuestForm(formData);
   if (!parsed.ok) return parsed;
 
-  const { error } = await createSupabaseAdminClient().rpc("admin_add_sponsored_guests", {
+  const db = createSupabaseAdminClient();
+  const { data: registrationId, error } = await db.rpc("admin_add_sponsored_guests", {
     p_admin_id: access.user.id,
     p_event_id: access.eventId,
     p_table_id: tableId,
     p_attendees: parsed.attendees,
   });
   if (error) return { ok: false, message: guestErrorMessage(error) };
+  await confirmRegistration(db, registrationId, createEmailTransport());
   revalidatePath(PATH);
   return { ok: true, message: `${parsed.attendees[0].full_name} added.` };
 }

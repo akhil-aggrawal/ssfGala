@@ -4,6 +4,8 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { appOrigin } from "@/lib/auth/origin";
 import { getSessionUser } from "@/lib/auth/session";
+import { confirmRegistration } from "@/lib/email/guest-confirmation";
+import { createEmailTransport } from "@/lib/email/transport";
 import { parseContributionCents, startSeatContribution } from "@/lib/invite/contribution";
 import { isTokenShape, loadInvite } from "@/lib/invite/landing";
 import { parseGuests, registerErrorMessage, registerPath } from "@/lib/invite/register";
@@ -49,6 +51,9 @@ export async function registerGuests(token: string, _prev: RegisterState, formDa
     p_attendees: parsed.attendees,
   });
   if (error) return { done: false, values: parsed.attendees, errors: {}, message: registerErrorMessage(error), amount };
+  // Each guest is confirmed now, paid or not; a contribution's receipt comes
+  // later, from the webhook.
+  await confirmRegistration(db, registrationId, createEmailTransport());
 
   const count = parsed.attendees.length;
   if (contribution.cents === 0) return { done: true, count };

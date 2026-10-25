@@ -228,6 +228,7 @@ describe.skipIf(!enabled)("ticket confirmation emails through the real webhook r
     const o = await pendingOrder("seat_contribution");
     const { status } = await deliver("checkout.session.completed", o.sessionId);
     expect(status).toBe(200);
-    expect(outbox).toHaveLength(0);
+    // Since #34 the registrant gets one contribution receipt instead.
+    expect(outbox.map((m) => m.idempotencyKey)).toEqual([`contribution-receipt:${o.registrationId}`]);
   });
 });

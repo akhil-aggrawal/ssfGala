@@ -9,6 +9,8 @@ const rpc = vi.hoisted(() => vi.fn());
 
 vi.mock("@/lib/auth/guard", () => guard);
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
+const email = vi.hoisted(() => ({ confirmRegistration: vi.fn() }));
+vi.mock("@/lib/email/guest-confirmation", () => email);
 vi.mock("next/headers", () => ({ headers: async () => new Headers({ host: "gala.test", "x-forwarded-proto": "https" }) }));
 vi.mock("@/lib/supabase/server", () => {
   const table = (rows: object[]) => {
@@ -46,6 +48,7 @@ describe("admin sponsor actions", () => {
   beforeEach(() => {
     guard.requireRole.mockReset().mockResolvedValue({ user: { id: "admin-1" }, eventId: "ev-1" });
     rpc.mockReset();
+    email.confirmRegistration.mockReset();
   });
 
   it("refuses a non-admin before any database call", async () => {
@@ -103,6 +106,8 @@ describe("admin sponsor actions", () => {
       p_table_id: TABLE,
       p_attendees: [{ full_name: "Ann", email: "ann@example.test" }],
     });
+    // AC1 (#34): the new sponsored guest is confirmed by email.
+    expect(email.confirmRegistration.mock.calls[0][1]).toBe("reg-1");
   });
 
   it("refuses a bad table id or a guest without an email before any database call", async () => {

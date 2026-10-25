@@ -1,0 +1,98 @@
+
+ RUN  v5.0.5 <worktree>
+
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ ✓ src/lib/email/guest-confirmation.db.test.ts > guest confirmations and contribution receipts against the real schema (issue #34 QA) > AC1 + AC4: invited guests on an overbooked table each get one confirmation with tier and sponsor, no table or overbooking 152ms
+ ✓ src/lib/email/guest-confirmation.db.test.ts > guest confirmations and contribution receipts against the real schema (issue #34 QA) > AC1: a sponsored guest an admin adds gets one confirmation with tier and sponsor 123ms
+ ✓ src/lib/email/guest-confirmation.db.test.ts > guest confirmations and contribution receipts against the real schema (issue #34 QA) > AC3: complimentary and offline-paid attendees each get one confirmation, no sponsor line; a cancelled one gets none 134ms
+stdout | src/lib/email/guest-confirmation.db.test.ts > guest confirmations and contribution receipts against the real schema (issue #34 QA) > AC2 + AC4: a successful seat contribution sends one receipt to the registrant, and a replay sends nothing more
+{"level":"info","msg":"stripe webhook: processed","time":"2026-10-25T07:40:05.768Z","eventId":"evt_qa34_1792914005671-7e7l4o","type":"checkout.session.completed","sessionId":"cs_test_qa34_1792914005664-q8abib","outcome":"confirmed"}
+
+stdout | src/lib/email/guest-confirmation.db.test.ts > guest confirmations and contribution receipts against the real schema (issue #34 QA) > AC2 + AC4: a successful seat contribution sends one receipt to the registrant, and a replay sends nothing more
+{"level":"info","msg":"stripe webhook: processed","time":"2026-10-25T07:40:05.777Z","eventId":"evt_qa34_1792914005671-7e7l4o","type":"checkout.session.completed","sessionId":"cs_test_qa34_1792914005664-q8abib","outcome":"duplicate"}
+
+stdout | src/lib/email/guest-confirmation.db.test.ts > guest confirmations and contribution receipts against the real schema (issue #34 QA) > AC2 + AC4: a successful seat contribution sends one receipt to the registrant, and a replay sends nothing more
+{"level":"info","msg":"stripe webhook: processed","time":"2026-10-25T07:40:05.787Z","eventId":"evt_qa34_1792914005778-x912t7","type":"checkout.session.async_payment_succeeded","sessionId":"cs_test_qa34_1792914005664-q8abib","outcome":"already_settled"}
+
+stdout | src/lib/email/guest-confirmation.db.test.ts > guest confirmations and contribution receipts against the real schema (issue #34 QA) > AC2: an expired contribution session sends no receipt
+{"level":"info","msg":"stripe webhook: processed","time":"2026-10-25T07:40:05.910Z","eventId":"evt_qa34_1792914005902-hmsn6u","type":"checkout.session.expired","sessionId":"cs_test_qa34_1792914005894-p51u4u","outcome":"failed"}
+
+ ✓ src/lib/email/guest-confirmation.db.test.ts > guest confirmations and contribution receipts against the real schema (issue #34 QA) > AC2 + AC4: a successful seat contribution sends one receipt to the registrant, and a replay sends nothing more 231ms
+ ✓ src/lib/email/guest-confirmation.db.test.ts > guest confirmations and contribution receipts against the real schema (issue #34 QA) > AC2: an expired contribution session sends no receipt 123ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+stdout | src/lib/email/ticket-confirmation.db.test.ts > ticket confirmation emails through the real webhook route (issue #32 QA) > AC1 + AC2 + AC4: a confirmed order sends one receipt and one confirmation per live attendee, all from EMAIL_FROM
+{"level":"info","msg":"stripe webhook: processed","time":"2026-10-25T07:40:06.619Z","eventId":"evt_qa32_1792914006537-x2f3g4","type":"checkout.session.completed","sessionId":"cs_test_qa32_1792914006404-0xzxtx","outcome":"confirmed"}
+
+stdout | src/lib/email/ticket-confirmation.db.test.ts > ticket confirmation emails through the real webhook route (issue #32 QA) > AC3: replaying the event, or a second event for the same session, sends no extra emails
+{"level":"info","msg":"stripe webhook: processed","time":"2026-10-25T07:40:06.771Z","eventId":"evt_qa32_1792914006754-76c4ql","type":"checkout.session.completed","sessionId":"cs_test_qa32_1792914006631-jexwlt","outcome":"confirmed"}
+
+stdout | src/lib/email/ticket-confirmation.db.test.ts > ticket confirmation emails through the real webhook route (issue #32 QA) > AC3: replaying the event, or a second event for the same session, sends no extra emails
+{"level":"info","msg":"stripe webhook: processed","time":"2026-10-25T07:40:06.779Z","eventId":"evt_qa32_1792914006754-76c4ql","type":"checkout.session.completed","sessionId":"cs_test_qa32_1792914006631-jexwlt","outcome":"duplicate"}
+
+stdout | src/lib/email/ticket-confirmation.db.test.ts > ticket confirmation emails through the real webhook route (issue #32 QA) > AC3: replaying the event, or a second event for the same session, sends no extra emails
+{"level":"info","msg":"stripe webhook: processed","time":"2026-10-25T07:40:06.787Z","eventId":"evt_qa32_1792914006779-uy0t4w","type":"checkout.session.async_payment_succeeded","sessionId":"cs_test_qa32_1792914006631-jexwlt","outcome":"already_settled"}
+
+ ✓ src/lib/email/ticket-confirmation.db.test.ts > ticket confirmation emails through the real webhook route (issue #32 QA) > AC1 + AC2 + AC4: a confirmed order sends one receipt and one confirmation per live attendee, all from EMAIL_FROM 229ms
+ ✓ src/lib/email/ticket-confirmation.db.test.ts > ticket confirmation emails through the real webhook route (issue #32 QA) > AC3: replaying the event, or a second event for the same session, sends no extra emails 158ms
+stdout | src/lib/email/ticket-confirmation.db.test.ts > ticket confirmation emails through the real webhook route (issue #32 QA) > AC3: two deliveries of the same event at once send one set of emails
+{"level":"info","msg":"stripe webhook: processed","time":"2026-10-25T07:40:06.948Z","eventId":"evt_qa32_race_1792914006934-8guu8v","type":"checkout.session.completed","sessionId":"cs_test_qa32_1792914006789-pvucj6","outcome":"duplicate"}
+
+stdout | src/lib/email/ticket-confirmation.db.test.ts > ticket confirmation emails through the real webhook route (issue #32 QA) > AC3: two deliveries of the same event at once send one set of emails
+{"level":"info","msg":"stripe webhook: processed","time":"2026-10-25T07:40:06.958Z","eventId":"evt_qa32_race_1792914006934-8guu8v","type":"checkout.session.completed","sessionId":"cs_test_qa32_1792914006789-pvucj6","outcome":"confirmed"}
+
+ ✓ src/lib/email/ticket-confirmation.db.test.ts > ticket confirmation emails through the real webhook route (issue #32 QA) > AC3: two deliveries of the same event at once send one set of emails 170ms
+stdout | src/lib/email/ticket-confirmation.db.test.ts > ticket confirmation emails through the real webhook route (issue #32 QA) > AC5: a Resend failure logs the registration id and the order stays registered
+{"level":"info","msg":"stripe webhook: processed","time":"2026-10-25T07:40:07.127Z","eventId":"evt_qa32_1792914007111-ajv1z4","type":"checkout.session.completed","sessionId":"cs_test_qa32_1792914006961-h95ftx","outcome":"confirmed"}
+
+ ✓ src/lib/email/ticket-confirmation.db.test.ts > ticket confirmation emails through the real webhook route (issue #32 QA) > AC5: a Resend failure logs the registration id and the order stays registered 174ms
+stdout | src/lib/email/ticket-confirmation.db.test.ts > ticket confirmation emails through the real webhook route (issue #32 QA) > a confirmed seat contribution sends no ticket emails
+{"level":"info","msg":"stripe webhook: processed","time":"2026-10-25T07:40:07.284Z","eventId":"evt_qa32_1792914007256-ce5aph","type":"checkout.session.completed","sessionId":"cs_test_qa32_1792914007134-dqj8pr","outcome":"confirmed"}
+
+ ✓ src/lib/email/ticket-confirmation.db.test.ts > ticket confirmation emails through the real webhook route (issue #32 QA) > a confirmed seat contribution sends no ticket emails 151ms
+ ✓ src/lib/email/ticket-confirmation.test.ts > sendTicketConfirmation > AC1: sends one receipt to the buyer with amount, tier and attendee names 25ms
+ ✓ src/lib/email/ticket-confirmation.test.ts > sendTicketConfirmation > AC2: each attendee gets one confirmation with tier and event details and no table number 2ms
+ ✓ src/lib/email/ticket-confirmation.test.ts > sendTicketConfirmation > AC4: every email's From address equals EMAIL_FROM 1ms
+ ✓ src/lib/email/ticket-confirmation.test.ts > sendTicketConfirmation > AC5: a failed send logs the registration id and the other emails still go out 4ms
+ ✓ src/lib/email/ticket-confirmation.test.ts > sendTicketConfirmation > escapes attendee names in the HTML 1ms
+ ✓ src/lib/email/ticket-confirmation.test.ts > createEmailTransport (Resend) > AC4: posts to Resend with EMAIL_FROM as the sender and an idempotency key 29ms
+ ✓ src/lib/email/ticket-confirmation.test.ts > createEmailTransport (Resend) > throws on a Resend error so the caller can log it 2ms
+ ✓ src/lib/email/ticket-confirmation.test.ts > createEmailTransport (Resend) > refuses to send without EMAIL_FROM 1ms
+ ✓ src/lib/email/sponsorship-confirmation.test.ts > sendSponsorshipConfirmation > AC1: a 3-table pledge sends one email containing 3 different table links 25ms
+ ✓ src/lib/email/sponsorship-confirmation.test.ts > sendSponsorshipConfirmation > AC2: states the pledged amount and that no online payment was taken 1ms
+ ✓ src/lib/email/sponsorship-confirmation.test.ts > sendSponsorshipConfirmation > escapes the sponsor name in the HTML 1ms
+ ✓ src/lib/email/sponsorship-confirmation.test.ts > sendSponsorshipConfirmation > a failed send is logged with the sponsorship id and never throws 2ms
+ ✓ src/lib/email/sponsorship-confirmation.test.ts > sendSponsorshipConfirmation > a failed event lookup is logged and sends nothing 0ms
+ ✓ src/app/invite/[token]/register/actions.test.ts > registerGuests confirmation emails > confirms the new registration once it is saved 24ms
+ ✓ src/app/invite/[token]/register/actions.test.ts > registerGuests confirmation emails > sends nothing when the registration is refused 1ms
+stderr | src/app/admin/sponsors/actions.test.ts > admin sponsor actions > pledges through admin_pledge_sponsorship as the admin and returns one invite link per table
+{"level":"error","msg":"email: send failed","time":"2026-10-25T07:40:08.216Z","sponsorshipId":"sp1","kind":"sponsorship","error":"Error: EMAIL_FROM is not set"}
+
+ ✓ src/app/admin/sponsors/actions.test.ts > admin sponsor actions > refuses a non-admin before any database call 24ms
+ ✓ src/app/admin/sponsors/actions.test.ts > admin sponsor actions > pledges through admin_pledge_sponsorship as the admin and returns one invite link per table 7ms
+ ✓ src/app/admin/sponsors/actions.test.ts > admin sponsor actions > AC3 #33: an admin-created pledge sends the sponsor the same confirmation email 2ms
+ ✓ src/app/admin/sponsors/actions.test.ts > admin sponsor actions > adds one guest to a table in the active gala as the admin 1ms
+ ✓ src/app/admin/sponsors/actions.test.ts > admin sponsor actions > refuses a bad table id or a guest without an email before any database call 1ms
+ ✓ src/app/admin/attendees/new/actions.test.ts > addAttendees > refuses a non-admin before any database call 31ms
+ ✓ src/app/admin/attendees/new/actions.test.ts > addAttendees > scopes the write to the active gala, never a posted event id 2ms
+ ✓ src/app/admin/attendees/new/actions.test.ts > addAttendees > AC3 (#34): confirms the saved registration's attendees by email 1ms
+ ✓ src/app/admin/attendees/new/actions.test.ts > addAttendees > sends no amount for a complimentary registration 0ms
+ ✓ src/app/admin/attendees/new/actions.test.ts > addAttendees > refuses when no gala is active 1ms
+ ✓ src/app/admin/attendees/new/actions.test.ts > addAttendees > returns plain words when the database refuses 1ms
+ ✓ src/app/admin/attendees/new/actions.test.ts > admin attendees area > has no code that calls Stripe 2ms
+ ✓ src/lib/email/guest-confirmation.test.ts > sendGuestConfirmations > AC1: each sponsored attendee gets one confirmation with tier and sponsor name and no table number 22ms
+ ✓ src/lib/email/guest-confirmation.test.ts > sendGuestConfirmations > AC3: a complimentary or offline-paid attendee gets one confirmation with tier and no sponsor line 2ms
+ ✓ src/lib/email/guest-confirmation.test.ts > sendGuestConfirmations > keys each confirmation by attendee so a resend is dropped by Resend 1ms
+ ✓ src/lib/email/guest-confirmation.test.ts > sendGuestConfirmations > escapes guest-entered names in the HTML 0ms
+ ✓ src/lib/email/guest-confirmation.test.ts > sendGuestConfirmations > one failed send is logged with the registration id and the rest still go out 3ms
+ ✓ src/lib/email/guest-confirmation.test.ts > sendContributionReceipt > AC2: sends one receipt to the registrant with amount, tier, sponsor and attendees 5ms
+ ✓ src/lib/email/guest-confirmation.test.ts > sendContributionReceipt > logs and sends nothing when the registrant has no email 1ms
+ ✓ src/lib/email/guest-confirmation.test.ts > confirmRegistration > never throws when the registration cannot be read 1ms
+
+ Test Files  8 passed (8)
+      Tests  45 passed (45)
+   Start at  00:40:04
+   Duration  4.02s (tests 76%, import 21%, transform 2%, worker 1%)
+
+    Isolate  8 workers spawned · ~152ms startup each (spawn + environment, per file)
+             at least ~1.06s faster with isolate: false — reuses workers across files instead of one per file
+
