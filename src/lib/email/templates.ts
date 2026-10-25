@@ -84,3 +84,68 @@ export function attendeeConfirmationEmail(order: TicketOrder, attendee: { name: 
   ]);
   return { subject, html, text };
 }
+
+// Invited (sponsored), complimentary and paid-offline guests (issue #34).
+// Same rule as tickets: tier only, never a table number, and nothing about
+// how full a table is.
+export type GuestRegistration = {
+  registrationId: string;
+  tier: string;
+  // The table's sponsor for a sponsored registration; null otherwise.
+  sponsorName: string | null;
+  attendees: { id: string; name: string; email: string }[];
+  event: GalaEvent;
+};
+
+export type ContributionReceipt = {
+  registrationId: string;
+  registrantEmail: string;
+  registrantName: string | null;
+  amountCents: number;
+  registration: GuestRegistration;
+};
+
+export function guestConfirmationEmail(reg: GuestRegistration, attendee: { name: string }): Rendered {
+  const event = eventLines(reg.event);
+  const subject = `You're registered for ${reg.event.name}`;
+  const text = [
+    `Hello ${attendee.name}, you're registered.`,
+    `Tier: ${reg.tier}`,
+    ...(reg.sponsorName ? [`Guest of: ${reg.sponsorName}`] : []),
+    ...event,
+    "Seating details will follow closer to the event.",
+  ].join("\n");
+  const html = layout("You're registered", [
+    `Hello ${escapeHtml(attendee.name)}, you're registered.`,
+    `<strong>Tier:</strong> ${escapeHtml(reg.tier)}`,
+    ...(reg.sponsorName ? [`<strong>Guest of:</strong> ${escapeHtml(reg.sponsorName)}`] : []),
+    event.map(escapeHtml).join("<br>"),
+    "Seating details will follow closer to the event.",
+  ]);
+  return { subject, html, text };
+}
+
+export function contributionReceiptEmail(receipt: ContributionReceipt): Rendered {
+  const reg = receipt.registration;
+  const event = eventLines(reg.event);
+  const names = reg.attendees.map((a) => a.name);
+  const thanks = `Thank you${receipt.registrantName ? `, ${receipt.registrantName}` : ""}. Your seat contribution is received.`;
+  const subject = `Your contribution receipt for ${reg.event.name}`;
+  const text = [
+    thanks,
+    `Amount contributed: ${formatUsd(receipt.amountCents)}`,
+    `Tier: ${reg.tier}`,
+    ...(reg.sponsorName ? [`Guest of: ${reg.sponsorName}`] : []),
+    `Attendees: ${names.join(", ")}`,
+    ...event,
+  ].join("\n");
+  const html = layout("Contribution received", [
+    escapeHtml(thanks),
+    `<strong>Amount contributed:</strong> ${formatUsd(receipt.amountCents)}`,
+    `<strong>Tier:</strong> ${escapeHtml(reg.tier)}`,
+    ...(reg.sponsorName ? [`<strong>Guest of:</strong> ${escapeHtml(reg.sponsorName)}`] : []),
+    `<strong>Attendees:</strong> ${names.map(escapeHtml).join(", ")}`,
+    event.map(escapeHtml).join("<br>"),
+  ]);
+  return { subject, html, text };
+}

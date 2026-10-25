@@ -1,3 +1,4 @@
+import { loadContributionReceipt, sendContributionReceipt } from "@/lib/email/guest-confirmation";
 import { loadTicketOrder, sendTicketConfirmation } from "@/lib/email/ticket-confirmation";
 import { createEmailTransport } from "@/lib/email/transport";
 import { createStripe } from "@/lib/stripe/server";
@@ -17,8 +18,11 @@ export async function POST(request: Request) {
       return data as CheckoutEventResult;
     },
     onConfirmed: async (sessionId) => {
-      const order = await loadTicketOrder(createSupabaseAdminClient(), sessionId);
-      if (order) await sendTicketConfirmation(order, createEmailTransport());
+      const db = createSupabaseAdminClient();
+      const order = await loadTicketOrder(db, sessionId);
+      if (order) return sendTicketConfirmation(order, createEmailTransport());
+      const receipt = await loadContributionReceipt(db, sessionId);
+      if (receipt) await sendContributionReceipt(receipt, createEmailTransport());
     },
   });
   return Response.json(body, { status, headers: { "Cache-Control": "no-store" } });

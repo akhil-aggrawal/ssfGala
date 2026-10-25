@@ -10,6 +10,8 @@ const rpc = vi.hoisted(() => vi.fn());
 vi.mock("@/lib/auth/guard", () => guard);
 vi.mock("@/lib/supabase/server", () => ({ createSupabaseAdminClient: () => ({ rpc }) }));
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
+const email = vi.hoisted(() => ({ confirmRegistration: vi.fn() }));
+vi.mock("@/lib/email/guest-confirmation", () => email);
 
 const { addAttendees } = await import("./actions");
 
@@ -28,6 +30,7 @@ describe("addAttendees", () => {
   beforeEach(() => {
     guard.requireRole.mockReset();
     rpc.mockReset().mockResolvedValue({ data: "reg-1", error: null });
+    email.confirmRegistration.mockReset();
   });
 
   it("refuses a non-admin before any database call", async () => {
@@ -51,6 +54,13 @@ describe("addAttendees", () => {
     });
   });
 
+  it("AC3 (#34): confirms the saved registration's attendees by email", async () => {
+    guard.requireRole.mockResolvedValue({ user: { id: "admin-1" }, eventId: EVENT });
+    await addAttendees(null, attendeeForm());
+    expect(email.confirmRegistration).toHaveBeenCalledTimes(1);
+    expect(email.confirmRegistration.mock.calls[0][1]).toBe("reg-1");
+  });
+
   it("sends no amount for a complimentary registration", async () => {
     guard.requireRole.mockResolvedValue({ user: { id: "admin-1" }, eventId: EVENT });
     await addAttendees(null, attendeeForm({ amount: "50" }));
@@ -72,6 +82,7 @@ describe("addAttendees", () => {
     const result = await addAttendees(null, attendeeForm());
     expect(result).toMatchObject({ ok: false });
     expect(result?.message).toMatch(/archived/);
+    expect(email.confirmRegistration).not.toHaveBeenCalled();
   });
 });
 
