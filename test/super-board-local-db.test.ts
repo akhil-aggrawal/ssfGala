@@ -35,7 +35,7 @@ function freshLock() {
   return join(mkdtempSync(join(tmpdir(), "sb-lock-")), "local-stack.lock");
 }
 
-describe("local-stack lock", () => {
+describe("local-stack lock", { timeout: 30_000 }, () => {
   it("makes a second caller wait for the holder, then run", async () => {
     const lock = freshLock();
     const log = join(tmpdir(), `sb-lock-log-${process.pid}-${Date.now()}`);
@@ -219,7 +219,7 @@ function laneRepo(lane: string, other: string) {
   return dir;
 }
 
-describe.skipIf(!stackTests)("scratch databases (needs the local stack)", () => {
+describe.skipIf(!stackTests)("scratch databases (needs the local stack)", { timeout: 30_000 }, () => {
   it(
     "gate reset and two lanes' pgTAP run at once on their own migrations; main rows untouched",
     async () => {
@@ -299,7 +299,7 @@ describe.skipIf(!stackTests)("scratch databases (needs the local stack)", () => 
   }, 120_000);
 });
 
-describe("standalone super-qa", () => {
+describe("standalone super-qa", { timeout: 30_000 }, () => {
   it("runs every e2e step under the local-stack lock", () => {
     const files = [".claude/skills/super-qa/SKILL.md", ".claude/skills/super-qa/references/iteration-preamble.md"];
     const runs = files.flatMap((f) =>

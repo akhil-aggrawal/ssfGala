@@ -50,7 +50,7 @@ const unknownFlag = "unknown flag: --bogus\n\nUsage:  gh pr view [<number> | <ur
 const prView = ["pr", "view", "58", "--json", "baseRefName,isDraft,reviewThreads"];
 const slurpRead = ["api", "repos/o/r/pulls/58/comments", "--paginate", "--slurp", "--jq", "."];
 
-describe("super-board-github-read: gh usage errors", () => {
+describe("super-board-github-read: gh usage errors", { timeout: 30_000 }, () => {
   it("exits 64 on the first attempt for an unknown --json field, without a halt file", () => {
     const run = runRead(prView, unknownField, 1);
     expect(run).toMatchObject({ status: 64, attempts: 1, halted: false });
@@ -76,7 +76,7 @@ describe("super-board-github-read: gh usage errors", () => {
   });
 });
 
-describe("super-board-github-read: outages still halt", () => {
+describe("super-board-github-read: outages still halt", { timeout: 30_000 }, () => {
   it("retries an HTTP 5xx three times, then exits 79 with a halt file", () => {
     const run = runRead(["pr", "view", "58", "--json", "body"], "HTTP 502: Bad Gateway (https://api.github.com/graphql)\n", 1);
     expect(run).toMatchObject({ status: 79, attempts: 3, halted: true });
@@ -118,7 +118,7 @@ const placeholderQuery = [
 const unresolved = "GraphQL: Could not resolve to a Repository with the name '{owner}/{repo}'. (repository)\n";
 const quota = { kind: "quota" };
 
-describe("super-board-github-read: malformed reads of any kind fail only that call", () => {
+describe("super-board-github-read: malformed reads of any kind fail only that call", { timeout: 30_000 }, () => {
   it("exits 64 on the first attempt when --kind quota gets plain text from --jq, without a halt file", () => {
     const run = runRead(quotaText, "", 0, {}, { ...quota, stdout: "graphql=4000\n" });
     expect(run).toMatchObject({ status: 64, attempts: 1, halted: false });

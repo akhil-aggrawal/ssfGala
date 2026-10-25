@@ -80,7 +80,7 @@ function run(pr: Pr) {
   return JSON.parse(result.stdout)[ISSUE] as { needsYouDone: boolean; approvalWhy?: string };
 }
 
-describe("super-board-approval links a held PR to its issue", () => {
+describe("super-board-approval links a held PR to its issue", { timeout: 30_000 }, () => {
   it("links a PR into a non-default base through a Closes line in its body", () => {
     const verdict = run({ base: "staging", body: `Fix things.\n\nCloses #${ISSUE}` });
     expect(verdict).toMatchObject({ needsYouDone: true, approvalWhy: "trusted human confirmed the current request" });

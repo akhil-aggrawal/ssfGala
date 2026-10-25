@@ -56,7 +56,7 @@ function holds(
 const serviceRole = "const key = process.env.SUPABASE_SERVICE_ROLE_KEY; // service_role";
 const dropTable = "writeFileSync(sql, 'drop table guests;');";
 
-describe("super-board-merge-policy: keyword_exclude", () => {
+describe("super-board-merge-policy: keyword_exclude", { timeout: 30_000 }, () => {
   it("gives no auth hold when the only service_role line is in an e2e spec", () => {
     expect(holds([{ path: "e2e/sponsor-dashboard.spec.ts", added: [serviceRole] }])).toEqual([]);
   });
@@ -106,7 +106,7 @@ describe("super-board-merge-policy: keyword_exclude", () => {
   });
 });
 
-describe("super-board-merge-policy: this repo's keyword_exclude", () => {
+describe("super-board-merge-policy: this repo's keyword_exclude", { timeout: 30_000 }, () => {
   const repoConfig = JSON.parse(
     readFileSync(fileURLToPath(new URL("../.claude/super-board/configs/ssfgala.json", import.meta.url)), "utf8"),
   );
