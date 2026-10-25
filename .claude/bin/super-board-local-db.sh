@@ -83,22 +83,26 @@ admin_sql() { docker exec "$CONTAINER" psql -v ON_ERROR_STOP=1 -qAt -U supabase_
 # ---- the local-stack lock ------------------------------------------------------
 # mkdir is atomic: exactly one caller gets it. `pid` and `host` let a waiter see
 # that the holder is gone and reap at once instead of waiting out stale-after.
-# A lock with no `pid` (its holder died between mkdir and writing it) is stale
-# once older than GRACE seconds.
 #
-# Reaping is a rename, never an rm of the shared path (#92): two waiters can both
-# judge the same lock dead, and the slower one would delete the lock the faster
-# one just took. So a waiter moves the lock to its own name and checks it moved
-# the directory it judged (same inode). If not, it took a newer lock: it puts it
-# back and waits. Moved locks are deleted only after the next mkdir, so a new
-# lock never reuses the inode of one a waiter still means to reap.
+# Every change to the lock (take, reap, release) happens under a kernel flock on
+# the lock's parent directory (#92). A waiter judges the lock and removes it in
+# one step under that mutex, so no one can swap in a fresh lock between the two,
+# and the kernel drops the mutex when its holder dies, so it never goes stale.
+# Since `pid` is written under the mutex too, a lock without one was left by a
+# caller that died mid-take; it is reaped once older than GRACE seconds.
 # SB_LOCK_REAP_PAUSE (seconds, tests only) pauses between judging and reaping.
 GRACE=10
 HOST=$(hostname)
 LOCK_HELD=0
-GRAVES=()
-inode() { ls -di "$1" 2>/dev/null | awk '{print $1}'; }
+LOCK_PARENT=$(dirname "$LOCK_DIR")
 mtime() { stat -c %Y "$1" 2>/dev/null || stat -f %m "$1" 2>/dev/null; }
+
+# Fd 9 holds the flock; it is closed again before any command runs.
+mutex_on() {
+  exec 9<"$LOCK_PARENT" &&
+    perl -MFcntl=:flock -e 'open(my $f, "<&=9") or die "fd 9: $!\n"; flock($f, LOCK_EX) or die "flock: $!\n"'
+}
+mutex_off() { exec 9<&-; }
 
 # Prints why the lock is stale and succeeds, or fails when it is live.
 stale() {
@@ -118,38 +122,34 @@ stale() {
   return 1
 }
 
-# Moves the lock away if it is still the directory with inode $1.
-reap() {
-  local grave="${LOCK_DIR}.reaped.$$.${#GRAVES[@]}"
-  mv "$LOCK_DIR" "$grave" 2>/dev/null || return 1   # another waiter reaped it first
-  if [ "$(inode "$grave")" = "$1" ]; then GRAVES+=("$grave"); return 0; fi
-  # A newer lock than the one judged: put it back, unless a third caller already
-  # made a new one (then leave it where it is rather than delete a live lock).
-  if [ ! -e "$LOCK_DIR" ]; then mv "$grave" "$LOCK_DIR"
-  else say "moved a live lock to ${grave} and could not put it back"; fi
-  return 1
-}
-
-bury() { [ ${#GRAVES[@]} -eq 0 ] || rm -rf "${GRAVES[@]}"; GRAVES=(); }
-
 acquire() {
-  local waited=0 ino why
-  mkdir -p "$(dirname "$LOCK_DIR")"
-  while ! mkdir "$LOCK_DIR" 2>/dev/null; do
-    bury
-    ino=$(inode "$LOCK_DIR"); [ -n "$ino" ] || continue   # released just now
+  local waited=0 why
+  mkdir -p "$LOCK_PARENT"
+  while :; do
+    mutex_on || { say "could not lock ${LOCK_PARENT} (needs perl)"; return 1; }
+    if mkdir "$LOCK_DIR" 2>/dev/null; then
+      LOCK_HELD=1
+      echo "$$" > "$LOCK_DIR/pid"; echo "$HOST" > "$LOCK_DIR/host"; date +%s > "$LOCK_DIR/at"
+      mutex_off; return 0
+    fi
     if why=$(stale); then
-      [ -n "${SB_LOCK_REAP_PAUSE:-}" ] && sleep "$SB_LOCK_REAP_PAUSE"
-      reap "$ino" && say "reaped the local-stack lock (${why})"
+      [ -n "${SB_LOCK_REAP_PAUSE:-}" ] && sleep "$SB_LOCK_REAP_PAUSE" 9<&-
+      rm -rf "$LOCK_DIR"; mutex_off
+      say "reaped the local-stack lock (${why})"
       continue
     fi
+    mutex_off
     [ "$waited" -eq 0 ] && say "waiting for the local-stack lock (held by pid $(cat "$LOCK_DIR/pid" 2>/dev/null || echo ?))"
     [ "$waited" -ge "$TIMEOUT" ] && return 1
     sleep 1; waited=$(( waited + 1 ))
   done
-  bury
-  LOCK_HELD=1
-  echo "$$" > "$LOCK_DIR/pid"; echo "$HOST" > "$LOCK_DIR/host"; date +%s > "$LOCK_DIR/at"
+}
+
+release() {
+  [ "$LOCK_HELD" -eq 1 ] || return 0
+  mutex_on || return 0
+  [ "$(cat "$LOCK_DIR/pid" 2>/dev/null)" = "$$" ] && rm -rf "$LOCK_DIR"
+  mutex_off
 }
 
 # ---- scratch databases -----------------------------------------------------------
@@ -197,14 +197,11 @@ run() { "$@" & CHILD=$!; wait "$CHILD" || rc=$?; CHILD=""; }
 
 cleanup() {
   if [ -n "$CHILD" ]; then kill -TERM "$CHILD" 2>/dev/null || true; wait "$CHILD" 2>/dev/null || true; fi
-  bury
   if [ -n "$SCRATCH" ]; then
     admin_sql "drop database if exists \"${SCRATCH}\" with (force)" >/dev/null 2>&1 \
       || say "could not drop ${SCRATCH}; the next scratch run reaps it"
   fi
-  if [ "$LOCK_HELD" -eq 1 ] && [ "$(cat "$LOCK_DIR/pid" 2>/dev/null)" = "$$" ]; then
-    rm -rf "$LOCK_DIR"
-  fi
+  release || true
 }
 trap cleanup EXIT
 trap 'exit 130' INT
