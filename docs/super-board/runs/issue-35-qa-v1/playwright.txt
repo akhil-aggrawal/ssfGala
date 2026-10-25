@@ -1,0 +1,30 @@
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+Running 23 tests using 1 worker
+
+  ✓   1 [chromium] › e2e/admin-attendees-list-qa.spec.ts:109:5 › AC1: partial name or email search returns only the active gala's attendees (3.2s)
+  ✓   2 [chromium] › e2e/admin-attendees-list-qa.spec.ts:137:5 › AC3: editing an attendee writes an audit row with before and after values (1.5s)
+  ✓   3 [chromium] › e2e/admin-attendees-list-qa.spec.ts:168:5 › AC2 + AC4: cancel keeps payments; cancelled rows hide until the filter is ticked (1.5s)
+  ✓   4 [chromium] › e2e/admin-seating-notices-qa.spec.ts:74:5 › AC4: Send table assignments is one button with no message field (760ms)
+  ✓   5 [chromium] › e2e/admin-seating-notices-qa.spec.ts:82:5 › AC1 + AC2: a send reports assigned guests sent and the guest without a table skipped (1.2s)
+  ✓   6 [chromium] › e2e/admin-seating-notices-qa.spec.ts:103:5 › AC3: cancelling an attendee goes through with the notice wired in (2.0s)
+  ✓   7 [chromium] › e2e/admin-seating-qa.spec.ts:103:5 › AC3: overview and seating agree on Overbooked before and after a move (2.9s)
+  ✓   8 [chromium] › e2e/admin-seating-qa.spec.ts:119:5 › AC2: a blank move puts the guest back on the sponsored table (1.4s)
+  ✓   9 [chromium] › e2e/admin-seating-qa.spec.ts:128:5 › AC4: a bad table number saves nothing and writes no audit row (901ms)
+  ✓  10 [chromium] › e2e/admin-seating-qa.spec.ts:139:5 › AC4: each move writes its own audit row with before and after (8ms)
+  ✓  11 [chromium] › e2e/admin-seating-qa.spec.ts:154:5 › AC3: a guest moved onto a full table makes that table Overbooked (4.5s)
+  ✓  12 [chromium] › e2e/admin-seating-qa.spec.ts:213:9 › screenshots › capture desktop (786ms)
+  ✓  13 [chromium] › e2e/admin-seating-qa.spec.ts:213:9 › screenshots › capture tablet (806ms)
+  ✓  14 [chromium] › e2e/admin-seating-qa.spec.ts:213:9 › screenshots › capture mobile (824ms)
+  ✓  15 [chromium] › e2e/admin-seating-qa.spec.ts:226:7 › screenshots › capture the overview and seating after a move (2.4s)
+  ✓  16 [chromium] › e2e/admin-seating.spec.ts:104:5 › AC1: a table number shows for all of the table's guests (1.4s)
+  ✓  17 [chromium] › e2e/admin-seating.spec.ts:116:5 › AC2: moving one guest changes only that guest's table (1.4s)
+  ✓  18 [chromium] › e2e/admin-seating.spec.ts:130:5 › AC3: overbooked tables show a badge and the filter lists only them (919ms)
+  ✓  19 [chromium] › e2e/admin-seating.spec.ts:141:5 › AC3: moving guests off an overbooked table clears its badge (1.4s)
+  ✓  20 [chromium] › e2e/admin-seating.spec.ts:153:5 › Tables & Seating does not scroll sideways on a 375px phone (677ms)
+  ✓  21 [chromium] › e2e/admin-seating.spec.ts:162:5 › AC3: a non-admin never sees the seating page (423ms)
+  ✓  22 [chromium] › e2e/admin-seating.spec.ts:169:5 › AC4: the assignment and the move each wrote an audit row (7ms)
+  ✓  23 [chromium] › e2e/admin-seating.spec.ts:182:5 › /admin/seating opens Tables & Seating (424ms)
+
+  23 passed (44.4s)

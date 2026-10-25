@@ -1,0 +1,9 @@
+
+ RUN  v5.0.5 /Users/akhil/myapps/ssfGala/.claude/worktrees/issue-35-qa
+
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  01:46:35
+   Duration  841ms (tests 83%, import 8%, transform 8%, worker 1%)
+
