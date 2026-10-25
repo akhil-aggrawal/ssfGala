@@ -375,6 +375,9 @@ isOneToOne: false
 "apply_stripe_checkout_event":
 { Args: { "p_amount_total": number,"p_event_id": string,"p_event_type": string,"p_payment_intent_id"?: string,"p_payment_status": string,"p_session_id": string }; Returns: Json
                            },
+"correct_sponsorship_receipt":
+{ Args: { "p_actor_id": string,"p_amount_cents": number,"p_event_id": string,"p_payment_id": string,"p_received_on": string }; Returns: string
+                           },
 "is_admin":
 { Args: Record<PropertyKey, never>; Returns: boolean
                            },
@@ -386,6 +389,9 @@ isOneToOne: false
                            },
 "record_audit_log":
 { Args: { "p_action": string,"p_actor_id": string,"p_after_data": Json,"p_before_data": Json,"p_entity_id": string,"p_entity_type": string,"p_event_id": string }; Returns: number
+                           },
+"record_sponsorship_receipt":
+{ Args: { "p_actor_id": string,"p_amount_cents": number,"p_event_id": string,"p_received_on": string,"p_sponsorship_id": string }; Returns: string
                            },
 "register_sponsored_guests":
 { Args: { "p_attendees": Json,"p_invite_token_hash": string,"p_user_id": string }; Returns: string
