@@ -1083,3 +1083,14 @@ a:focus-visible {
   font-weight: 600;
   cursor: pointer;
 }
+
+/* Invited guest registration */
+.invite__signed-in + .button {
+  margin-top: 0.5rem;
+}
+
+.invite-register__done h2 {
+  margin: 0 0 0.5rem;
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+}

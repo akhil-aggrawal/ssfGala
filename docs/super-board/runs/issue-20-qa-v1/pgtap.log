@@ -1,0 +1,5 @@
+Connecting to local database...
+/Users/akhil/myapps/ssfGala/.claude/worktrees/issue-20-qa/supabase/tests/register_sponsored_guests_test.sql .. ok
+All tests successful.
+Files=1, Tests=13,  0 wallclock secs ( 0.02 usr +  0.01 sys =  0.03 CPU)
+Result: PASS
