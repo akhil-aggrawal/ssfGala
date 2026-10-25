@@ -3,8 +3,9 @@ import type { Database } from "@/lib/database.types";
 import { countSeated, liveTables, readAll, sitsAtSponsoredTable } from "./overview";
 
 // FR-10 reports for /admin/reports. Read-only. Every total counts active
-// attendees only (not cancelled, on a registration that is not cancelled)
-// and succeeded payments only. Amounts are integer USD cents.
+// attendees only (not cancelled, on a `registered` registration: cancelled
+// ones and `pending_payment` ones whose checkout failed or never finished are
+// left out) and succeeded payments only. Amounts are integer USD cents.
 
 type Tables = Database["public"]["Tables"];
 type Row<T extends keyof Tables, K extends keyof Tables[T]["Row"]> = Pick<Tables[T]["Row"], K>;
@@ -89,7 +90,7 @@ export function computeReports(rows: ReportRows): Reports {
   const tableById = new Map(rows.tables.map((t) => [t.id, t]));
 
   const liveRegistrations = new Map(
-    rows.registrations.filter((r) => r.status !== "cancelled").map((r) => [r.id, r]),
+    rows.registrations.filter((r) => r.status === "registered").map((r) => [r.id, r]),
   );
   const active = rows.attendees.filter(
     (a) => a.cancelled_at === null && liveRegistrations.has(a.registration_id),

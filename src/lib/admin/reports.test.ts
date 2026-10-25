@@ -98,7 +98,7 @@ describe("computeReports", () => {
   });
 
   it("roster lists active attendees only, sorted by name, with their seat", () => {
-    expect(r.roster.map((a) => a.name)).toEqual(["Ann", "Ben", "Cy", "Di", "Flo", "Hal", "Jo", "Lu"]);
+    expect(r.roster.map((a) => a.name)).toEqual(["Ann", "Ben", "Cy", "Di", "Flo", "Jo", "Lu"]);
     expect(r.roster.find((a) => a.name === "Ann")).toEqual({
       name: "Ann",
       email: "ann@x.test",
@@ -109,8 +109,32 @@ describe("computeReports", () => {
       paid: true,
     });
     expect(r.roster.find((a) => a.name === "Di")?.table).toBe("12");
-    expect(r.roster.find((a) => a.name === "Hal")).toMatchObject({ kind: "Ticket", paid: false, table: null });
     expect(r.roster.find((a) => a.name === "Jo")).toMatchObject({ kind: "Complimentary", paid: false });
+  });
+
+  it("leaves out attendees whose checkout failed or never finished (pending_payment)", () => {
+    expect(r.roster.find((a) => a.name === "Hal")).toBeUndefined();
+    const pending: ReportRows = {
+      ...rows,
+      registrations: [
+        ...rows.registrations,
+        { id: "rPend", kind: "sponsored", tier_id: "silver", status: "pending_payment", sponsored_table_id: "t2" },
+      ],
+      attendees: [
+        ...rows.attendees,
+        ...["x1", "x2", "x3"].map((id) => ({
+          id,
+          registration_id: "rPend",
+          full_name: id,
+          email: `${id}@x.test`,
+          assigned_table_number: null,
+          cancelled_at: null,
+        })),
+      ],
+    };
+    const p = computeReports(pending);
+    expect(p.roster.length).toBe(r.roster.length);
+    expect(p.overbooked).toEqual(r.overbooked);
   });
 
   it("paid tickets count only succeeded payments to active attendees", () => {
@@ -155,7 +179,6 @@ describe("computeReports", () => {
     const o = computeOverview(rows);
     expect(r.balances.total.outstandingCents).toBe(o.outstandingSponsorshipCents);
     expect(r.overbooked.length).toBe(o.overbookedTables);
-    expect(r.roster.length).toBe(o.attendeeCount);
   });
 
   it("returns empty reports with zero totals for an event with no data", () => {

@@ -52,11 +52,12 @@ async function seedEvent() {
     sponsored_table_id,
     status,
   });
-  const [rT1, rInd, rComp, rGone] = await insert("registrations", [
+  const [rT1, rInd, rComp, rGone, rFail] = await insert("registrations", [
     reg("sponsored", gold.id, t1.id),
     reg("individual", silver.id, null),
     reg("complimentary", silver.id, null),
     reg("individual", gold.id, null, "cancelled"),
+    reg("individual", silver.id, null, "pending_payment"), // checkout failed
   ]);
   const guest = (registration_id: string, full_name: string, cancelled_at: string | null = null) => ({
     event_id,
@@ -66,7 +67,7 @@ async function seedEvent() {
     cancelled_at,
   });
   const now = new Date().toISOString();
-  const [ann, , , flo, gus, , , ivy] = await insert("attendees", [
+  const [ann, , , flo, gus, , , ivy, hal] = await insert("attendees", [
     guest(rT1.id, "Ann"),
     guest(rT1.id, "Ben"),
     guest(rT1.id, "Cy"), // 3 on a table of 2: overbooked
@@ -75,6 +76,7 @@ async function seedEvent() {
     guest(rComp.id, "Jo"),
     guest(rComp.id, "Kit", now),
     guest(rGone.id, "Ivy"), // registration cancelled
+    guest(rFail.id, "Hal"), // payment failed, still pending
   ]);
   const pay = (p: object) => ({
     event_id,
@@ -87,18 +89,20 @@ async function seedEvent() {
     received_at: null,
     ...p,
   });
-  const [pInd, pFail, pC1] = await insert("payments", [
+  const [pInd, pFail, pC1, , , pHal] = await insert("payments", [
     pay({ registration_id: rInd.id, amount_cents: 30000 }),
     pay({ registration_id: rGone.id, amount_cents: 20000, status: "failed" }),
     pay({ registration_id: rT1.id, purpose: "seat_contribution", amount_cents: 5000 }),
     pay({ sponsorship_id: s1.id, provider: "offline", purpose: "sponsorship", amount_cents: 50000, received_at: now }),
     pay({ sponsorship_id: s1.id, provider: "offline", purpose: "sponsorship", amount_cents: 70000, status: "refunded", received_at: now }),
+    pay({ registration_id: rFail.id, amount_cents: 15000, status: "failed" }),
   ]);
   await insert("payment_allocations", [
     { event_id, payment_id: pInd.id, attendee_id: flo.id, amount_cents: 15000 },
     { event_id, payment_id: pInd.id, attendee_id: gus.id, amount_cents: 15000 },
     { event_id, payment_id: pFail.id, attendee_id: ivy.id, amount_cents: 20000 },
     { event_id, payment_id: pC1.id, attendee_id: ann.id, amount_cents: 5000 },
+    { event_id, payment_id: pHal.id, attendee_id: hal.id, amount_cents: 15000 },
   ]);
   return event_id;
 }
