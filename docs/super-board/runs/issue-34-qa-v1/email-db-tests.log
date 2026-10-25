@@ -1,0 +1,14 @@
+
+ RUN  v5.0.5 /Users/akhil/myapps/ssfGala/.claude/worktrees/issue-34-qa
+
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+ Test Files  4 passed (4)
+      Tests  26 passed (26)
+   Start at  23:17:19
+   Duration  4.26s (tests 78%, import 20%, transform 1%, worker 1%)
+
+    Isolate  4 workers spawned · ~230ms startup each (spawn + environment, per file)
+             at least ~691ms faster with isolate: false — reuses workers across files instead of one per file
+
