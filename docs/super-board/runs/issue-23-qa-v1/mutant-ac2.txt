@@ -1,0 +1,40 @@
+
+Running 4 tests using 1 worker
+
+  ✓  1 [chromium] › e2e/sponsor-guest-edits-qa.spec.ts:135:5 › AC1 + AC4: removing an unpaid guest soft-cancels them, drops the count and writes an audit row (2.1s)
+  ✘  2 [chromium] › e2e/sponsor-guest-edits-qa.spec.ts:165:5 › AC2: a paid guest's Remove is disabled with the reason, and a direct API call is refused (5.9s)
+  -  3 [chromium] › e2e/sponsor-guest-edits-qa.spec.ts:201:5 › AC3: a tampered form cannot edit or remove another sponsor's guest
+  -  4 [chromium] › e2e/sponsor-guest-edits-qa.spec.ts:233:5 › AC4: editing a guest saves name and email and writes an audit row with before and after
+
+
+  1) [chromium] › e2e/sponsor-guest-edits-qa.spec.ts:165:5 › AC2: a paid guest's Remove is disabled with the reason, and a direct API call is refused 
+
+    Error: expect(locator).toBeDisabled() failed
+
+    Locator:  locator('li.guest-row').filter({ hasText: 'Paz Paid' }).getByRole('button', { name: 'Remove Paz Paid' })
+    Expected: disabled
+    Received: enabled
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toBeDisabled" locator('li.guest-row').filter({ hasText: 'Paz Paid' }).getByRole('button', { name: 'Remove Paz Paid' }) with timeout 5000ms
+      - waiting for locator('li.guest-row').filter({ hasText: 'Paz Paid' }).getByRole('button', { name: 'Remove Paz Paid' })
+        14 × locator resolved to <button type="submit" aria-label="Remove Paz Paid" aria-describedby="guest-paid-dfbf2c32-18a5-44cf-bd16-60a68976b002" title="This guest has paid, so they can't be removed. Contact the gala team for help.">Remove</button>
+           - unexpected value "enabled"
+
+
+      169 |   await openGuests(page);
+      170 |   const remove = row(page, "Paz Paid").getByRole("button", { name: "Remove Paz Paid" });
+    > 171 |   await expect(remove).toBeDisabled();
+          |                        ^
+      172 |   await expect(remove).toHaveAccessibleDescription(/has paid, so they can't be removed/);
+      173 |   await expect(row(page, "Paz Paid")).toContainText("This guest has paid, so they can't be removed.");
+      174 |   await shot(page, "ac2-paid-disabled");
+        at /Users/akhil/myapps/ssfGala/.claude/worktrees/issue-23-qa/e2e/sponsor-guest-edits-qa.spec.ts:171:24
+
+    Error Context: test-results/sponsor-guest-edits-qa-AC2-7a07e--direct-API-call-is-refused-chromium/error-context.md
+
+  1 failed
+    [chromium] › e2e/sponsor-guest-edits-qa.spec.ts:165:5 › AC2: a paid guest's Remove is disabled with the reason, and a direct API call is refused 
+  2 did not run
+  1 passed (16.9s)

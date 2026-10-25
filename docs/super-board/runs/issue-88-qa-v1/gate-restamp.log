@@ -1,0 +1,31 @@
+
+ RUN  v5.0.5 <worktree>
+
+ ✓ test/super-board-merge-gate-restamp.test.ts > merge gate: re-stamps migrations inside the lock > renames a migration that reuses a merged version so it sorts after every base migration 3043ms
+ ✓ test/super-board-merge-gate-restamp.test.ts > merge gate: re-stamps migrations inside the lock > renames a migration that sorts before the newest merged one 3106ms
+ ✓ test/super-board-merge-gate-restamp.test.ts > merge gate: re-stamps migrations inside the lock > keeps the PR's own migrations in order when it re-stamps several 3064ms
+ ✓ test/super-board-merge-gate-restamp.test.ts > merge gate: re-stamps migrations inside the lock > merges two migration PRs gated together with strictly increasing, unique versions 8120ms
+ ✓ test/super-board-merge-gate-restamp.test.ts > merge gate: re-stamps migrations inside the lock > still exits 6 when the head moved by anything other than base merges and re-stamps 1841ms
+ ✓ test/super-board-merge-gate-restamp.test.ts > merge gate: re-stamps migrations inside the lock > exits 6 when a rename after review also changes the migration's SQL 1694ms
+ ✓ test/super-board-merge-gate-restamp.test.ts > merge gate: re-stamps migrations inside the lock > head guard rejects anything that is not a clean base merge or a pure re-stamp > exits 6 on a base merge that sneaks in an extra change (evil merge) 1983ms
+ ✓ test/super-board-merge-gate-restamp.test.ts > merge gate: re-stamps migrations inside the lock > head guard rejects anything that is not a clean base merge or a pure re-stamp > exits 6 on a merge that brings in a commit not on the base 1946ms
+ ✓ test/super-board-merge-gate-restamp.test.ts > merge gate: re-stamps migrations inside the lock > head guard rejects anything that is not a clean base merge or a pure re-stamp > exits 6 on a 100% rename of a file that is not a migration 1706ms
+ ✓ test/super-board-merge-gate-restamp.test.ts > merge gate: re-stamps migrations inside the lock > head guard rejects anything that is not a clean base merge or a pure re-stamp > exits 6 on a re-stamp that also changes the migration's name 1835ms
+ ✓ test/super-board-merge-gate-restamp.test.ts > merge gate: re-stamps migrations inside the lock > head guard rejects anything that is not a clean base merge or a pure re-stamp > exits 6 on a rename of a migration that is already on the base 1657ms
+ ✓ test/super-board-merge-gate-restamp.test.ts > merge gate: re-stamps migrations inside the lock > head guard rejects anything that is not a clean base merge or a pure re-stamp > exits 6 when the reviewed head is not in the PR's history (force-push) 1601ms
+ ✓ test/super-board-merge-gate-restamp.test.ts > merge gate: re-stamps migrations inside the lock > accepts its own pushed re-stamp on a re-run after verification failed 4528ms
+ ✓ test/super-board-merge-gate-restamp.test.ts > merge gate: re-stamps migrations inside the lock > merges a PR that adds no migration with no extra commit 2885ms
+ ✓ test/super-board-merge-gate-restamp.test.ts > merge gate: re-stamps migrations inside the lock > merges a migration that already sorts after the base with no extra commit 2869ms
+ ✓ test/super-board-merge-gate-restamp.test.ts > merge gate: approval survives its own re-stamp and gates migrations > merges a PR approved at H whose only gate changes are a base merge and a rename, with no second done 5883ms
+ ✓ test/super-board-merge-gate-restamp.test.ts > merge gate: approval survives its own re-stamp and gates migrations > still honours the approval for H on a re-run after its pushed re-stamp failed verification 7785ms
+ ✓ test/super-board-merge-gate-restamp.test.ts > merge gate: approval survives its own re-stamp and gates migrations > asks again (exit 7) and migrates nothing when the PR gained any other change after H 4523ms
+ ✓ test/super-board-merge-gate-restamp.test.ts > merge gate: approval survives its own re-stamp and gates migrations > does not carry an approval across a rename that also edits the migration's SQL 4028ms
+ ✓ test/super-board-merge-gate-restamp.test.ts > merge gate: approval survives its own re-stamp and gates migrations > exits 7 and migrates nothing when the approval is withdrawn while verification runs 5556ms
+ ✓ test/super-board-merge-gate-restamp.test.ts > merge gate: approval survives its own re-stamp and gates migrations > exits 8 for a human step before any allowed env is migrated 2530ms
+ ✓ test/super-board-merge-gate-restamp.test.ts > merge gate: approval survives its own re-stamp and gates migrations > migrates and merges once a human approved the human step 5449ms
+
+ Test Files  1 passed (1)
+      Tests  22 passed (22)
+   Start at  18:40:49
+   Duration  77.83s (tests 100%)
+

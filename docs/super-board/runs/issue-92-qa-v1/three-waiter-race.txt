@@ -1,0 +1,15 @@
+# three waiters (pauses 1,2,2) on a dead holder's lock, head 6e2812f
+## hold log
+start-a
+start-c
+end-a
+end-c
+start-b
+end-b
+## stderr
+out-a: [local-db] reaped the local-stack lock (pid 83855 gone)
+out-b: [local-db] moved a live lock to local-stack.lock.reaped.83860.0 and could not put it back
+[local-db] waiting for the local-stack lock (held by pid 83861)
+out-c: 
+## left in lock parent
+local-stack.lock.reaped.83860.0

@@ -1,0 +1,10 @@
+== script at 9056a24
+     × reaps a lock with no pid file older than the grace period 5012ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  test/super-board-local-db.test.ts > local-stack lock > reaps a lock with no pid file older than the grace period
+      Tests  1 failed | 11 passed | 5 skipped (17)
+== script at a74fe04
+     × lets exactly one of three waiters racing to reap a dead holder's lock hold it at a time 6313ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  test/super-board-local-db.test.ts > local-stack lock > lets exactly one of three waiters racing to reap a dead holder's lock hold it at a time
+      Tests  1 failed | 11 passed | 5 skipped (17)

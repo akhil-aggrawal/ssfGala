@@ -1,0 +1,23 @@
+# Mutant: reports.ts liveRegistrations back to status !== "cancelled" (pre-R1 rule)
+
+     × roster lists active attendees only, sorted by name, with their seat 7ms
+     × leaves out attendees whose checkout failed or never finished (pending_payment) 1ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  src/lib/admin/reports.test.ts > computeReports > roster lists active attendees only, sorted by name, with their seat
+ FAIL  src/lib/admin/reports.test.ts > computeReports > leaves out attendees whose checkout failed or never finished (pending_payment)
+      Tests  2 failed | 10 passed (12)
+     × totals match the seeded dataset and ignore another event's rows 254ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+AssertionError: expected [ 'Ann', 'Ben', 'Cy', 'Flo', …(2) ] to deeply equal [ 'Ann', 'Ben', 'Cy', 'Flo', 'Jo' ]
+      Tests  1 failed (1)
+  ✘  1 [chromium] › e2e/admin-reports-qa.spec.ts:143:5 › AC1+AC2: seeded sponsor rows and every total match, cancelled and failed left out (6.3s)
+  1) [chromium] › e2e/admin-reports-qa.spec.ts:143:5 › AC1+AC2: seeded sponsor rows and every total match, cancelled and failed left out 
+    Error: expect(locator).toHaveCount(expected) failed
+    Expected: 0
+    Received: 1
+      160 |   // R1: a failed-checkout (pending_payment) buyer is not on the roster.
+        at /Users/akhil/myapps/ssfGala/.claude/worktrees/issue-30-qa/e2e/admin-reports-qa.spec.ts:161:73
+    Error Context: test-results/admin-reports-qa-AC1-AC2-s-a7f95-ncelled-and-failed-left-out-chromium/error-context.md
+    Error Context: test-results/admin-reports-qa-AC1-AC2-s-a7f95-ncelled-and-failed-left-out-chromium/error-context.md
+  1 failed
+    [chromium] › e2e/admin-reports-qa.spec.ts:143:5 › AC1+AC2: seeded sponsor rows and every total match, cancelled and failed left out 

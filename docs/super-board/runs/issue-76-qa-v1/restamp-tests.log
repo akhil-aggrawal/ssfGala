@@ -1,0 +1,24 @@
+
+ RUN  v5.0.5 /Users/akhil/myapps/ssfGala/.claude/worktrees/issue-76-qa
+
+ ✓ test/super-board-merge-gate-restamp.test.ts > merge gate: re-stamps migrations inside the lock > renames a migration that reuses a merged version so it sorts after every base migration 3038ms
+ ✓ test/super-board-merge-gate-restamp.test.ts > merge gate: re-stamps migrations inside the lock > renames a migration that sorts before the newest merged one 3229ms
+ ✓ test/super-board-merge-gate-restamp.test.ts > merge gate: re-stamps migrations inside the lock > keeps the PR's own migrations in order when it re-stamps several 3193ms
+ ✓ test/super-board-merge-gate-restamp.test.ts > merge gate: re-stamps migrations inside the lock > merges two migration PRs gated together with strictly increasing, unique versions 8354ms
+ ✓ test/super-board-merge-gate-restamp.test.ts > merge gate: re-stamps migrations inside the lock > still exits 6 when the head moved by anything other than base merges and re-stamps 1984ms
+ ✓ test/super-board-merge-gate-restamp.test.ts > merge gate: re-stamps migrations inside the lock > exits 6 when a rename after review also changes the migration's SQL 2498ms
+ ✓ test/super-board-merge-gate-restamp.test.ts > merge gate: re-stamps migrations inside the lock > head guard rejects anything that is not a clean base merge or a pure re-stamp > exits 6 on a base merge that sneaks in an extra change (evil merge) 2115ms
+ ✓ test/super-board-merge-gate-restamp.test.ts > merge gate: re-stamps migrations inside the lock > head guard rejects anything that is not a clean base merge or a pure re-stamp > exits 6 on a merge that brings in a commit not on the base 2147ms
+ ✓ test/super-board-merge-gate-restamp.test.ts > merge gate: re-stamps migrations inside the lock > head guard rejects anything that is not a clean base merge or a pure re-stamp > exits 6 on a 100% rename of a file that is not a migration 2393ms
+ ✓ test/super-board-merge-gate-restamp.test.ts > merge gate: re-stamps migrations inside the lock > head guard rejects anything that is not a clean base merge or a pure re-stamp > exits 6 on a re-stamp that also changes the migration's name 1884ms
+ ✓ test/super-board-merge-gate-restamp.test.ts > merge gate: re-stamps migrations inside the lock > head guard rejects anything that is not a clean base merge or a pure re-stamp > exits 6 on a rename of a migration that is already on the base 1812ms
+ ✓ test/super-board-merge-gate-restamp.test.ts > merge gate: re-stamps migrations inside the lock > head guard rejects anything that is not a clean base merge or a pure re-stamp > exits 6 when the reviewed head is not in the PR's history (force-push) 1989ms
+ ✓ test/super-board-merge-gate-restamp.test.ts > merge gate: re-stamps migrations inside the lock > accepts its own pushed re-stamp on a re-run after verification failed 4734ms
+ ✓ test/super-board-merge-gate-restamp.test.ts > merge gate: re-stamps migrations inside the lock > merges a PR that adds no migration with no extra commit 3396ms
+ ✓ test/super-board-merge-gate-restamp.test.ts > merge gate: re-stamps migrations inside the lock > merges a migration that already sorts after the base with no extra commit 2927ms
+
+ Test Files  1 passed (1)
+      Tests  15 passed (15)
+   Start at  11:44:26
+   Duration  45.88s (tests 100%)
+

@@ -1,0 +1,21 @@
+-- run with an in-transaction prelude archiving the shared local DB's open gala (another lane's data); rolled back
+1..16
+
+ok 1 - set_table_number stores the trimmed number on the table
+ok 2 - the assignment writes one audit row
+
+ok 3 - the moved guest has the new table
+ok 4 - the other guest keeps no override
+ok 5 - the sponsored table keeps its number
+ok 6 - the move writes one audit row
+
+ok 7 - an empty number sends the guest back to the table's number
+ok 8 - clearing the move is audited too
+ok 9 - a table of another event is refused
+ok 10 - a guest of another event is refused
+ok 11 - the other event's guest is unchanged
+ok 12 - an archived event is refused
+ok 13 - the refused tables are unchanged
+ok 14 - a cancelled guest is refused
+ok 15 - only service_role can call set_table_number
+ok 16 - only service_role can call move_attendee

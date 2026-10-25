@@ -8,9 +8,9 @@ type Row<T extends keyof Tables, K extends keyof Tables[T]["Row"]> = Pick<Tables
 export type OverviewRows = {
   payments: Row<"payments", "provider" | "purpose" | "status" | "amount_cents" | "sponsorship_id">[];
   sponsorships: Row<"sponsorships", "id" | "pledged_cents" | "status">[];
-  tables: Row<"sponsored_tables", "id" | "capacity">[];
+  tables: Row<"sponsored_tables", "id" | "sponsorship_id" | "capacity" | "physical_table_number">[];
   registrations: Row<"registrations", "id" | "status" | "sponsored_table_id">[];
-  attendees: Row<"attendees", "registration_id" | "cancelled_at">[];
+  attendees: Row<"attendees", "registration_id" | "assigned_table_number" | "cancelled_at">[];
 };
 
 // Amounts are integer USD cents.
@@ -24,6 +24,47 @@ export type Overview = {
 
 const sum = (values: number[]) => values.reduce((a, b) => a + b, 0);
 
+// One seat rule for /admin and /admin/tables: an active guest sits at their
+// sponsored table unless an admin moved them to a different number.
+export const sitsAtSponsoredTable = (
+  assignedTableNumber: string | null,
+  tableNumber: string | null | undefined,
+) => assignedTableNumber === null || assignedTableNumber === tableNumber;
+
+type SeatTable = { id: string; physical_table_number: string | null };
+type SeatGuest = { tableId: string | null; assignedTableNumber: string | null };
+
+// Active guests per sponsored table id. A moved guest counts at the table
+// whose physical number they were moved to, so a move can clear Overbooked
+// at one table and cause it at another. Pass only live tables (liveTables).
+export function countSeated(tables: SeatTable[], guests: SeatGuest[]): Map<string, number> {
+  const byId = new Map(tables.map((t) => [t.id, t]));
+  const byNumber = new Map<string, string>();
+  for (const t of tables) {
+    if (t.physical_table_number && !byNumber.has(t.physical_table_number)) {
+      byNumber.set(t.physical_table_number, t.id);
+    }
+  }
+  const seated = new Map<string, number>();
+  for (const g of guests) {
+    const own = g.tableId ? byId.get(g.tableId) : undefined;
+    const at = sitsAtSponsoredTable(g.assignedTableNumber, own?.physical_table_number)
+      ? own?.id
+      : byNumber.get(g.assignedTableNumber ?? "");
+    if (at) seated.set(at, (seated.get(at) ?? 0) + 1);
+  }
+  return seated;
+}
+
+// Sponsored tables whose sponsorship is not cancelled.
+export function liveTables<T extends { sponsorship_id: string }>(
+  tables: T[],
+  sponsorships: { id: string; status: string }[],
+): T[] {
+  const cancelled = new Set(sponsorships.filter((s) => s.status === "cancelled").map((s) => s.id));
+  return tables.filter((t) => !cancelled.has(t.sponsorship_id));
+}
+
 export function computeOverview(rows: OverviewRows): Overview {
   const succeeded = rows.payments.filter((p) => p.status === "succeeded");
   const offline = succeeded.filter((p) => p.provider === "offline");
@@ -36,11 +77,14 @@ export function computeOverview(rows: OverviewRows): Overview {
     (a) => a.cancelled_at === null && liveRegistrations.has(a.registration_id),
   );
 
-  const seated = new Map<string, number>();
-  for (const a of active) {
-    const tableId = liveRegistrations.get(a.registration_id)!.sponsored_table_id;
-    if (tableId) seated.set(tableId, (seated.get(tableId) ?? 0) + 1);
-  }
+  const tables = liveTables(rows.tables, rows.sponsorships);
+  const seated = countSeated(
+    tables,
+    active.map((a) => ({
+      tableId: liveRegistrations.get(a.registration_id)!.sponsored_table_id,
+      assignedTableNumber: a.assigned_table_number,
+    })),
+  );
 
   // Outstanding per committed pledge, floored at zero so one overpaid
   // pledge never hides another sponsor's balance.
@@ -59,7 +103,7 @@ export function computeOverview(rows: OverviewRows): Overview {
     stripeCollectedCents: sum(succeeded.filter((p) => p.provider === "stripe").map((p) => p.amount_cents)),
     offlineReceiptsCents: sum(offline.map((p) => p.amount_cents)),
     outstandingSponsorshipCents: sum(outstanding),
-    overbookedTables: rows.tables.filter((t) => (seated.get(t.id) ?? 0) > t.capacity).length,
+    overbookedTables: tables.filter((t) => (seated.get(t.id) ?? 0) > t.capacity).length,
   };
 }
 
@@ -68,11 +112,11 @@ const PAGE = 1000; // PostgREST max_rows (supabase/config.toml)
 type Page<T> = PromiseLike<{ data: T[] | null; error: { message: string } | null }>;
 
 // Reads every row by paging; a failed page throws so an error never reads as zero.
-async function readAll<T>(label: string, page: (from: number, to: number) => Page<T>): Promise<T[]> {
+export async function readAll<T>(label: string, page: (from: number, to: number) => Page<T>): Promise<T[]> {
   const rows: T[] = [];
   for (let from = 0; ; from += PAGE) {
     const { data, error } = await page(from, from + PAGE - 1);
-    if (error) throw new Error(`loadOverview ${label} failed: ${error.message}`);
+    if (error) throw new Error(`${label} failed: ${error.message}`);
     rows.push(...(data ?? []));
     if (!data || data.length < PAGE) return rows;
   }
@@ -85,7 +129,7 @@ export async function loadOverview(
   eventId: string,
 ): Promise<Overview> {
   const [payments, sponsorships, tables, registrations, attendees] = await Promise.all([
-    readAll("payments", (f, t) =>
+    readAll("loadOverview payments", (f, t) =>
       admin
         .from("payments")
         .select("provider, purpose, status, amount_cents, sponsorship_id")
@@ -93,7 +137,7 @@ export async function loadOverview(
         .order("id")
         .range(f, t),
     ),
-    readAll("sponsorships", (f, t) =>
+    readAll("loadOverview sponsorships", (f, t) =>
       admin
         .from("sponsorships")
         .select("id, pledged_cents, status")
@@ -101,15 +145,15 @@ export async function loadOverview(
         .order("id")
         .range(f, t),
     ),
-    readAll("sponsored_tables", (f, t) =>
+    readAll("loadOverview sponsored_tables", (f, t) =>
       admin
         .from("sponsored_tables")
-        .select("id, capacity")
+        .select("id, sponsorship_id, capacity, physical_table_number")
         .eq("event_id", eventId)
         .order("id")
         .range(f, t),
     ),
-    readAll("registrations", (f, t) =>
+    readAll("loadOverview registrations", (f, t) =>
       admin
         .from("registrations")
         .select("id, status, sponsored_table_id")
@@ -117,10 +161,10 @@ export async function loadOverview(
         .order("id")
         .range(f, t),
     ),
-    readAll("attendees", (f, t) =>
+    readAll("loadOverview attendees", (f, t) =>
       admin
         .from("attendees")
-        .select("registration_id, cancelled_at")
+        .select("registration_id, assigned_table_number, cancelled_at")
         .eq("event_id", eventId)
         .order("id")
         .range(f, t),

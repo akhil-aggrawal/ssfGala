@@ -19,18 +19,46 @@ import sys
 _reader_spec = importlib.util.spec_from_file_location("github_read", Path(__file__).with_name("super-board-github-read.py"))
 github_read = importlib.util.module_from_spec(_reader_spec)
 _reader_spec.loader.exec_module(github_read)
+_restamp_spec = importlib.util.spec_from_file_location("restamp", Path(__file__).with_name("super-board-restamp.py"))
+restamp = importlib.util.module_from_spec(_restamp_spec)
+_restamp_spec.loader.exec_module(restamp)
 
 PREFIX = "approval-request: "
 SHA = re.compile(r"[0-9a-f]{40}\Z")
 SCOPE = re.compile(r"[0-9a-f]{64}\Z")
 BLOCK = re.compile(r"Reason tag:[^\n]*🙋|^approval-request:", re.M)
 DONE = re.compile(r"\s*done[.!]?\s*\Z", re.I)
+# GitHub's closing keywords, then `#N` or `owner/repo#N`; a full number only.
+CLOSES = re.compile(r"(?<![\w/])(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?):?[ \t]+"
+                    r"(?:([A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+))?#([0-9]+)(?![\w/])", re.I)
+
+
+def body_links(body, repo):
+    """Issues a PR body closes in `repo`, for a base GitHub does not link."""
+    return {int(number) for target, number in CLOSES.findall(body or "")
+            if not target or target.lower() == repo}
 
 
 def scope_for(plan):
     # Exclude UI-only `done`; a label change must not change what was approved.
     relevant = {key: plan.get(key, []) for key in ("human", "migrations", "run", "needs_you")}
     return hashlib.sha256(json.dumps(relevant, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+
+
+def carried_scope(git_dir, base, globs, approved, head, plan):
+    """The scope `plan` had at `approved`, when `head` is `approved` plus only
+    base merges and migration re-stamps (the head guard's rule, #76); else None."""
+    renames = {}
+    try:
+        if restamp.check(git_dir, base, globs, approved, head, renames):
+            return None
+    except (OSError, subprocess.SubprocessError):
+        return None
+    text = json.dumps(plan)
+    if renames:
+        pattern = "|".join(re.escape(p) for p in sorted(renames, key=len, reverse=True))
+        text = re.sub(pattern, lambda m: renames[m.group(0)], text)
+    return scope_for(json.loads(text))
 
 
 def request_for(repo, pr, head, scope):
@@ -80,8 +108,10 @@ def trusted_blocks(comments, permission):
     return result
 
 
-def validate(comments, expected, permission):
-    """Pure verdict; permission(login) is a current repository permission lookup."""
+def validate(comments, expected, permission, carry=None):
+    """Pure verdict; permission(login) is a current repository permission lookup.
+
+    carry(request) may accept a request pinned to an earlier head of the same PR."""
     def hold(why):
         return {"approved": False, "why": why}
 
@@ -99,7 +129,9 @@ def validate(comments, expected, permission):
             return hold("ambiguous newest human request")
         request_comment = latest[0]
         request = parse_request(request_comment)
-        if request is None or any(request.get(k) != v for k, v in expected.items()):
+        if request is None or (any(request.get(k) != v for k, v in expected.items()) and not (
+                carry and request["repo"] == expected["repo"] and request["pr"] == expected["pr"]
+                and carry(request))):
             return hold("the latest request does not cover the current code and human steps")
         if timestamp(request_comment.get("updated_at")) != latest_time:
             return hold("approval request was edited; post a fresh request")
@@ -160,35 +192,42 @@ class GitHub:
         # Paginate linked issues too: an omitted newer request must never make
         # an older approval authoritative. Remote-repository links are ignored.
         query = '''query($owner:String!,$repo:String!,$pr:Int!,$endCursor:String){
-          repository(owner:$owner,name:$repo){pullRequest(number:$pr){headRefOid state
+          repository(owner:$owner,name:$repo){defaultBranchRef{name}
+            pullRequest(number:$pr){headRefOid state baseRefName body
             closingIssuesReferences(first:100,after:$endCursor){
               pageInfo{hasNextPage endCursor} nodes{number repository{nameWithOwner}}
             }}}}'''
         owner, name = self.repo.split("/")
         pages = self.read("api", "graphql", "--paginate", "--slurp", "-f", f"query={query}",
                           "-F", f"owner={owner}", "-F", f"repo={name}", "-F", f"pr={number}")
-        heads, issues = set(), set()
+        heads, issues, bodies = set(), set(), set()
         if not isinstance(pages, list) or not pages:
             raise ValueError("unreadable PR")
         for page in pages:
             if page.get("errors"):
                 raise ValueError("incomplete PR response")
-            pr = page["data"]["repository"]["pullRequest"]
+            repository = page["data"]["repository"]
+            pr = repository["pullRequest"]
             if pr["state"] != "OPEN":
                 raise ValueError("PR is not open")
             heads.add(pr["headRefOid"])
+            bodies.add((pr["baseRefName"], repository["defaultBranchRef"]["name"], pr["body"] or ""))
             links = pr["closingIssuesReferences"]
             for issue in links["nodes"]:
                 if issue["repository"]["nameWithOwner"].lower() == self.repo:
                     issues.add(issue["number"])
-        if links["pageInfo"]["hasNextPage"] or len(heads) != 1:
+        if links["pageInfo"]["hasNextPage"] or len(heads) != 1 or len(bodies) != 1:
             raise ValueError("PR changed or issue links are incomplete")
+        base, default, body = bodies.pop()
+        if not issues and base != default:
+            # GitHub links closing keywords only for PRs into the default branch.
+            issues = body_links(body, self.repo)
         head = heads.pop()
         if not SHA.fullmatch(head):
             raise ValueError("unreadable PR head")
         return head, issues
 
-    def check(self, number, head=None, scope=None, issue=None):
+    def check(self, number, head=None, scope=None, issue=None, carry=None):
         current_head, issues = self.pr(number)
         if issue is not None and issue not in issues:
             return {"approved": False, "why": "request issue is not linked to this PR"}
@@ -200,7 +239,7 @@ class GitHub:
         expected = {"repo": self.repo, "pr": number, "head": current_head}
         if scope is not None:
             expected["scope"] = scope
-        return validate(comments, expected, self.permission)
+        return validate(comments, expected, self.permission, carry)
 
 
 def main():
@@ -211,6 +250,10 @@ def main():
     ap.add_argument("--plan", help="JSON plan from merge-policy")
     ap.add_argument("--request", action="store_true", help="print a pinned request; no network or writes")
     ap.add_argument("--deps", action="store_true", help="enrich the dependency graph on stdin")
+    ap.add_argument("--git", help="local clone: lets a request for an earlier head cover --head "
+                    "when the only changes since are base merges and migration re-stamps")
+    ap.add_argument("--base", help="with --git: the base ref, e.g. origin/staging")
+    ap.add_argument("--config", help="with --git: super-board config (migrations.globs)")
     args = ap.parse_args()
     if args.request:
         if not args.pr or not args.head or not SHA.fullmatch(args.head) or not args.plan:
@@ -242,8 +285,17 @@ def main():
         return
     if not args.pr or not args.head or not args.plan:
         ap.error("check requires --pr, --head and --plan")
+    plan = json.loads(args.plan)
+    carry = None
+    if args.git:
+        if not args.base or not args.config:
+            ap.error("--git requires --base and --config")
+        globs = (json.load(open(args.config)).get("migrations") or {}).get("globs") \
+            or restamp.policy.DEFAULT_MIGRATION_GLOBS
+        carry = lambda request: carried_scope(  # noqa: E731
+            args.git, args.base, globs, request["head"], args.head, plan) == request["scope"]
     try:
-        result = GitHub(args.repo).check(args.pr, args.head, scope_for(json.loads(args.plan)))
+        result = GitHub(args.repo).check(args.pr, args.head, scope_for(plan), carry=carry)
     except (ValueError, KeyError, TypeError, OSError, subprocess.SubprocessError):
         result = {"approved": False, "why": "approval evidence could not be verified"}
     print(json.dumps(result))

@@ -1,0 +1,16 @@
+Running 8 tests using 1 worker
+  ✓  1 [chromium] › e2e/admin-reports-qa.spec.ts:143:5 › AC1+AC2: seeded sponsor rows and every total match, cancelled and failed left out (1.8s)
+  ✓  2 [chromium] › e2e/admin-reports-qa.spec.ts:198:5 › AC3: a signed-in user with no role gets 403 and no report (445ms)
+  ✓  3 [chromium] › e2e/admin-reports-qa.spec.ts:214:9 › screenshots › capture desktop (1.2s)
+  ✓  4 [chromium] › e2e/admin-reports-qa.spec.ts:214:9 › screenshots › capture tablet (1.2s)
+  ✓  5 [chromium] › e2e/admin-reports-qa.spec.ts:214:9 › screenshots › capture mobile (1.1s)
+  ✓  6 [chromium] › e2e/admin-reports.spec.ts:21:5 › signed out, /admin/reports goes to sign-in (105ms)
+  ✓  7 [chromium] › e2e/admin-reports.spec.ts:27:5 › a sponsor at /admin/reports gets 403 and no report (402ms)
+  ✓  8 [chromium] › e2e/admin-reports.spec.ts:34:5 › an admin opens Exports, then views the reports (801ms)
+  8 passed (16.6s)
+--- vitest (DB_TESTS=1, local Supabase) src/lib/admin/reports.db.test.ts src/lib/admin/reports.test.ts src/app/admin/reports
+ Test Files  3 passed (3)
+      Tests  16 passed (16)
+--- npm run verify
+ Test Files  52 passed | 3 skipped (55)
+      Tests  421 passed | 15 skipped (436)

@@ -1,0 +1,23 @@
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+Running 14 tests using 1 worker
+
+  ✓   1 [chromium] › e2e/invite-contribution-qa.spec.ts:95:5 › AC1: Silver suggests $150 per seat and the amount follows the attendee count (935ms)
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+  ✓   2 [chromium] › e2e/invite-contribution-qa.spec.ts:108:5 › AC1 edge: an amount under $0.50 is refused and nothing is saved (910ms)
+  ✓   3 [chromium] › e2e/invite-contribution-qa.spec.ts:123:5 › AC2: $0 Contribute & Register shows a clean confirmation and stores no payment (955ms)
+  ✓   4 [chromium] › e2e/invite-contribution-qa.spec.ts:142:5 › Register Without Payment ignores whatever is in the amount field (774ms)
+[WebServer] {"level":"error","msg":"seat contribution checkout failed","time":"2026-10-25T03:24:51.168Z","userId":"2a96c9b6-5eb7-4a80-8ac8-e7db0ed78f21","registrationId":"21097e5f-12a7-470e-a3dc-013d90cb684c","error":"Error: Invalid API Key provided: sk_test_*****************ripe"}
+  ✓   5 [chromium] › e2e/invite-contribution-qa.spec.ts:154:5 › AC3: a positive amount whose Checkout never opens leaves the guests registered and uncharged (1.1s)
+  ✓   6 [chromium] › e2e/invite-contribution-qa.spec.ts:174:5 › AC3: the cancel return page says nothing was charged and changes nothing (938ms)
+  ✓   7 [chromium] › e2e/invite-contribution-qa.spec.ts:185:5 › contribution form at desktop, tablet and mobile (3.0s)
+  ✓   8 [chromium] › e2e/invite-register.spec.ts:80:5 › signed-out guest is asked to sign in and comes back to the register page (221ms)
+  ✓   9 [chromium] › e2e/invite-register.spec.ts:86:5 › AC1: 4 attendees need 4 name and email pairs and create 4 attendee rows (1.5s)
+  ✓  10 [chromium] › e2e/invite-register.spec.ts:109:5 › AC2 + AC3: the 11th attendee is accepted with the normal confirmation, tier only (2.7s)
+  ✓  11 [chromium] › e2e/invite-register.spec.ts:130:5 › AC4: the page offers no pledge option (553ms)
+  ✓  12 [chromium] › e2e/invite-register.spec.ts:139:5 › register page at desktop, tablet and mobile (3.0s)
+  ✓  13 [chromium] › e2e/invite-register.spec.ts:158:5 › #21 AC1: the amount defaults to suggested × attendees and keeps what the guest types (770ms)
+  ✓  14 [chromium] › e2e/invite-register.spec.ts:172:5 › #21 AC2: Contribute & Register with $0 registers the guests without Stripe (823ms)
+
+  14 passed (28.0s)

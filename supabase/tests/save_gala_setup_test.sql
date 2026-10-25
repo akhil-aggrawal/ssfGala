@@ -1,6 +1,6 @@
 -- Run with: supabase test db
 begin;
-select plan(11);
+select plan(13);
 
 insert into auth.users (id, email)
 values ('00000000-0000-0000-0000-0000000000a1', 'admin@example.test');
@@ -66,6 +66,16 @@ select is(
   (select seat_price_cents from public.seating_tiers
    where event_id = (select id from saved) and name = 'Silver'),
   17500::bigint, 'an edit updates the tier in place');
+
+select is(
+  (select action from public.audit_logs
+   where entity_id = (select id from saved) and action like '%update'),
+  'gala_setup.update', 'the edit writes an update audit_logs row');
+
+select ok(
+  (select before_data is not null and after_data is not null from public.audit_logs
+   where entity_id = (select id from saved) and action = 'gala_setup.update'),
+  'the update audit row keeps before and after data');
 
 update public.events set status = 'archived' where id = (select id from saved);
 

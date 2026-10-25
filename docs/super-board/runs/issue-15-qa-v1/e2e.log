@@ -1,0 +1,26 @@
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+Running 15 tests using 1 worker
+
+  ✓   1 [chromium] › e2e/checkout-qa.spec.ts:99:5 › review shows Pay with Stripe under the server total, and the form sends no amount (1.6s)
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+[WebServer] {"level":"error","msg":"ticket checkout failed","time":"2026-10-25T02:57:22.982Z","userId":"a144071a-d70c-4299-9a47-fc2e57d5214f","error":"Error: Invalid API Key provided: sk_test_****cted"}
+  ✓   2 [chromium] › e2e/checkout-qa.spec.ts:114:5 › when Stripe refuses, the buyer sees a plain error, stays on review, and no payment is stored (1.9s)
+  ✓   3 [chromium] › e2e/checkout-qa.spec.ts:126:5 › AC4: opening and reloading the success URL changes nothing (1.1s)
+  ✓   4 [chromium] › e2e/payment-result-qa.spec.ts:151:5 › AC1+AC2: processing until the webhook confirms, then Confirmed with tier and attendees (3.8s)
+  ✓   5 [chromium] › e2e/payment-result-qa.spec.ts:169:5 › AC1: a registered order loaded directly shows Confirmed; reload changes nothing (1.1s)
+  ✓   6 [chromium] › e2e/payment-result-qa.spec.ts:178:5 › AC1: another buyer's session id never shows Confirmed (1.0s)
+AC2 timing: first=2295ms gaps=2022,2028,2028,2037,2029,2020,2027,2028,2029,2031,2029,2027,2027,2026,2029,2025,2029,2027,2020,2025,2024,2026,2028,2026,2032,2026,2019,2026,2027 gaveUp=61483ms
+  ✓   7 [chromium] › e2e/payment-result-qa.spec.ts:190:5 › AC2: checks every 2 s, 30 times over 60 s, then shows still-processing (1.1m)
+[WebServer] {"level":"error","msg":"ticket checkout failed","time":"2026-10-25T02:58:40.010Z","userId":"9ec1e4a8-13d1-4ce1-856c-fe9b1de89162","error":"Error: Invalid API Key provided: sk_test_****cted"}
+  ✓   8 [chromium] › e2e/payment-result-qa.spec.ts:220:5 › AC3: cancel page offers Try again on the same order and writes no attendees (1.9s)
+  ✓   9 [chromium] › e2e/payment-result-qa.spec.ts:248:5 › AC3: cancel page with no unpaid order points back to tickets (682ms)
+  ✓  10 [chromium] › e2e/payment-result-qa.spec.ts:255:5 › AC4: neither page shows a table number, even when one is assigned (1.3s)
+  ✓  11 [chromium] › e2e/payment-result-qa.spec.ts:271:5 › the old success URL redirects with its session id (697ms)
+  ✓  12 [chromium] › e2e/tickets.spec.ts:51:5 › AC1 tiers and prices come from the database (256ms)
+  ✓  13 [chromium] › e2e/tickets.spec.ts:59:5 › AC2 the total is price × quantity as quantity changes (675ms)
+  ✓  14 [chromium] › e2e/tickets.spec.ts:69:5 › AC3 signed out: Continue goes through sign-in and back to /tickets with the choice kept (1.3s)
+  ✓  15 [chromium] › e2e/tickets.spec.ts:89:5 › AC4 a gala that is not open shows a closed message and no Continue (543ms)
+
+  15 passed (1.6m)

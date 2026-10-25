@@ -1,0 +1,72 @@
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+Running 2 tests using 1 worker
+
+  ✘  1 [chromium] › e2e/payment-result-qa.spec.ts:151:5 › AC1+AC2: processing until the webhook confirms, then Confirmed with tier and attendees (5.6s)
+  -  2 [chromium] › e2e/payment-result-qa.spec.ts:190:5 › AC2: checks every 2 s, 30 times over 60 s, then shows still-processing
+
+
+  1) [chromium] › e2e/payment-result-qa.spec.ts:151:5 › AC1+AC2: processing until the webhook confirms, then Confirmed with tier and attendees 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('heading', { name: 'Processing your payment' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" getByRole('heading', { name: 'Processing your payment' }) with timeout 5000ms
+      - waiting for getByRole('heading', { name: 'Processing your payment' })
+
+
+      152 |   const { registrationId, sessionId } = await buyerWithPaidSession(page);
+      153 |   await page.goto(`/tickets/success?session_id=${sessionId}`);
+    > 154 |   await expect(page.getByRole("heading", { name: "Processing your payment" })).toBeVisible();
+          |                                                                                ^
+      155 |   await expect(main(page)).not.toContainText("Confirmed");
+      156 |   await noAxeViolations(page);
+      157 |   await shoot(page, "ac2-processing");
+        at /Users/akhil/myapps/ssfGala/.claude/worktrees/issue-15-qa/e2e/payment-result-qa.spec.ts:154:80
+
+    Error Context: test-results/payment-result-qa-AC1-AC2--3f967-med-with-tier-and-attendees-chromium/error-context.md
+
+    Error Context: test-results/payment-result-qa-AC1-AC2--3f967-med-with-tier-and-attendees-chromium/error-context.md
+
+  1 failed
+    [chromium] › e2e/payment-result-qa.spec.ts:151:5 › AC1+AC2: processing until the webhook confirms, then Confirmed with tier and attendees 
+  1 did not run
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+Running 1 test using 1 worker
+
+  ✘  1 [chromium] › e2e/payment-result-qa.spec.ts:190:5 › AC2: checks every 2 s, 30 times over 60 s, then shows still-processing (1.1m)
+
+
+  1) [chromium] › e2e/payment-result-qa.spec.ts:190:5 › AC2: checks every 2 s, 30 times over 60 s, then shows still-processing 
+
+    Error: 30 checks in all
+
+    expect(received).toHaveLength(expected)
+
+    Expected length: 30
+    Received length: 60
+    Received array:  [1792896957345, 1792896958374, 1792896959407, 1792896960433, 1792896961452, 1792896962481, 1792896963512, 1792896964544, 1792896965584, 1792896966621, …]
+
+      203 |   // Nothing more is sent once it has given up.
+      204 |   await page.waitForTimeout(5000);
+    > 205 |   expect(checks, "30 checks in all").toHaveLength(30);
+          |                                      ^
+      206 |   expect(checks[0] - opened, "first check about 2 s after load").toBeGreaterThanOrEqual(1500);
+      207 |   expect(checks[0] - opened, "first check about 2 s after load").toBeLessThan(4000);
+      208 |   const gaps = checks.slice(1).map((t, i) => t - checks[i]);
+        at /Users/akhil/myapps/ssfGala/.claude/worktrees/issue-15-qa/e2e/payment-result-qa.spec.ts:205:38
+
+    Error Context: test-results/payment-result-qa-AC2-chec-c0cc4-then-shows-still-processing-chromium/error-context.md
+
+    Error Context: test-results/payment-result-qa-AC2-chec-c0cc4-then-shows-still-processing-chromium/error-context.md
+
+  1 failed
+    [chromium] › e2e/payment-result-qa.spec.ts:190:5 › AC2: checks every 2 s, 30 times over 60 s, then shows still-processing 

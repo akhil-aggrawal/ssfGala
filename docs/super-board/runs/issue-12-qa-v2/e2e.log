@@ -1,0 +1,8 @@
+
+Running 3 tests using 1 worker
+
+  ✓  1 [chromium] › e2e/attendees-qa.spec.ts:100:5 › AC1: two tickets need two pairs; empty or invalid email blocks submit inline (2.2s)
+  ✓  2 [chromium] › e2e/attendees-qa.spec.ts:134:5 › AC2-AC4: submit saves one pending order, review shows it, back and resubmit edits it (3.6s)
+  ✓  3 [chromium] › e2e/attendees-qa.spec.ts:205:5 › review with no pending order goes back to /tickets (424ms)
+
+  3 passed (14.5s)

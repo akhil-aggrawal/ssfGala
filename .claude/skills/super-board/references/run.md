@@ -231,6 +231,24 @@ e2e/streaming/ttfb.spec.ts:18   [qa] [issue] spec asserts status only — add a 
 
 Threads are resolved via `gh api graphql` `resolveReviewThread` mutation when the fix is committed.
 
+## Shared local database — scratch databases and the stack lock
+
+All lanes and the merge gate share one local Supabase stack. Never run a bare
+`supabase db reset` from a lane: it restarts the db container, wiping the database
+another lane is testing on and every scratch database. Use
+`.claude/bin/super-board-local-db.sh` instead:
+
+| Step | Command |
+|---|---|
+| Migration check, pgTAP (talk to Postgres directly) | `super-board-local-db.sh scratch -- sh -c 'supabase db reset --db-url "$SB_SCRATCH_DB_URL" --yes && supabase test db --db-url "$SB_SCRATCH_DB_URL"'` |
+| Reset or seed the main local database | `super-board-local-db.sh reset-main` |
+| e2e, app tests through supabase-js (need the local API) | `super-board-local-db.sh lock -- npx playwright test …` |
+
+`scratch` builds a database from the main one's Supabase schemas and grants and drops it
+on exit (pass, fail or interrupt). `lock` holds the local-stack lock only for that step; a
+second caller waits, and a dead holder's lock is reaped. Builds, unit tests and review run
+without either. The gate's `verify_commands` use `scratch` the same way.
+
 ## Lane lifecycles (per card)
 
 ### Builder pre-flight (before ANY card goes Ready → Building)
@@ -327,7 +345,7 @@ column), never built unchecked. `qa` cards are not pre-flighted: nothing is buil
 3. Read issue + PR + Builder's handoff comment.
 4. Build issue-scoped test plan: one observable test per AC.
 4b. **Test-gap check** (super-qa → "Test-gap check (after build)"): map every AC to unit / component / e2e tests, hunt edge cases, write the High gaps red-first. A High gap that needs app code changed → Fail (step 7) with the gap list. Medium/Low go in the handoff under `Test gaps (not written)`.
-5. Run the tests. Capture evidence to `docs/super-board/runs/issue-<N>-qa-v<N>/`. For UI/visual ACs, capture screenshots at the standard viewports (1920×1080 desktop, 1024×768 tablet, 375×667 mobile). Commit the screenshots to the issue branch BEFORE writing the comment (the markdown image URLs depend on the files being present on the branch).
+5. Run the tests — anything touching the local database through `super-board-local-db.sh` (see "Shared local database"). Capture evidence to `docs/super-board/runs/issue-<N>-qa-v<N>/`. For UI/visual ACs, capture screenshots at the standard viewports (1920×1080 desktop, 1024×768 tablet, 375×667 mobile). Commit the screenshots to the issue branch BEFORE writing the comment (the markdown image URLs depend on the files being present on the branch).
 6. **Pass** → commit test files + screenshots to same branch + push → tick the `ac` block with proof lines, write `visual` for UI, append a `history` row, rewrite `status` → `[qa] [report] ✅` PR comment with results + evidence path **+ inline screenshot embeds** (see "Screenshot embed format" below) → issue comment with the SAME inline screenshot embeds → move card QA → Review. Clean up worktree.
 7. **Fail** → leave failing ACs unchecked with the reason, append a `history` row, rewrite `status` → `[qa] [report] ❌` PR comment with per-AC expected/actual + repro file:line + evidence path + "what fixed should look like" **+ inline screenshot embeds of the broken state** → issue comment with the same inline screenshots (showing what's wrong) → increment rebuild counter → move card QA → Ready (label `loop:rebuild-N`). Clean up worktree.
 
@@ -454,8 +472,10 @@ on the base branch**.
        --subject "<PR title>" --body-file <msg.md>
    <msg.md> = the PR's commit bullets, deduplicated, plus `Closes #<issue>` (writing-standard.md § 1).
    The gate takes the merge mutex, checks the PR head is still $HEAD, merges the CURRENT
-   base into a scratch worktree at $HEAD, runs `config.verify_commands`, and only then
-   squash-merges with `--match-head-commit $HEAD`. After a merge it runs `cleanup-wt --post-merge`
+   base into a scratch worktree at $HEAD, re-stamps any migration the PR adds that sorts at or
+   before the newest one on the base (renamed to sort after it, pushed to the PR branch, and that
+   new head is what gets verified and merged), runs `config.verify_commands`, and only then
+   squash-merges with `--match-head-commit` on that head. After a merge it runs `cleanup-wt --post-merge`
    when the `.claude/hooks/cleanup-wt.py` hook is installed (local only; a cleanup failure never changes the exit). Route by exit code:
      0 → merged; continue to step 4
      2 → the branch no longer builds against the base → **rebase pass** (see below)
@@ -464,7 +484,7 @@ on the base branch**.
      4 → another card holds the merge lock → leave the card in Review, next wave retries
      5 → the base does not merge in cleanly → **rebase pass** (see below)
      6 → the PR head is not the commit you reviewed (a push after review, or during
-          verify). Your evidence is void: leave the card in Review with a `[reviewer]`
+          verify; the gate's own base merge + migration re-stamp does not count). Your evidence is void: leave the card in Review with a `[reviewer]`
           comment naming both shas; the next wave reviews the new head
      7 → merge_policy: a human merges this one. Stdout carries one
           `human-gate: <money|auth|schema|size|default|policy> — <evidence>` line per

@@ -97,6 +97,17 @@
         ]
       }
     },
+    "keyword_exclude": [
+      "e2e/**",
+      "test/**",
+      "tests/**",
+      "**/*.test.ts",
+      "**/*.test.tsx",
+      "**/*.spec.ts",
+      "supabase/tests/**",
+      "docs/**",
+      "README.md"
+    ],
     "allow_auto_on_production": false
   },
   "migrations": {
@@ -113,8 +124,12 @@
       "staging"
     ],
     "target_env": "staging",
-    "commands": {},
-    "checks": {},
+    "commands": {
+      "staging": "supabase db push --yes --db-url \"${STAGING_DB_URL:-$(set -a; . /Users/akhil/myapps/ssfGala/.env; printf %s \"$STAGING_DB_URL\")}\""
+    },
+    "checks": {
+      "staging": "supabase migration list --db-url \"${STAGING_DB_URL:-$(set -a; . /Users/akhil/myapps/ssfGala/.env; printf %s \"$STAGING_DB_URL\")}\""
+    },
     "human_steps": []
   },
   "no_progress_cycles": 6,
@@ -124,9 +139,10 @@
   "usage_pause_pct": 95,
   "usage_fallback": "none",
   "verify_commands": [
-    "npm ci --silent && npm run verify"
+    "npm ci --silent && npm run verify",
+    ".claude/bin/super-board-local-db.sh scratch -- sh -c 'supabase db reset --db-url \"$SB_SCRATCH_DB_URL\" --yes'"
   ],
-  "max_workers": 0,
+  "max_workers": 3,
   "rebuild_cap": 2,
   "block_rate_alert_pct": 30,
   "collect": {

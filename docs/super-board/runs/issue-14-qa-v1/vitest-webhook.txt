@@ -1,0 +1,10 @@
+
+ RUN  v5.0.5 /Users/akhil/myapps/ssfGala/.claude/worktrees/issue-14-qa
+
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+ Test Files  1 passed (1)
+      Tests  11 passed (11)
+   Start at  16:02:15
+   Duration  408ms (import 88%, tests 5%, transform 4%, worker 2%)
+

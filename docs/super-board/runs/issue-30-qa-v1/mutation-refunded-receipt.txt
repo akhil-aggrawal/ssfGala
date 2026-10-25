@@ -1,0 +1,13 @@
+  ✘  1 [chromium] › e2e/admin-reports-qa.spec.ts:136:5 › AC1+AC2: seeded sponsor rows and every total match, cancelled and failed left out (1.6s)
+  1) [chromium] › e2e/admin-reports-qa.spec.ts:136:5 › AC1+AC2: seeded sponsor rows and every total match, cancelled and failed left out 
+    - Expected  - 2
+    + Received  + 2
+    -   "$500.00",
+    -   "$1,500.00",
+    +   "$1,200.00",
+    +   "$800.00",
+    > 145 |   expect(await cells(page, "Outstanding balances", s.sponsorName)).toEqual(["$2,000.00", "$500.00", "$1,500.00"]);
+    Error Context: test-results/admin-reports-qa-AC1-AC2-s-a7f95-ncelled-and-failed-left-out-chromium/error-context.md
+    Error Context: test-results/admin-reports-qa-AC1-AC2-s-a7f95-ncelled-and-failed-left-out-chromium/error-context.md
+  1 failed
+    [chromium] › e2e/admin-reports-qa.spec.ts:136:5 › AC1+AC2: seeded sponsor rows and every total match, cancelled and failed left out 

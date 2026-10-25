@@ -1,0 +1,17 @@
+1..16
+ok 1 - uneven amount confirms
+ok 2 - remainder cent goes to the first attendee
+ok 3 - allocations sum to the paid amount
+ok 4 - delayed method waits
+ok 5 - registration still pending_payment while waiting
+ok 6 - async_payment_succeeded confirms
+ok 7 - delayed payment succeeded
+ok 8 - delayed registration registered
+ok 9 - paid first
+ok 10 - late expiry is ignored
+ok 11 - payment stays succeeded after a late expiry
+ok 12 - registration stays registered after a late expiry
+ok 13 - mismatch reported
+ok 14 - replayed mismatch is a duplicate
+ok 15 - mismatched payment still pending after replay
+ok 16 - mismatched registration still pending_payment after replay

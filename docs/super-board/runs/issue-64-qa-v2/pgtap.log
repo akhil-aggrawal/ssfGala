@@ -1,0 +1,18 @@
+Connecting to local database...
+supabase/tests/add_admin_attendees_test.sql ............ ok
+supabase/tests/append_only_history_test.sql ............ ok
+supabase/tests/audit_log_writer_test.sql ............... ok
+supabase/tests/events_tiers_edges_test.sql ............. ok
+supabase/tests/events_tiers_test.sql ................... ok
+supabase/tests/payments_allocations_edges_test.sql ..... ok
+supabase/tests/payments_allocations_test.sql ........... ok
+supabase/tests/registrations_attendees_edges_test.sql .. ok
+supabase/tests/registrations_attendees_test.sql ........ ok
+supabase/tests/row_level_security_edges_test.sql ....... ok
+supabase/tests/row_level_security_test.sql ............. ok
+supabase/tests/save_gala_setup_test.sql ................ ok
+supabase/tests/sponsors_tables_edges_test.sql .......... ok
+supabase/tests/sponsors_tables_test.sql ................ ok
+All tests successful.
+Files=14, Tests=193,  2 wallclock secs ( 0.16 usr  0.04 sys +  0.20 cusr  0.11 csys =  0.51 CPU)
+Result: PASS

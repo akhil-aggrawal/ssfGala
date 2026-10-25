@@ -1,0 +1,9 @@
+
+Running 4 tests using 1 worker
+
+  ✓  1 [chromium] › e2e/admin-sponsors-qa.spec.ts:120:5 › AC1 AC2 AC4: admin pledge matches the public flow, shows in the list, audited (2.8s)
+  ✓  2 [chromium] › e2e/admin-sponsors-qa.spec.ts:185:5 › AC3 AC4: a guest added to a full table is accepted, flagged overbooked, audited (2.2s)
+  ✓  3 [chromium] › e2e/admin-sponsors-qa.spec.ts:240:5 › a signed-in user with no role gets the 403 page and no pledge or guest forms (423ms)
+  ✓  4 [chromium] › e2e/admin-sponsors-qa.spec.ts:248:5 › AC2 AC3: /admin/sponsors at desktop, tablet and mobile (3.1s)
+
+  4 passed (11.0s)

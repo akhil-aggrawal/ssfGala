@@ -1,0 +1,21 @@
+/Users/akhil/myapps/ssfGala/.claude/worktrees/issue-29-qa/supabase/tests/add_admin_attendees_test.sql ............ ok
+/Users/akhil/myapps/ssfGala/.claude/worktrees/issue-29-qa/supabase/tests/append_only_history_test.sql ............ ok
+/Users/akhil/myapps/ssfGala/.claude/worktrees/issue-29-qa/supabase/tests/audit_log_writer_test.sql ............... ok
+/Users/akhil/myapps/ssfGala/.claude/worktrees/issue-29-qa/supabase/tests/events_tiers_edges_test.sql ............. ok
+/Users/akhil/myapps/ssfGala/.claude/worktrees/issue-29-qa/supabase/tests/events_tiers_test.sql ................... ok
+/Users/akhil/myapps/ssfGala/.claude/worktrees/issue-29-qa/supabase/tests/payments_allocations_edges_test.sql ..... ok
+/Users/akhil/myapps/ssfGala/.claude/worktrees/issue-29-qa/supabase/tests/payments_allocations_test.sql ........... ok
+/Users/akhil/myapps/ssfGala/.claude/worktrees/issue-29-qa/supabase/tests/pledge_sponsorship_test.sql ............. ok
+/Users/akhil/myapps/ssfGala/.claude/worktrees/issue-29-qa/supabase/tests/registrations_attendees_edges_test.sql .. ok
+/Users/akhil/myapps/ssfGala/.claude/worktrees/issue-29-qa/supabase/tests/registrations_attendees_test.sql ........ ok
+/Users/akhil/myapps/ssfGala/.claude/worktrees/issue-29-qa/supabase/tests/row_level_security_edges_test.sql ....... ok
+/Users/akhil/myapps/ssfGala/.claude/worktrees/issue-29-qa/supabase/tests/row_level_security_test.sql ............. ok
+/Users/akhil/myapps/ssfGala/.claude/worktrees/issue-29-qa/supabase/tests/save_gala_setup_test.sql ................ ok
+/Users/akhil/myapps/ssfGala/.claude/worktrees/issue-29-qa/supabase/tests/save_pending_ticket_order_test.sql ...... ok
+/Users/akhil/myapps/ssfGala/.claude/worktrees/issue-29-qa/supabase/tests/sponsors_tables_edges_test.sql .......... ok
+/Users/akhil/myapps/ssfGala/.claude/worktrees/issue-29-qa/supabase/tests/sponsors_tables_test.sql ................ ok
+/Users/akhil/myapps/ssfGala/.claude/worktrees/issue-29-qa/supabase/tests/sponsorship_receipts_edges_test.sql ..... ok
+/Users/akhil/myapps/ssfGala/.claude/worktrees/issue-29-qa/supabase/tests/sponsorship_receipts_test.sql ........... ok
+All tests successful.
+Files=18, Tests=240,  1 wallclock secs ( 0.11 usr  0.04 sys +  0.21 cusr  0.11 csys =  0.47 CPU)
+Result: PASS

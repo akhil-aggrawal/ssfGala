@@ -1,0 +1,19 @@
+Running 16 tests using 1 worker
+  ✓   1 [chromium] › e2e/admin-exports-qa.spec.ts:91:5 › a signed-in user with no role gets 403 from export URLs (670ms)
+  ✓   2 [chromium] › e2e/admin-exports-qa.spec.ts:100:5 › roster CSV leaves out a cancelled attendee; workbook has one sheet per report (547ms)
+  ✓   3 [chromium] › e2e/admin-exports-qa.spec.ts:120:5 › every CSV export URL is audited with its report name (622ms)
+  ✓   4 [chromium] › e2e/admin-exports-qa.spec.ts:138:5 › exports page lists Excel and nine CSV downloads (923ms)
+  ✓   5 [chromium] › e2e/admin-exports-qa.spec.ts:157:5 › the Excel link downloads a ZIP workbook (743ms)
+  ✓   6 [chromium] › e2e/admin-exports.spec.ts:67:5 › signed out, an export URL goes to sign-in (90ms)
+  ✓   7 [chromium] › e2e/admin-exports.spec.ts:73:5 › a sponsor gets 403 from every export URL (342ms)
+  ✓   8 [chromium] › e2e/admin-exports.spec.ts:82:5 › an admin downloads the roster CSV and the Excel workbook, each audited (861ms)
+  ✓   9 [chromium] › e2e/admin-reports-qa.spec.ts:143:5 › AC1+AC2: seeded sponsor rows and every total match, cancelled and failed left out (1.2s)
+  ✓  10 [chromium] › e2e/admin-reports-qa.spec.ts:198:5 › AC3: a signed-in user with no role gets 403 and no report (391ms)
+  -  11 [chromium] › e2e/admin-reports-qa.spec.ts:214:9 › screenshots › capture desktop
+  -  12 [chromium] › e2e/admin-reports-qa.spec.ts:214:9 › screenshots › capture tablet
+  -  13 [chromium] › e2e/admin-reports-qa.spec.ts:214:9 › screenshots › capture mobile
+  ✓  14 [chromium] › e2e/admin-reports.spec.ts:21:5 › signed out, /admin/reports goes to sign-in (84ms)
+  ✓  15 [chromium] › e2e/admin-reports.spec.ts:27:5 › a sponsor at /admin/reports gets 403 and no report (378ms)
+  ✓  16 [chromium] › e2e/admin-reports.spec.ts:34:5 › an admin opens Exports, then views the reports (696ms)
+  3 skipped
+  13 passed (26.1s)

@@ -1,0 +1,14 @@
+> vitest run
+
+
+ RUN  v5.0.5 /Users/akhil/myapps/ssfGala/.claude/worktrees/issue-16-qa
+
+
+ Test Files  25 passed | 1 skipped (26)
+      Tests  185 passed | 1 skipped (186)
+   Start at  02:59:04
+   Duration  9.33s (tests 78%, import 14%, transform 7%, worker 1%)
+
+    Isolate  26 workers spawned · ~340ms startup each (spawn + environment, per file)
+             at least ~922ms faster with isolate: false — reuses workers across files instead of one per file
+
