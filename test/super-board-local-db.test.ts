@@ -1,5 +1,5 @@
 import { spawn, spawnSync } from "node:child_process";
-import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, utimesSync, writeFileSync } from "node:fs";
 import { hostname, tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -106,6 +106,71 @@ describe("local-stack lock", () => {
     expect(lines.slice(0, 2)).toEqual(["e2e-start", "e2e-end"]);
     expect(lines[2]).toMatch(/^reset db reset --db-url postgresql:\/\/postgres:postgres@localhost:\d+\/postgres\?sslmode=disable --yes$/);
     expect(existsSync(lock)).toBe(false);
+  });
+
+  it("lets exactly one of two waiters racing to reap a dead holder's lock hold it", async () => {
+    const lock = freshLock();
+    const dead = spawnSync("sh", ["-c", "echo $$"]).stdout.toString().trim();
+    mkdirSync(lock);
+    writeFileSync(join(lock, "pid"), dead);
+    writeFileSync(join(lock, "host"), hostname());
+    writeFileSync(join(lock, "at"), String(Math.floor(Date.now() / 1000)));
+    const log = join(tmpdir(), `sb-lock-race-${process.pid}-${Date.now()}`);
+    // The pause holds each waiter between judging the lock dead and reaping it.
+    // b reaps a second later, while a already holds a fresh lock: the race from #92.
+    const env = (pause: string) => ({ SB_LOCAL_STACK_LOCK: lock, SB_LOCK_REAP_PAUSE: pause });
+    const body = (id: string) => `echo start-${id} >> ${log}; sleep 2; echo end-${id} >> ${log}`;
+    const a = run(["lock", "--timeout", "20", "--", "sh", "-c", body("a")], env("1"));
+    const b = run(["lock", "--timeout", "20", "--", "sh", "-c", body("b")], env("2"));
+    expect(await exited(a)).toBe(0);
+    expect(await exited(b)).toBe(0);
+    const lines = readFileSync(log, "utf8").trim().split("\n");
+    // Never two holders at once: each start is followed by its own end.
+    expect(lines).toHaveLength(4);
+    expect(lines[1]).toBe(lines[0].replace("start", "end"));
+    expect(lines[3]).toBe(lines[2].replace("start", "end"));
+    expect(existsSync(lock)).toBe(false);
+    expect(readdirSync(join(lock, "..")).filter((f) => f !== "local-stack.lock")).toEqual([]);
+  }, 30_000);
+
+  it("lets exactly one of three waiters racing to reap a dead holder's lock hold it at a time", async () => {
+    const lock = freshLock();
+    const dead = spawnSync("sh", ["-c", "echo $$"]).stdout.toString().trim();
+    mkdirSync(lock);
+    writeFileSync(join(lock, "pid"), dead);
+    writeFileSync(join(lock, "host"), hostname());
+    writeFileSync(join(lock, "at"), String(Math.floor(Date.now() / 1000)));
+    const log = join(tmpdir(), `sb-lock-race3-${process.pid}-${Date.now()}`);
+    // QA's repro from PR #98: pauses 1, 2, 2 between judging and reaping.
+    const env = (pause: string) => ({ SB_LOCAL_STACK_LOCK: lock, SB_LOCK_REAP_PAUSE: pause });
+    const body = (id: string) => `echo start-${id} >> ${log}; sleep 2; echo end-${id} >> ${log}`;
+    const kids = [["a", "1"], ["b", "2"], ["c", "2"]].map(([id, pause]) =>
+      run(["lock", "--timeout", "30", "--", "sh", "-c", body(id)], env(pause)),
+    );
+    for (const k of kids) expect(await exited(k)).toBe(0);
+    const lines = readFileSync(log, "utf8").trim().split("\n");
+    expect(lines).toHaveLength(6);
+    for (let i = 0; i < 6; i += 2) expect(lines[i + 1]).toBe(lines[i].replace("start", "end"));
+    expect(existsSync(lock)).toBe(false);
+    expect(readdirSync(join(lock, ".."))).toEqual([]);
+  }, 60_000);
+
+  it("reaps a lock with no pid file older than the grace period", async () => {
+    const lock = freshLock();
+    mkdirSync(lock);
+    const old = new Date(Date.now() - 60_000);
+    utimesSync(lock, old, old);
+    const b = run(["lock", "--timeout", "5", "--", "true"], { SB_LOCAL_STACK_LOCK: lock });
+    expect(await exited(b)).toBe(0);
+    expect(existsSync(lock)).toBe(false);
+  });
+
+  it("does not reap a lock with no pid file inside the grace period", async () => {
+    const lock = freshLock();
+    mkdirSync(lock);
+    const b = run(["lock", "--timeout", "1", "--", "true"], { SB_LOCAL_STACK_LOCK: lock });
+    expect(await exited(b)).toBe(4);
+    expect(existsSync(lock)).toBe(true);
   });
 
   it("releases the lock when the command fails", async () => {
@@ -232,4 +297,17 @@ describe.skipIf(!stackTests)("scratch databases (needs the local stack)", () => 
     expect(await exited(child)).toBe(130);
     expect(scratchCount()).toBe(before);
   }, 120_000);
+});
+
+describe("standalone super-qa", () => {
+  it("runs every e2e step under the local-stack lock", () => {
+    const files = [".claude/skills/super-qa/SKILL.md", ".claude/skills/super-qa/references/iteration-preamble.md"];
+    const runs = files.flatMap((f) =>
+      readFileSync(join(repo, f), "utf8")
+        .split("\n")
+        .filter((l) => l.includes("npx playwright test e2e/")),
+    );
+    expect(runs.length).toBeGreaterThan(0);
+    for (const line of runs) expect(line).toContain("super-board-local-db.sh lock -- npx playwright test");
+  });
 });

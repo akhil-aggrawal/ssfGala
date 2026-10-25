@@ -1,0 +1,5 @@
+ ❯ test/super-board-local-db.test.ts (16 tests | 1 failed | 13 skipped) 10424ms
+     × reaps a lock with no pid file older than the grace period 5013ms
+ FAIL  test/super-board-local-db.test.ts > local-stack lock > reaps a lock with no pid file older than the grace period
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed | 13 skipped (16)

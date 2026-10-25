@@ -224,7 +224,7 @@ console and page errors → `Error + stack` and `Logs` (with the
 Run the full existing suite against the active target:
 
 ```bash
-npx playwright test e2e/paths/ --config=e2e/playwright.smoke.config.ts
+.claude/bin/super-board-local-db.sh lock -- npx playwright test e2e/paths/ --config=e2e/playwright.smoke.config.ts
 ```
 
 Read the result. For each red spec:
@@ -244,7 +244,7 @@ Read the result. For each red spec:
      `HUMAN GATE TRIPPED: auth credentials revoked or auth boundary changed`,
      exit non-zero. Do NOT mass-file auth bugs.
 2. Re-run the spec ONCE in isolation:
-   `npx playwright test e2e/paths/<slug>.spec.ts --config=e2e/playwright.smoke.config.ts`
+   `.claude/bin/super-board-local-db.sh lock -- npx playwright test e2e/paths/<slug>.spec.ts --config=e2e/playwright.smoke.config.ts`
 3. If green on retry → mark the queue item `[?]` (flaky), file a "FLAKY"
    note in `iteration-N.md` (NOT a bug), continue.
 4. If red 2x in a row → file as a real bug + mark `[b]` in queue.
@@ -465,7 +465,7 @@ acceptable; a fix can silently disable a feature to make a wrong spec pass.
 
 4. **Run JUST your spec:**
    ```bash
-   npx playwright test e2e/paths/<slug>.spec.ts --config=e2e/playwright.smoke.config.ts
+   .claude/bin/super-board-local-db.sh lock -- npx playwright test e2e/paths/<slug>.spec.ts --config=e2e/playwright.smoke.config.ts
    ```
    Apply the same retry policy as Phase 1.
 

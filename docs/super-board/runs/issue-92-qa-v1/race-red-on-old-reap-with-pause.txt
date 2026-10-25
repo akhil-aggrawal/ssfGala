@@ -1,0 +1,9 @@
+ ❯ test/super-board-local-db.test.ts (16 tests | 1 failed | 15 skipped) 4562ms
+     × lets exactly one of two waiters racing to reap a dead holder's lock hold it 4560ms
+Expected: "end-a"
+Received: "start-b"
+    130|     expect(lines[1]).toBe(lines[0].replace("start", "end"));
+    131|     expect(lines[3]).toBe(lines[2].replace("start", "end"));
+    132|     expect(existsSync(lock)).toBe(false);
+ Test Files  1 failed (1)
+      Tests  1 failed | 15 skipped (16)

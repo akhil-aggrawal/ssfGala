@@ -1,0 +1,8 @@
+
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+ Test Files  49 passed | 2 skipped (51)
+      Tests  394 passed | 14 skipped (408)
+   Start at  21:04:20
+   Duration  93.13s (tests 97%, import 2%, transform 1%)
+
