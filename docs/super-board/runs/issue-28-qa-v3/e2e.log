@@ -1,0 +1,46 @@
+
+Running 27 tests using 1 worker
+
+  ✓   1 [chromium] › e2e/admin-dashboard-qa.spec.ts:56:9 › AC1: placeholder sections keep the admin guard › signed out, /admin/attendees goes to sign-in (193ms)
+  ✓   2 [chromium] › e2e/admin-dashboard-qa.spec.ts:62:9 › AC1: placeholder sections keep the admin guard › a sponsor at /admin/attendees gets 403 and no sidebar (729ms)
+  ✓   3 [chromium] › e2e/admin-dashboard-qa.spec.ts:56:9 › AC1: placeholder sections keep the admin guard › signed out, /admin/sponsors goes to sign-in (97ms)
+  ✓   4 [chromium] › e2e/admin-dashboard-qa.spec.ts:62:9 › AC1: placeholder sections keep the admin guard › a sponsor at /admin/sponsors gets 403 and no sidebar (491ms)
+  ✓   5 [chromium] › e2e/admin-dashboard-qa.spec.ts:56:9 › AC1: placeholder sections keep the admin guard › signed out, /admin/tables goes to sign-in (88ms)
+  ✓   6 [chromium] › e2e/admin-dashboard-qa.spec.ts:62:9 › AC1: placeholder sections keep the admin guard › a sponsor at /admin/tables gets 403 and no sidebar (453ms)
+  ✓   7 [chromium] › e2e/admin-dashboard-qa.spec.ts:56:9 › AC1: placeholder sections keep the admin guard › signed out, /admin/payments goes to sign-in (93ms)
+  ✓   8 [chromium] › e2e/admin-dashboard-qa.spec.ts:62:9 › AC1: placeholder sections keep the admin guard › a sponsor at /admin/payments gets 403 and no sidebar (415ms)
+  ✓   9 [chromium] › e2e/admin-dashboard-qa.spec.ts:56:9 › AC1: placeholder sections keep the admin guard › signed out, /admin/setup goes to sign-in (88ms)
+  ✓  10 [chromium] › e2e/admin-dashboard-qa.spec.ts:62:9 › AC1: placeholder sections keep the admin guard › a sponsor at /admin/setup gets 403 and no sidebar (442ms)
+  ✓  11 [chromium] › e2e/admin-dashboard-qa.spec.ts:56:9 › AC1: placeholder sections keep the admin guard › signed out, /admin/exports goes to sign-in (97ms)
+  ✓  12 [chromium] › e2e/admin-dashboard-qa.spec.ts:62:9 › AC1: placeholder sections keep the admin guard › a sponsor at /admin/exports gets 403 and no sidebar (434ms)
+  ✓  13 [chromium] › e2e/admin-dashboard-qa.spec.ts:72:5 › AC2-AC4: overview values equal loadOverview for the active event (793ms)
+  -  14 [chromium] › e2e/admin-dashboard-qa.spec.ts:96:9 › screenshots › capture desktop
+  -  15 [chromium] › e2e/admin-dashboard-qa.spec.ts:96:9 › screenshots › capture tablet
+  -  16 [chromium] › e2e/admin-dashboard-qa.spec.ts:96:9 › screenshots › capture mobile
+  ✓  17 [chromium] › e2e/admin-dashboard.spec.ts:38:5 › AC1: each sidebar link routes to its page (915ms)
+  ✓  18 [chromium] › e2e/admin-dashboard.spec.ts:53:5 › a placeholder page still checks the admin role (404ms)
+  ✓  19 [chromium] › e2e/admin-dashboard.spec.ts:63:5 › AC2-AC4: overview shows the metrics for the active event (427ms)
+  ✓  20 [chromium] › e2e/admin-seating.spec.ts:104:5 › AC1: a table number shows for all of the table's guests (1.4s)
+  ✓  21 [chromium] › e2e/admin-seating.spec.ts:116:5 › AC2: moving one guest changes only that guest's table (1.3s)
+  ✓  22 [chromium] › e2e/admin-seating.spec.ts:130:5 › AC3: overbooked tables show a badge and the filter lists only them (906ms)
+  ✓  23 [chromium] › e2e/admin-seating.spec.ts:141:5 › AC3: moving guests off an overbooked table clears its badge (1.4s)
+  ✓  24 [chromium] › e2e/admin-seating.spec.ts:153:5 › Tables & Seating does not scroll sideways on a 375px phone (718ms)
+  ✓  25 [chromium] › e2e/admin-seating.spec.ts:162:5 › AC3: a non-admin never sees the seating page (408ms)
+  ✓  26 [chromium] › e2e/admin-seating.spec.ts:169:5 › AC4: the assignment and the move each wrote an audit row (8ms)
+  ✓  27 [chromium] › e2e/admin-seating.spec.ts:182:5 › /admin/seating opens Tables & Seating (463ms)
+
+  3 skipped
+  24 passed (21.3s)
+
+Running 8 tests using 1 worker
+
+  ✓  1 [chromium] › e2e/admin-seating-qa.spec.ts:103:5 › AC3: overview and seating agree on Overbooked before and after a move (3.0s)
+  ✓  2 [chromium] › e2e/admin-seating-qa.spec.ts:119:5 › AC2: a blank move puts the guest back on the sponsored table (1.3s)
+  ✓  3 [chromium] › e2e/admin-seating-qa.spec.ts:128:5 › AC4: a bad table number saves nothing and writes no audit row (903ms)
+  ✓  4 [chromium] › e2e/admin-seating-qa.spec.ts:139:5 › AC4: each move writes its own audit row with before and after (12ms)
+  ✓  5 [chromium] › e2e/admin-seating-qa.spec.ts:160:9 › screenshots › capture desktop (793ms)
+  ✓  6 [chromium] › e2e/admin-seating-qa.spec.ts:160:9 › screenshots › capture tablet (739ms)
+  ✓  7 [chromium] › e2e/admin-seating-qa.spec.ts:160:9 › screenshots › capture mobile (799ms)
+  ✓  8 [chromium] › e2e/admin-seating-qa.spec.ts:173:7 › screenshots › capture the overview and seating after a move (2.1s)
+
+  8 passed (18.9s)

@@ -692,6 +692,8 @@ a:focus-visible {
 }
 
 .admin-table-wrap {
+  /* Contains absolutely-positioned .visually-hidden labels so they scroll with the table. */
+  position: relative;
   overflow-x: auto;
 }
 
@@ -761,6 +763,59 @@ a:focus-visible {
   text-decoration: none;
 }
 
+/* Tables & Seating: inline table-number forms and the admin-only badge. */
+.seat-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin: 0.5rem 0 1rem;
+}
+
+.seat-filter a {
+  color: var(--foreground);
+}
+
+.seat-filter a[aria-current="page"] {
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.seat-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.seat-form input {
+  width: 6rem;
+  min-height: 2.75rem;
+  padding: 0.5rem;
+  border: 1px solid #555;
+  border-radius: 0.25rem;
+  background: #fff;
+  color: #111;
+  font: inherit;
+}
+
+.seat-form button {
+  min-height: 2.75rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--foreground);
+  border-radius: 0.25rem;
+  background: var(--foreground);
+  color: var(--background);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.seat-form input:focus-visible,
+.seat-form button:focus-visible {
+  outline: 3px solid #1a56db;
+  outline-offset: 2px;
+}
+
 /* Offline sponsorship receipts (/admin/payments): reuses .gala-form. */
 .receipt-list {
   margin: 1rem 0;
@@ -784,6 +839,37 @@ a:focus-visible {
 .receipt-list summary:focus-visible {
   outline: 3px solid #1a56db;
   outline-offset: 2px;
+}
+
+.seat-badge {
+  display: inline-block;
+  margin-left: 0.5rem;
+  padding: 0.125rem 0.5rem;
+  border-radius: 999px;
+  background: #a00d0d;
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.75rem;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* On the dark admin background (the gala-form colours sit on white). */
+.seat-form__ok {
+  color: #8fe3b0;
+  font-weight: 600;
+}
+
+.seat-form__error {
+  color: #ffb3b3;
+  font-weight: 600;
 }
 
 /* Sponsor pledge: poster heading, high-contrast form. */
@@ -1021,4 +1107,15 @@ a:focus-visible {
   font: inherit;
   font-weight: 600;
   cursor: pointer;
+}
+
+/* Invited guest registration */
+.invite__signed-in + .button {
+  margin-top: 0.5rem;
+}
+
+.invite-register__done h2 {
+  margin: 0 0 0.5rem;
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
 }

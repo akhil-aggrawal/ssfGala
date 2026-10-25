@@ -99,10 +99,10 @@ describe("computeOverview", () => {
         { id: "r3", status: "pending_payment", sponsored_table_id: null },
       ],
       attendees: [
-        { registration_id: "r1", cancelled_at: null },
-        { registration_id: "r1", cancelled_at: "2026-10-01T00:00:00Z" },
-        { registration_id: "r2", cancelled_at: null },
-        { registration_id: "r3", cancelled_at: null },
+        { registration_id: "r1", assigned_table_number: null, cancelled_at: null },
+        { registration_id: "r1", assigned_table_number: null, cancelled_at: "2026-10-01T00:00:00Z" },
+        { registration_id: "r2", assigned_table_number: null, cancelled_at: null },
+        { registration_id: "r3", assigned_table_number: null, cancelled_at: null },
       ],
     });
     expect(o.attendeeCount).toBe(2);
@@ -111,15 +111,16 @@ describe("computeOverview", () => {
   it("counts tables with more than capacity active attendees as overbooked", () => {
     const seat = (registration_id: string, cancelled_at: string | null = null) => ({
       registration_id,
+      assigned_table_number: null,
       cancelled_at,
     });
     const o = computeOverview({
       ...empty,
       tables: [
-        { id: "t-full", capacity: 10 },
-        { id: "t-over", capacity: 10 },
-        { id: "t-small", capacity: 2 },
-        { id: "t-cancelled", capacity: 1 },
+        { id: "t-full", sponsorship_id: "s1", capacity: 10, physical_table_number: null },
+        { id: "t-over", sponsorship_id: "s1", capacity: 10, physical_table_number: null },
+        { id: "t-small", sponsorship_id: "s1", capacity: 2, physical_table_number: null },
+        { id: "t-cancelled", sponsorship_id: "s1", capacity: 1, physical_table_number: null },
       ],
       registrations: [
         { id: "rf", status: "registered", sponsored_table_id: "t-full" },
@@ -142,6 +143,58 @@ describe("computeOverview", () => {
     });
     // t-full is exactly at capacity; t-cancelled has one active guest.
     expect(o.overbookedTables).toBe(2);
+  });
+
+  // QA v2 on #28: a guest moved to another number stops counting toward their table.
+  it("does not count a guest moved off their sponsored table", () => {
+    const guest = (assigned_table_number: string | null) => ({
+      registration_id: "r1",
+      assigned_table_number,
+      cancelled_at: null,
+    });
+    const o = computeOverview({
+      ...empty,
+      tables: [{ id: "t1", sponsorship_id: "s1", capacity: 2, physical_table_number: "12" }],
+      registrations: [{ id: "r1", status: "registered", sponsored_table_id: "t1" }],
+      attendees: [guest(null), guest("12"), guest("7")],
+    });
+    expect(o.overbookedTables).toBe(0);
+    expect(o.attendeeCount).toBe(3);
+  });
+
+  // Review #28 R6: a guest moved onto another table's number counts there.
+  it("counts a guest moved onto another table's number at that table", () => {
+    const o = computeOverview({
+      ...empty,
+      tables: [
+        { id: "t1", sponsorship_id: "s1", capacity: 2, physical_table_number: "12" },
+        { id: "t2", sponsorship_id: "s2", capacity: 1, physical_table_number: "7" },
+      ],
+      registrations: [
+        { id: "r1", status: "registered", sponsored_table_id: "t1" },
+        { id: "r2", status: "registered", sponsored_table_id: "t2" },
+      ],
+      attendees: [
+        { registration_id: "r1", assigned_table_number: null, cancelled_at: null },
+        { registration_id: "r1", assigned_table_number: "7", cancelled_at: null },
+        { registration_id: "r2", assigned_table_number: null, cancelled_at: null },
+      ],
+    });
+    expect(o.overbookedTables).toBe(1);
+  });
+
+  it("does not count tables of cancelled sponsorships", () => {
+    const o = computeOverview({
+      ...empty,
+      sponsorships: [{ id: "s9", pledged_cents: 0, status: "cancelled" }],
+      tables: [{ id: "t9", sponsorship_id: "s9", capacity: 1, physical_table_number: null }],
+      registrations: [{ id: "r9", status: "registered", sponsored_table_id: "t9" }],
+      attendees: [
+        { registration_id: "r9", assigned_table_number: null, cancelled_at: null },
+        { registration_id: "r9", assigned_table_number: null, cancelled_at: null },
+      ],
+    });
+    expect(o.overbookedTables).toBe(0);
   });
 });
 

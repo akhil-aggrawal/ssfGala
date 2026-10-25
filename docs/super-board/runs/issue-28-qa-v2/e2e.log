@@ -1,0 +1,13 @@
+
+Running 8 tests using 1 worker
+
+  ✓  1 [chromium] › e2e/admin-seating.spec.ts:104:5 › AC1: a table number shows for all of the table's guests (1.4s)
+  ✓  2 [chromium] › e2e/admin-seating.spec.ts:116:5 › AC2: moving one guest changes only that guest's table (1.4s)
+  ✓  3 [chromium] › e2e/admin-seating.spec.ts:130:5 › AC3: overbooked tables show a badge and the filter lists only them (1.0s)
+  ✓  4 [chromium] › e2e/admin-seating.spec.ts:141:5 › AC3: moving guests off an overbooked table clears its badge (1.5s)
+  ✓  5 [chromium] › e2e/admin-seating.spec.ts:153:5 › Tables & Seating does not scroll sideways on a 375px phone (826ms)
+  ✓  6 [chromium] › e2e/admin-seating.spec.ts:162:5 › AC3: a non-admin never sees the seating page (636ms)
+  ✓  7 [chromium] › e2e/admin-seating.spec.ts:169:5 › AC4: the assignment and the move each wrote an audit row (14ms)
+  ✓  8 [chromium] › e2e/admin-seating.spec.ts:182:5 › /admin/seating opens Tables & Seating (620ms)
+
+  8 passed (9.0s)

@@ -1,0 +1,14 @@
+# independent QA v2 check: canary row in main db, run gate verify cmd from config, recheck
+before canary: 1|qa-v2-1792889136
+before main migrations: 13
+repo migrations: 13
+cmd: .claude/bin/super-board-local-db.sh scratch -- sh -c 'supabase db reset --db-url "$SB_SCRATCH_DB_URL" --yes'
+gate cmd exit=0
+[local-db] scratch database sb_scratch_1792889136_18793
+Applying migration 20261024170001_seating_assignments.sql...
+applied: 13
+after canary: 1|qa-v2-1792889136
+after main migrations: 13
+scratch dbs left: 0
+lock dir present: no
+canary dropped

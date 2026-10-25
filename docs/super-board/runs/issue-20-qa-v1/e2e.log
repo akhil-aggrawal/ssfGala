@@ -1,0 +1,10 @@
+
+Running 5 tests using 1 worker
+
+  ✓  1 [chromium] › e2e/invite-register.spec.ts:80:5 › signed-out guest is asked to sign in and comes back to the register page (976ms)
+  ✓  2 [chromium] › e2e/invite-register.spec.ts:86:5 › AC1: 4 attendees need 4 name and email pairs and create 4 attendee rows (1.7s)
+  ✓  3 [chromium] › e2e/invite-register.spec.ts:109:5 › AC2 + AC3: the 11th attendee is accepted with the normal confirmation, tier only (2.6s)
+  ✓  4 [chromium] › e2e/invite-register.spec.ts:130:5 › AC4: the page offers no pledge option (705ms)
+  ✓  5 [chromium] › e2e/invite-register.spec.ts:136:5 › register page at desktop, tablet and mobile (2.2s)
+
+  5 passed (9.8s)

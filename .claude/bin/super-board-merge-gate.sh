@@ -106,8 +106,9 @@
 # Detection reads the PR's labels, changed paths and the diff's ADDED lines
 # (keywords, case-insensitive). The policy is checked before verification — a
 # card a human will merge does not need the gate's build proof spent on it —
-# and migrations run after verification, inside the lock, right before the
-# merge. `--dry-run` reports both and runs neither.
+# and migrations run after verification and every approval check, inside the
+# lock, right before the merge: an exit 7 or 8 for approval has migrated
+# nothing. `--dry-run` reports both and runs neither.
 set -euo pipefail
 # Fixed read commands: a malformed payload is GitHub's, so it halts (#32).
 export SB_GITHUB_READ_STRICT=1
@@ -246,12 +247,19 @@ PLAN=$(python3 "$HERE/super-board-merge-policy.py" --config "$CONFIG" --meta "$M
   echo "human-gate: policy — could not classify the PR (unreadable metadata)"
   say "merge policy could not be evaluated — a human merges this one"; exit 7; }
 
+# Fetched before the approval read: a request pinned to an earlier head is
+# carried across this gate's own re-stamps only by checking them in git.
+git -C "$REPO_PATH" fetch origin "$HEAD_REF" "$BASE" --quiet
+
 # The label is display-only. A request posted before `done` pins the exact head
 # and policy/commands. Re-read trusted approval evidence; never mint it here.
+# A request for an earlier head still covers this one when the only changes
+# since are base merges and migration re-stamps — the head guard's rule (#88).
 APPROVED=false
 approval_check() {
   APPROVAL=$(python3 "$HERE/super-board-approval.py" --repo "$REPO" --pr "$PR" \
-    --head "$HEAD_SHA" --plan "$PLAN") || APPROVAL='{"approved":false}'
+    --head "$HEAD_SHA" --plan "$PLAN" \
+    --git "$REPO_PATH" --base "origin/${BASE}" --config "$CONFIG") || APPROVAL='{"approved":false}'
   python3 "$GITHUB_READ" --check || exit $?
   APPROVED=$(echo "$APPROVAL" | jq -r '.approved // false')
 }
@@ -269,8 +277,6 @@ if [ -n "$HUMAN" ] && [ "$APPROVED" != true ]; then
   approval_request
   say "merge policy: waiting for a trusted human to approve this exact head"; exit 7
 fi
-
-git -C "$REPO_PATH" fetch origin "$HEAD_REF" "$BASE" --quiet
 
 git -C "$REPO_PATH" worktree add --detach "$SCRATCH" "$HEAD_SHA" --quiet 2>/dev/null || {
   say "could not create a scratch worktree for ${HEAD_REF}@${HEAD_SHA}"; exit 5; }
@@ -320,6 +326,10 @@ if [ "${#VERIFY[@]}" -eq 0 ]; then
 else
   for cmd in "${VERIFY[@]:-}"; do
     say "verify: ${cmd}"
+    # A bare reset wipes the shared local database other lanes are testing on (#87).
+    case "$cmd" in *"supabase db reset"*) case "$cmd" in *--db-url*) ;; *)
+      say "WARNING: '${cmd}' resets the shared local database; wrap it in"
+      say "WARNING: super-board-local-db.sh scratch and pass --db-url \"\$SB_SCRATCH_DB_URL\"" ;; esac ;; esac
     if ! ( cd "$SCRATCH" && eval "$cmd" ) >"$SCRATCH/.verify.log" 2>&1; then
       say "FAILED: ${cmd}"
       tail -30 "$SCRATCH/.verify.log" >&2
@@ -332,12 +342,35 @@ fi
 
 python3 "$GITHUB_READ" --check
 
-# ---- migrations (inside the lock, after the build proof) -------------------
+# ---- approval, before anything touches a database ---------------------------
+# Every approval decision is made here, after the build proof and before any
+# migrate command: an env is migrated only for a head that is approved or needs
+# no approval (#88). An approval can be superseded while verification runs, and
+# body-declared human steps and config can change without a commit, so re-read
+# the scope and the approval for the head being merged (the re-stamp, if any).
+if [ "$APPROVED" = true ]; then
+  python3 "$GITHUB_READ" --kind metadata -- pr view "$PR" ${REPO:+--repo "$REPO"} --json labels,files,additions,deletions,changedFiles,body > "$META"
+  PLAN=$(python3 "$HERE/super-board-merge-policy.py" --config "$CONFIG" --meta "$META" --diff "$DIFF") || {
+    say "human approval scope could not be refreshed"; exit 7; }
+  approval_check
+  if [ "$APPROVED" != true ]; then
+    echo "$PLAN" | jq -r '.needs_you[] | "needs-you: " + .'
+    approval_request
+    say "human approval changed during verification; keep the card Blocked; nothing was migrated"
+    if [ -n "$HUMAN" ]; then exit 7; else exit 8; fi
+  fi
+  say "a trusted human confirmed the current head and human steps"
+elif [ "$(echo "$PLAN" | jq '.needs_you | length')" -gt 0 ]; then
+  echo "$PLAN" | jq -r '.needs_you[] | "needs-you: " + .'
+  approval_request
+  say "🙋 needs you before this merges — card → Blocked with the commands above; nothing was migrated"
+  exit 8
+fi
+
+# ---- migrations (inside the lock, after the build proof and approval) ------
 # Run the configured migrate command for every allowed env, from the verified
 # scratch tree. Collect, never stop early, so a human gets every command at once.
 NEEDS=()
-while IFS= read -r line; do [ -n "$line" ] && NEEDS+=("$line"); done \
-  < <(echo "$PLAN" | jq -r '.needs_you[]')
 if [ "$(echo "$PLAN" | jq '.migrations | length')" -gt 0 ]; then
   say "migrations in this PR: $(echo "$PLAN" | jq -r '.migrations | join(" ")')"
   while IFS=$'\t' read -r env cmd; do
@@ -351,32 +384,16 @@ if [ "$(echo "$PLAN" | jq '.migrations | length')" -gt 0 ]; then
     fi
   done < <(echo "$PLAN" | jq -r '.run[] | [.env, .cmd] | @tsv')
 fi
+# A failed migrate command is not an approval question: it ran, and a human
+# fixes it. The human steps already approved are listed with it.
 if [ "${#NEEDS[@]}" -gt 0 ]; then
-  if [ "$APPROVED" = true ] && [ "$(echo "$PLAN" | jq '.needs_you | length')" -eq "${#NEEDS[@]}" ]; then
-    say "a trusted human confirmed the current head and human steps"
-  else
-    for n in "${NEEDS[@]}"; do echo "needs-you: $n"; done
-    approval_request
-    say "🙋 needs you before this merges — card → Blocked with the commands above"
-    exit 8
-  fi
+  echo "$PLAN" | jq -r '.needs_you[] | "needs-you: " + .'
+  for n in "${NEEDS[@]}"; do echo "needs-you: $n"; done
+  approval_request
+  say "🙋 needs you before this merges — card → Blocked with the commands above"
+  exit 8
 fi
-
-# An approval can be superseded while verification/migrations run. Re-read just
-# before merging; GitHub independently pins the code with --match-head-commit.
-if [ "$APPROVED" = true ]; then
-  # Code remains pinned; body-declared human steps and config can change without
-  # a commit. Reclassify them too instead of reusing the old approval scope.
-  python3 "$GITHUB_READ" --kind metadata -- pr view "$PR" ${REPO:+--repo "$REPO"} --json labels,files,additions,deletions,changedFiles,body > "$META"
-  PLAN=$(python3 "$HERE/super-board-merge-policy.py" --config "$CONFIG" --meta "$META" --diff "$DIFF") || {
-    say "human approval scope could not be refreshed"; exit 7; }
-  approval_check
-  if [ "$APPROVED" != true ]; then
-    approval_request
-    say "human approval changed during verification; keep the card Blocked"
-    if [ -n "$HUMAN" ]; then exit 7; else exit 8; fi
-  fi
-fi
+# GitHub pins the code below with --match-head-commit.
 
 # ---- the merge -------------------------------------------------------------
 if [ "$DRY" -eq 1 ]; then
