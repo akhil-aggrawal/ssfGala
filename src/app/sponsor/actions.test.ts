@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { outbox } from "@/lib/email/transport";
 import { hashInviteToken } from "@/lib/sponsor/pledge";
 
 // The Server Action is reachable by a direct POST, so it checks sign-in and
@@ -12,7 +13,12 @@ vi.mock("next/navigation", () => ({ redirect }));
 vi.mock("next/headers", () => ({ headers: async () => new Headers({ host: "gala.test", "x-forwarded-proto": "https" }) }));
 vi.mock("@/lib/supabase/server", () => {
   const table = (rows: object[]) => {
-    const q = { select: () => q, eq: () => q, then: (r: (v: unknown) => void) => r({ data: rows, error: null }) };
+    const q = {
+      select: () => q,
+      eq: () => q,
+      maybeSingle: async () => ({ data: rows[0] ?? null, error: null }),
+      then: (r: (v: unknown) => void) => r({ data: rows, error: null }),
+    };
     return q;
   };
   return {
@@ -24,7 +30,9 @@ vi.mock("@/lib/supabase/server", () => {
               { id: "t-gold", name: "Gold", seat_price_cents: 20000, sponsorship_amount_cents: null, table_inventory: 5 },
               { id: "t-silver", name: "Silver", seat_price_cents: 15000, sponsorship_amount_cents: 150000, table_inventory: 5 },
             ])
-          : table([]),
+          : name === "events"
+            ? table([{ name: "An Evening That Moves You", date_at: null, venue: "ICC Milpitas" }])
+            : table([]),
     }),
   };
 });
@@ -77,6 +85,22 @@ describe("pledgeTables", () => {
     expect(new Set(tokens).size).toBe(3);
     expect(tokens.map(hashInviteToken)).toEqual(args.p_token_hashes);
     for (const t of tokens) expect(args.p_token_hashes).not.toContain(t);
+  });
+
+  it("emails the sponsor once with every table's link and the pledged amount (#33)", async () => {
+    vi.stubEnv("EMAIL_TRANSPORT", "memory");
+    vi.stubEnv("EMAIL_FROM", "SSF Gala <gala@example.test>");
+    outbox.length = 0;
+    guard.getAccess.mockResolvedValue({ user: { id: "u1" }, roles: [], eventId: "ev1" });
+    const state = await pledgeTables(null, pledge);
+    vi.unstubAllEnvs();
+
+    if (!state?.ok) throw new Error("expected ok");
+    expect(outbox).toHaveLength(1);
+    expect(outbox[0]).toMatchObject({ to: "a@example.test", idempotencyKey: "sponsorship:sp1" });
+    for (const l of state.links) expect(outbox[0].text).toContain(l.url);
+    expect(outbox[0].text).toContain("$5,500");
+    expect(outbox[0].text).toContain("No payment was taken online");
   });
 
   it("explains an inventory refusal", async () => {
