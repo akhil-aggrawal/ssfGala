@@ -23,7 +23,7 @@ export type Buyer = { userId: string; email: string | null; origin: string };
 export type CheckoutResult = { kind: "redirect"; url: string } | { kind: "none" };
 
 const successUrl = (origin: string, sessionId: string) =>
-  `${origin}/tickets/checkout/success?session_id=${sessionId}`;
+  `${origin}/tickets/success?session_id=${sessionId}`;
 
 export function checkoutSessionParams(order: PendingOrder, buyer: Buyer): Stripe.Checkout.SessionCreateParams {
   return {
@@ -43,7 +43,8 @@ export function checkoutSessionParams(order: PendingOrder, buyer: Buyer): Stripe
     customer_email: buyer.email ?? undefined,
     // Stripe fills {CHECKOUT_SESSION_ID}. The page there only reads.
     success_url: successUrl(buyer.origin, "{CHECKOUT_SESSION_ID}"),
-    cancel_url: `${buyer.origin}/tickets/review`,
+    // Back from Stripe without paying: Try again reuses this same order.
+    cancel_url: `${buyer.origin}/tickets/cancelled`,
   };
 }
 
