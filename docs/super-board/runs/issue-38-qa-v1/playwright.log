@@ -1,0 +1,10 @@
+[local-db] waiting for the local-stack lock (held by pid 48360)
+
+Running 4 tests using 1 worker
+
+  ✓  1 [chromium] › e2e/acceptance.spec.ts:105:5 › Scenario 1: buying two tickets gives no confirmed registration until the Stripe webhook succeeds (5.9s)
+  ✓  2 [chromium] › e2e/acceptance.spec.ts:234:5 › Scenario 2: a 3-table pledge shows 3 independent links on one dashboard (3.3s)
+  ✓  3 [chromium] › e2e/acceptance.spec.ts:287:5 › Scenario 3: 4 guests need 4 name and email records; an 11th guest is accepted and flagged in admin (8.3s)
+  ✓  4 [chromium] › e2e/acceptance.spec.ts:371:5 › Scenario 4: an admin adds complimentary and offline-paid attendees and records a pledge payment, with no Stripe charge (2.4s)
+
+  4 passed (31.3s)

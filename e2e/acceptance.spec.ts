@@ -79,6 +79,7 @@ async function shoot(page: Page, name: string) {
   if (!shots) return;
   for (const [vp, width, height] of [
     ["desktop", 1920, 1080],
+    ["tablet", 1024, 768],
     ["mobile", 375, 667],
   ] as const) {
     await page.setViewportSize({ width, height });
@@ -299,6 +300,17 @@ test("Scenario 3: 4 guests need 4 name and email records; an 11th guest is accep
     if (i < 3) await group.getByLabel("Email").fill(`gold${i + 1}-${tag}@example.test`);
   }
   await page.getByRole("button", { name: "Register Without Payment" }).click();
+  // The server refuses it and says so, pointing at the missing email.
+  await expect(page.getByRole("form", { name: "Register attendees" }).getByRole("alert")).toHaveText(
+    "Fix the highlighted fields. Nothing was saved.",
+  );
+  await expect(page.getByRole("group", { name: "Attendee 4" }).getByLabel("Email")).toHaveAttribute(
+    "aria-invalid",
+    "true",
+  );
+  await expect(page.getByRole("group", { name: "Attendee 3" }).getByLabel("Email")).not.toHaveAttribute(
+    "aria-invalid",
+  );
   await expect(page).toHaveURL(/\/register$/);
   const { count: none } = await db()
     .from("attendees")
