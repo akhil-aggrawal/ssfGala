@@ -1,0 +1,35 @@
+
+Running 1 test using 1 worker
+
+  ✘  1 [chromium] › e2e/sponsor-guest-edits-qa.spec.ts:201:5 › AC3: a tampered form cannot edit or remove another sponsor's guest (6.3s)
+
+
+  1) [chromium] › e2e/sponsor-guest-edits-qa.spec.ts:201:5 › AC3: a tampered form cannot edit or remove another sponsor's guest 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  locator('li.guest-row').filter({ hasText: 'Mo Mine' }).getByRole('status')
+    Expected: "That guest is no longer on your table. Nothing was saved."
+    Received: "Saved."
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveText" locator('li.guest-row').filter({ hasText: 'Mo Mine' }).getByRole('status') with timeout 5000ms
+      - waiting for locator('li.guest-row').filter({ hasText: 'Mo Mine' }).getByRole('status')
+        12 × locator resolved to <p role="status" class="guest-row__ok">Saved.</p>
+           - unexpected value "Saved."
+
+
+      215 |   await mine.getByLabel("Name").fill("Hacked Name");
+      216 |   await mine.getByRole("button", { name: "Save" }).click();
+    > 217 |   await expect(mine.getByRole("status")).toHaveText("That guest is no longer on your table. Nothing was saved.");
+          |                                          ^
+      218 |
+      219 |   page.once("dialog", (d) => d.accept());
+      220 |   await mine.getByRole("button", { name: "Remove Mo Mine" }).click();
+        at /Users/akhil/myapps/ssfGala/.claude/worktrees/issue-23-qa/e2e/sponsor-guest-edits-qa.spec.ts:217:42
+
+    Error Context: test-results/sponsor-guest-edits-qa-AC3-314d6-ove-another-sponsor-s-guest-chromium/error-context.md
+
+  1 failed
+    [chromium] › e2e/sponsor-guest-edits-qa.spec.ts:201:5 › AC3: a tampered form cannot edit or remove another sponsor's guest 
