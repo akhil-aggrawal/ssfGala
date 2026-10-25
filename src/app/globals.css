@@ -103,6 +103,31 @@ a:focus-visible {
     rgba(212, 138, 90, 0.18),
     transparent 65%
   );
+  display: grid;
+  justify-items: center;
+  gap: 2.5rem;
+}
+
+/* Poster first on small screens, beside the text from 56rem up. */
+.hero__poster {
+  order: -1;
+  width: min(100%, 26rem);
+  height: auto;
+  border: 1px solid var(--rule);
+  border-radius: 0.5rem;
+}
+
+@media (min-width: 56rem) {
+  .hero {
+    grid-template-columns: minmax(0, 1fr) 26rem;
+    align-items: center;
+    max-width: 72rem;
+    margin: 0 auto;
+  }
+
+  .hero__poster {
+    order: 0;
+  }
 }
 
 .hero__eyebrow {
