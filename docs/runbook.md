@@ -102,11 +102,11 @@ Repeat the first query. Stop here until no `pending` row remains.
 Exports from step 1 miss anything that settled after them. List those payments and save the result with the exports:
 
 ```sql
-select p.id, p.stripe_session_id, p.amount_cents, p.status, p.updated_at
+select p.id, p.stripe_session_id, p.amount_cents, p.status, p.received_at
 from public.payments p
 join public.events e on e.id = p.event_id
 where p.provider = 'stripe' and e.status = 'closed' and p.status in ('succeeded', 'refunded')
-order by p.updated_at;
+order by p.received_at;
 ```
 
 Compare it with the Paid tickets file from step 1 and note any payment that is not in the file. In the SQL Editor, use **Export** to save the result as CSV.
