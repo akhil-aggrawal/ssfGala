@@ -84,8 +84,8 @@ test("AC1 + AC4: a complimentary add is registered, unpaid and audited", async (
   await page.goto("/admin/attendees");
   await page.getByRole("link", { name: "Add attendees" }).click();
   await expect(page).toHaveURL(/\/admin\/attendees\/new$/);
-  await page.getByLabel("Complimentary").check();
-  await page.getByLabel("Tier").selectOption({ label: "Gold · $200 per seat" });
+  await page.getByRole("radio", { name: "Complimentary" }).check();
+  await page.getByLabel("Tier", { exact: true }).selectOption({ label: "Gold · $200 per seat" });
   await fillAttendee(page, 1, "[TEST] Comp Guest", email);
   await page.getByRole("button", { name: "Save attendees" }).click();
   await expect(page.locator("form").getByRole("status")).toHaveText("Added 1 attendee.");

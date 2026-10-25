@@ -1,0 +1,89 @@
+ plan  
+-------
+ 1..14
+(1 row)
+
+ admin_update_attendee 
+-----------------------
+ 
+(1 row)
+
+                     row_eq                     
+------------------------------------------------
+ ok 1 - the edit trims and saves name and email
+(1 row)
+
+                              row_eq                              
+------------------------------------------------------------------
+ ok 2 - the edit writes an audit row with before and after values
+(1 row)
+
+           throws_ok            
+--------------------------------
+ ok 3 - a blank name is refused
+(1 row)
+
+                    throws_ok                     
+--------------------------------------------------
+ ok 4 - an attendee of another event is not found
+(1 row)
+
+               throws_ok               
+---------------------------------------
+ ok 5 - an archived gala refuses edits
+(1 row)
+
+                throws_ok                
+-----------------------------------------
+ ok 6 - an archived gala refuses cancels
+(1 row)
+
+ admin_cancel_attendee 
+-----------------------
+ 
+(1 row)
+
+              isnt               
+---------------------------------
+ ok 7 - cancel sets cancelled_at
+(1 row)
+
+               is                
+---------------------------------
+ ok 8 - the attendee row is kept
+(1 row)
+
+                    is                    
+------------------------------------------
+ ok 9 - the payment row is kept unchanged
+(1 row)
+
+                   is                   
+----------------------------------------
+ ok 10 - the payment allocation is kept
+(1 row)
+
+                 row_eq                 
+----------------------------------------
+ ok 11 - the cancel writes an audit row
+(1 row)
+
+             throws_ok              
+------------------------------------
+ ok 12 - a second cancel is refused
+(1 row)
+
+                          ok                          
+------------------------------------------------------
+ ok 13 - authenticated cannot edit attendees directly
+(1 row)
+
+                      ok                       
+-----------------------------------------------
+ ok 14 - anon cannot cancel attendees directly
+(1 row)
+
+ finish 
+--------
+(0 rows)
+

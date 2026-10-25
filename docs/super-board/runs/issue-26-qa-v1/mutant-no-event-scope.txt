@@ -1,0 +1,37 @@
+
+Running 1 test using 1 worker
+
+  ✘  1 [chromium] › e2e/admin-attendees-qa.spec.ts:109:5 › AC1: partial name or email search returns only the active gala's attendees (6.4s)
+
+
+  1) [chromium] › e2e/admin-attendees-qa.spec.ts:109:5 › AC1: partial name or email search returns only the active gala's attendees 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  getByText('paula.iv879q@old.test')
+    Expected: 0
+    Received: 1
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveCount" getByText('paula.iv879q@old.test') with timeout 5000ms
+      - waiting for getByText('paula.iv879q@old.test')
+        14 × locator resolved to 1 element
+           - unexpected value "1"
+
+
+      118 |   await expect(rowOf(page, `paula.${tag}@example.test`)).toHaveCount(1);
+      119 |   // The archived gala's attendee shares the email prefix but must not show.
+    > 120 |   await expect(page.getByText(`paula.${tag}@old.test`)).toHaveCount(0);
+          |                                                         ^
+      121 |   await expect(table(page).locator("tbody tr")).toHaveCount(1);
+      122 |
+      123 |   for (const [name, width, height] of [
+        at /Users/akhil/myapps/ssfGala/.claude/worktrees/issue-26-qa/e2e/admin-attendees-qa.spec.ts:120:57
+
+    Error Context: test-results/admin-attendees-qa-AC1-par-ab9d3-the-active-gala-s-attendees-chromium/error-context.md
+
+    Error Context: test-results/admin-attendees-qa-AC1-par-ab9d3-the-active-gala-s-attendees-chromium/error-context.md
+
+  1 failed
+    [chromium] › e2e/admin-attendees-qa.spec.ts:109:5 › AC1: partial name or email search returns only the active gala's attendees 

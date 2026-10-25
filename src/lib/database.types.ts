@@ -375,8 +375,14 @@ isOneToOne: false
 "admin_add_sponsored_guests":
 { Args: { "p_admin_id": string,"p_attendees": Json,"p_event_id": string,"p_table_id": string }; Returns: string
                            },
+"admin_cancel_attendee":
+{ Args: { "p_actor_id": string,"p_attendee_id": string,"p_event_id": string }; Returns: undefined
+                           },
 "admin_pledge_sponsorship":
 { Args: { "p_admin_id": string,"p_display_name": string,"p_email": string,"p_event_id": string,"p_tables": Json,"p_token_hashes": (string)[] }; Returns: Json
+                           },
+"admin_update_attendee":
+{ Args: { "p_actor_id": string,"p_attendee_id": string,"p_email": string,"p_event_id": string,"p_full_name": string }; Returns: undefined
                            },
 "apply_stripe_checkout_event":
 { Args: { "p_amount_total": number,"p_event_id": string,"p_event_type": string,"p_payment_intent_id"?: string,"p_payment_status": string,"p_session_id": string }; Returns: Json
