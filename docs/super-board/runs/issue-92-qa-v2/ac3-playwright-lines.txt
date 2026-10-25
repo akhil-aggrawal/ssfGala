@@ -1,0 +1,5 @@
+# every 'playwright test' line in .claude/skills/super-qa/ (L = under lock, U = unlocked)
+L .claude/skills/super-qa/SKILL.md:357:**Phase 1 — Regression.** `.claude/bin/super-board-local-db.sh lock -- npx playwright test e2e/paths/`
+L .claude/skills/super-qa/references/iteration-preamble.md:227:.claude/bin/super-board-local-db.sh lock -- npx playwright test e2e/paths/ --config=e2e/playwright.smoke.config.ts
+L .claude/skills/super-qa/references/iteration-preamble.md:247:   `.claude/bin/super-board-local-db.sh lock -- npx playwright test e2e/paths/<slug>.spec.ts --config=e2e/playwright.smoke.config.ts`
+L .claude/skills/super-qa/references/iteration-preamble.md:468:   .claude/bin/super-board-local-db.sh lock -- npx playwright test e2e/paths/<slug>.spec.ts --config=e2e/playwright.smoke.config.ts

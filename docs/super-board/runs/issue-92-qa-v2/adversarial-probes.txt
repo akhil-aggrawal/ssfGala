@@ -1,0 +1,26 @@
+## P1: 5 waiters, random reap pauses 0-2s, on a dead holder's lock, 5 rounds
+round 1: exits_rc=0 lines=10 serial=ok leftover=[]
+round 2: exits_rc=0 lines=10 serial=ok leftover=[]
+round 3: exits_rc=0 lines=10 serial=ok leftover=[]
+round 4: exits_rc=0 lines=10 serial=ok leftover=[]
+round 5: exits_rc=0 lines=10 serial=ok leftover=[]
+## P2: waiter SIGKILLed while holding the mutex mid-reap; next caller proceeds
+[local-db] reaped the local-stack lock (pid 20055 gone)
+next-ran
+rc=0 took=0s lock_left=no
+## P3: holder SIGKILLed mid-command; next caller reaps (pid gone) and runs
+[local-db] reaped the local-stack lock (pid 20125 gone)
+next-ran
+rc=0 took=0s
+## P4: real fresh pid-less lock (holder died after mkdir): waiter waits out the 10s grace, then runs
+[local-db] waiting for the local-stack lock (held by pid ?)
+[local-db] reaped the local-stack lock (no pid, 11s old)
+waiter-ran
+rc=0 took=11s
+## P5: live holder on this host is never reaped (timeout exit 4, lock kept)
+[local-db] waiting for the local-stack lock (held by pid 20350)
+[local-db] could not take the local-stack lock within 2s
+rc=4 holder_lock_kept=yes
+holder rc=0
+## P6: the holder's command does not inherit the flock fd 9
+0 1 2 3 4 

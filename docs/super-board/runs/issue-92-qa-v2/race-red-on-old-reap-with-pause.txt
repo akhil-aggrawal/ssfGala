@@ -1,0 +1,8 @@
+     × lets exactly one of two waiters racing to reap a dead holder's lock hold it 4520ms
+     × lets exactly one of three waiters racing to reap a dead holder's lock hold it at a time 6288ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+Expected: "end-a"
+Received: "start-b"
+Expected: "end-a"
+Received: "start-b"
+      Tests  2 failed | 15 skipped (17)

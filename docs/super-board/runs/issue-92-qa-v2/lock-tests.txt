@@ -1,0 +1,9 @@
+
+ RUN  v5.0.5 /Users/akhil/myapps/ssfGala/.claude/worktrees/issue-92-qa
+
+
+ Test Files  1 passed (1)
+      Tests  12 passed | 5 skipped (17)
+   Start at  21:27:23
+   Duration  28.30s (tests 100%)
+
