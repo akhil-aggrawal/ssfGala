@@ -78,6 +78,18 @@ def halt(reason, attempts, operation=None):
     raise ReadHalted(reason)
 
 
+def field_values(args):
+    """(raw, value) for each -f/--raw-field (raw) and -F/--field value, in every spelling gh accepts."""
+    for i, a in enumerate(args):
+        for short, long, raw in (('-f', '--raw-field', True), ('-F', '--field', False)):
+            if a in (short, long) and i + 1 < len(args):
+                yield raw, args[i + 1]
+            elif a.startswith(long + '='):
+                yield raw, a[len(long) + 1:]
+            elif a.startswith(short) and len(a) > 2:
+                yield raw, a[2:]
+
+
 def read_only(args):
     if len(args) < 2:
         return False
@@ -89,7 +101,7 @@ def read_only(args):
         return False
     if 'graphql' in args:
         # GraphQL queries use POST, but only a literal query may be retried.
-        queries = [arg[6:] for arg in args if arg.startswith('query=')]
+        queries = [v[6:] for _, v in field_values(args) if v.startswith('query=')]
         return (len(queries) == 1 and re.match(r'\s*query\b', queries[0]) is not None
                 and re.search(r'\b(?:mutation|subscription)\b', queries[0]) is None
                 and not any(a.startswith('operationName=') for a in args))
@@ -296,8 +308,11 @@ def strict():
 
 
 def placeholder_query(args):
-    # gh fills {owner}/{repo} only in a REST path; in a GraphQL query GitHub gets them literally.
-    return 'graphql' in args and any(a.startswith('query=') and re.search(r'\{(?:owner|repo|branch)\}', a) for a in args)
+    # gh fills {owner}/{repo}/{branch} in -F/--field values but sends -f/--raw-field values
+    # literally, so a raw-field GraphQL query with them never resolves.
+    return 'graphql' in args and any(
+        raw and v.startswith('query=') and re.search(r'\{(?:owner|repo|branch)\}', v)
+        for raw, v in field_values(args))
 
 
 def plain_jq_output(args, error):

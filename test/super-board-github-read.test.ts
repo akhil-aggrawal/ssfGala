@@ -137,6 +137,31 @@ describe("super-board-github-read: malformed reads of any kind fail only that ca
     expect(run.stderr).toContain("{owner}");
   });
 
+  it("flags {owner}/{repo} in every raw-field spelling: -f, --raw-field, --raw-field=", () => {
+    const query = placeholderQuery[3];
+    for (const args of [
+      ["api", "graphql", "--raw-field", query],
+      ["api", "graphql", `--raw-field=${query}`],
+      ["api", "graphql", `-f${query}`],
+    ]) {
+      const run = runRead(args, unresolved, 1);
+      expect(run).toMatchObject({ status: 64, attempts: 0, halted: false });
+      expect(run.stderr).toContain("literal {owner}");
+    }
+  });
+
+  it("lets -F/--field query=…{owner}… reach gh: gh fills placeholders in -F values", () => {
+    const query = placeholderQuery[3];
+    const data = { stdout: '{"data":{"repository":{"name":"ssfGala"}}}\n' };
+    for (const args of [
+      ["api", "graphql", "-F", query],
+      ["api", "graphql", "--field", query],
+      ["api", "graphql", `--field=${query}`],
+    ]) {
+      expect(runRead(args, "", 0, {}, data)).toMatchObject({ status: 0, attempts: 1, halted: false });
+    }
+  });
+
   it("still halts on the first attempt for real auth and permission errors", () => {
     const query = ["api", "graphql", "-f", 'query=query{repository(owner:"o",name:"r"){id}}'];
     const auth = "HTTP 401: Bad " + "credentials (https://api.github.com/graphql)\n";

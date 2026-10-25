@@ -49,7 +49,8 @@ only, printing the valid form when the kind has one (`READ_SHAPES` in
 `workflows/super-board-wave.js`); it never halts the run. These exit 64 on the
 first attempt: a command gh rejects locally before sending it (unknown `--json`
 field, unknown flag, `--slurp` with `--jq`), plain text from `--jq` where the kind
-needs JSON, and a `gh api graphql` query with literal `{owner}`/`{repo}`.
+needs JSON, and a `gh api graphql` query sent with `-f`/`--raw-field` that holds
+literal `{owner}`/`{repo}` (gh fills them only in `-F`/`--field` values).
 Fixed-command scripts set `SB_GITHUB_READ_STRICT=1` to halt on all of them.
 
 Exit **79**, a workflow result with `halted: true`, or a failed `--check` ends this
