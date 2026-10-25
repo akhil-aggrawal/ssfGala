@@ -42,8 +42,8 @@ describe("buildSeating", () => {
   it("lists live sponsored tables with tier, active guest count and overbooked flag", () => {
     const { tables } = buildSeating(rows());
     expect(tables).toEqual([
-      { id: "t1", sponsorName: "Acme", tierName: "Gold", capacity: 2, guestCount: 3, overbooked: true, tableNumber: "12" },
-      { id: "t2", sponsorName: "Bolt", tierName: "Silver", capacity: 2, guestCount: 0, overbooked: false, tableNumber: null },
+      { id: "t1", sponsorshipId: "s1", sponsorName: "Acme", tierName: "Gold", capacity: 2, guestCount: 3, overbooked: true, tableNumber: "12" },
+      { id: "t2", sponsorshipId: "s2", sponsorName: "Bolt", tierName: "Silver", capacity: 2, guestCount: 0, overbooked: false, tableNumber: null },
     ]);
   });
 

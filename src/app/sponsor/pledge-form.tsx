@@ -2,15 +2,25 @@
 
 import { startTransition, useActionState, useState, type FormEvent } from "react";
 import { formatUsd } from "@/lib/sponsor/format";
+import type { PledgeState } from "@/lib/sponsor/submit-pledge";
 import { pledgeTables } from "./actions";
 
 export type PledgeFormTier = { name: string; price: string; table_cents: number; tables_left: number };
 
+type Props = {
+  tiers: PledgeFormTier[];
+  email: string;
+  // The admin flow (/admin/sponsors) passes its own action and copy.
+  action?: (prev: PledgeState, fd: FormData) => Promise<PledgeState>;
+  audience?: "sponsor" | "admin";
+};
+
 // Tier and table counts, sponsor details, then a confirmation with one invite
 // link per table. The total shown before confirming is a preview; the
 // confirmed amount comes from the server.
-export function PledgeForm({ tiers, email }: { tiers: PledgeFormTier[]; email: string }) {
-  const [state, action, pending] = useActionState(pledgeTables, null);
+export function PledgeForm({ tiers, email, action: submit = pledgeTables, audience = "sponsor" }: Props) {
+  const [state, action, pending] = useActionState(submit, null);
+  const isAdmin = audience === "admin";
   const [counts, setCounts] = useState<Record<string, number>>({});
 
   // React 19 resets a <form action> after submit; submit by hand so a refused
@@ -24,12 +34,16 @@ export function PledgeForm({ tiers, email }: { tiers: PledgeFormTier[]; email: s
   if (state?.ok) {
     return (
       <section className="pledge__confirm" aria-labelledby="pledge-confirmed">
-        <h2 id="pledge-confirmed">Thank you — your pledge is confirmed</h2>
+        <h2 id="pledge-confirmed">{isAdmin ? "Pledge recorded" : "Thank you — your pledge is confirmed"}</h2>
         <p>
           Pledged amount: <strong>{formatUsd(state.pledged_cents)}</strong>
         </p>
-        <p>Payment is collected offline. Our team will contact you about payment; nothing is charged online.</p>
-        <h3>Your table invite links</h3>
+        {isAdmin ? (
+          <p>Payment is collected offline. Send the sponsor these links; they are shown only once.</p>
+        ) : (
+          <p>Payment is collected offline. Our team will contact you about payment; nothing is charged online.</p>
+        )}
+        <h3>{isAdmin ? "Table invite links" : "Your table invite links"}</h3>
         <p>Share each link with the guests for that table. Save these links now.</p>
         <ol className="pledge__links">
           {state.links.map((l, i) => (
@@ -41,6 +55,7 @@ export function PledgeForm({ tiers, email }: { tiers: PledgeFormTier[]; email: s
             </li>
           ))}
         </ol>
+        {isAdmin && <a href="/admin/sponsors">Back to sponsors</a>}
       </section>
     );
   }
@@ -94,7 +109,7 @@ export function PledgeForm({ tiers, email }: { tiers: PledgeFormTier[]; email: s
           Total pledge: <strong>{formatUsd(total)}</strong> · payment collected offline
         </p>
         <button type="submit" className="pledge__submit">
-          {pending ? "Confirming…" : "Confirm pledge"}
+          {pending ? "Confirming…" : isAdmin ? "Record pledge" : "Confirm pledge"}
         </button>
       </fieldset>
       {state && !state.ok && (
