@@ -79,6 +79,7 @@ Set the branch per environment in the Railway dashboard: service â†’ Settings â†
 |---|---|
 | `GET /api/health` | `200` `{"status":"ok","commit":"<sha>","database":"ok"}` when Supabase answers, `503` otherwise. Railway's healthcheck uses it |
 | `npm run build` | Fails if `SUPABASE_SERVICE_ROLE_KEY` appears in the browser bundle (`scripts/check-client-bundle.mjs`) |
+| Season end | [docs/runbook.md](docs/runbook.md): close registration, reconcile Stripe, export, back up, shut down Railway, start next year |
 | Logs | One JSON object per line; server errors carry a `request_id`, also tagged on the Sentry event |
 
 ## How work gets built
