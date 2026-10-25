@@ -22,7 +22,7 @@
 #       API on the main database (reset or seed it, e2e, app tests through
 #       supabase-js). A second caller waits, then runs once the lock is free.
 #       A lock whose holder died is reaped at once; one older than --stale-after
-#       is reaped too.
+#       is reaped too, and so is one with no pid file after a 10 s grace.
 #
 #   reset-main
 #       `lock` around a reset of the main database that does NOT restart the
@@ -83,24 +83,73 @@ admin_sql() { docker exec "$CONTAINER" psql -v ON_ERROR_STOP=1 -qAt -U supabase_
 # ---- the local-stack lock ------------------------------------------------------
 # mkdir is atomic: exactly one caller gets it. `pid` and `host` let a waiter see
 # that the holder is gone and reap at once instead of waiting out stale-after.
+# A lock with no `pid` (its holder died between mkdir and writing it) is stale
+# once older than GRACE seconds.
+#
+# Reaping is a rename, never an rm of the shared path (#92): two waiters can both
+# judge the same lock dead, and the slower one would delete the lock the faster
+# one just took. So a waiter moves the lock to its own name and checks it moved
+# the directory it judged (same inode). If not, it took a newer lock: it puts it
+# back and waits. Moved locks are deleted only after the next mkdir, so a new
+# lock never reuses the inode of one a waiter still means to reap.
+# SB_LOCK_REAP_PAUSE (seconds, tests only) pauses between judging and reaping.
+GRACE=10
+HOST=$(hostname)
 LOCK_HELD=0
+GRAVES=()
+inode() { ls -di "$1" 2>/dev/null | awk '{print $1}'; }
+mtime() { stat -c %Y "$1" 2>/dev/null || stat -f %m "$1" 2>/dev/null; }
+
+# Prints why the lock is stale and succeeds, or fails when it is live.
+stale() {
+  local pid now age
+  pid=$(cat "$LOCK_DIR/pid" 2>/dev/null || echo "")
+  now=$(date +%s)
+  if [ -z "$pid" ]; then
+    age=$(( now - $(mtime "$LOCK_DIR" || echo "$now") ))
+    [ "$age" -gt "$GRACE" ] && { echo "no pid, ${age}s old"; return 0; }
+    return 1
+  fi
+  age=$(( now - $(cat "$LOCK_DIR/at" 2>/dev/null || echo "$now") ))
+  if [ "$(cat "$LOCK_DIR/host" 2>/dev/null)" = "$HOST" ] && ! kill -0 "$pid" 2>/dev/null; then
+    echo "pid ${pid} gone"; return 0
+  fi
+  [ "$age" -gt "$STALE_AFTER" ] && { echo "pid ${pid}, ${age}s old"; return 0; }
+  return 1
+}
+
+# Moves the lock away if it is still the directory with inode $1.
+reap() {
+  local grave="${LOCK_DIR}.reaped.$$.${#GRAVES[@]}"
+  mv "$LOCK_DIR" "$grave" 2>/dev/null || return 1   # another waiter reaped it first
+  if [ "$(inode "$grave")" = "$1" ]; then GRAVES+=("$grave"); return 0; fi
+  # A newer lock than the one judged: put it back, unless a third caller already
+  # made a new one (then leave it where it is rather than delete a live lock).
+  if [ ! -e "$LOCK_DIR" ]; then mv "$grave" "$LOCK_DIR"
+  else say "moved a live lock to ${grave} and could not put it back"; fi
+  return 1
+}
+
+bury() { [ ${#GRAVES[@]} -eq 0 ] || rm -rf "${GRAVES[@]}"; GRAVES=(); }
+
 acquire() {
-  local waited=0 pid age
+  local waited=0 ino why
   mkdir -p "$(dirname "$LOCK_DIR")"
   while ! mkdir "$LOCK_DIR" 2>/dev/null; do
-    pid=$(cat "$LOCK_DIR/pid" 2>/dev/null || echo "")
-    age=$(( $(date +%s) - $(cat "$LOCK_DIR/at" 2>/dev/null || date +%s) ))
-    if { [ -n "$pid" ] && [ "$(cat "$LOCK_DIR/host" 2>/dev/null)" = "$(hostname)" ] \
-         && ! kill -0 "$pid" 2>/dev/null; } || [ "$age" -gt "$STALE_AFTER" ]; then
-      say "reaping local-stack lock of pid ${pid:-?} (gone or ${age}s old)"
-      rm -rf "$LOCK_DIR"; continue
+    bury
+    ino=$(inode "$LOCK_DIR"); [ -n "$ino" ] || continue   # released just now
+    if why=$(stale); then
+      [ -n "${SB_LOCK_REAP_PAUSE:-}" ] && sleep "$SB_LOCK_REAP_PAUSE"
+      reap "$ino" && say "reaped the local-stack lock (${why})"
+      continue
     fi
-    [ "$waited" -eq 0 ] && say "waiting for the local-stack lock (held by pid ${pid:-?})"
+    [ "$waited" -eq 0 ] && say "waiting for the local-stack lock (held by pid $(cat "$LOCK_DIR/pid" 2>/dev/null || echo ?))"
     [ "$waited" -ge "$TIMEOUT" ] && return 1
     sleep 1; waited=$(( waited + 1 ))
   done
+  bury
   LOCK_HELD=1
-  echo "$$" > "$LOCK_DIR/pid"; hostname > "$LOCK_DIR/host"; date +%s > "$LOCK_DIR/at"
+  echo "$$" > "$LOCK_DIR/pid"; echo "$HOST" > "$LOCK_DIR/host"; date +%s > "$LOCK_DIR/at"
 }
 
 # ---- scratch databases -----------------------------------------------------------
@@ -148,6 +197,7 @@ run() { "$@" & CHILD=$!; wait "$CHILD" || rc=$?; CHILD=""; }
 
 cleanup() {
   if [ -n "$CHILD" ]; then kill -TERM "$CHILD" 2>/dev/null || true; wait "$CHILD" 2>/dev/null || true; fi
+  bury
   if [ -n "$SCRATCH" ]; then
     admin_sql "drop database if exists \"${SCRATCH}\" with (force)" >/dev/null 2>&1 \
       || say "could not drop ${SCRATCH}; the next scratch run reaps it"
