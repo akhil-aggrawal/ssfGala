@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { outbox } from "@/lib/email/transport";
 import { hashInviteToken } from "@/lib/sponsor/pledge";
 
 // The Server Actions are reachable by a direct POST, so their own admin check
@@ -11,7 +12,12 @@ vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
 vi.mock("next/headers", () => ({ headers: async () => new Headers({ host: "gala.test", "x-forwarded-proto": "https" }) }));
 vi.mock("@/lib/supabase/server", () => {
   const table = (rows: object[]) => {
-    const q = { select: () => q, eq: () => q, then: (r: (v: unknown) => void) => r({ data: rows, error: null }) };
+    const q = {
+      select: () => q,
+      eq: () => q,
+      maybeSingle: async () => ({ data: rows[0] ?? null, error: null }),
+      then: (r: (v: unknown) => void) => r({ data: rows, error: null }),
+    };
     return q;
   };
   return {
@@ -20,7 +26,9 @@ vi.mock("@/lib/supabase/server", () => {
       from: (name: string) =>
         name === "seating_tiers"
           ? table([{ id: "t-gold", name: "Gold", seat_price_cents: 20000, sponsorship_amount_cents: null, table_inventory: 5 }])
-          : table([]),
+          : name === "events"
+            ? table([{ name: "An Evening That Moves You", date_at: null, venue: "ICC Milpitas" }])
+            : table([]),
     }),
   };
 });
@@ -60,6 +68,26 @@ describe("admin sponsor actions", () => {
     expect(state.pledged_cents).toBe(400000);
     const tokens = state.links.map((l) => l.url.replace("https://gala.test/invite/", ""));
     expect(tokens.map(hashInviteToken)).toEqual(args.p_token_hashes);
+  });
+
+  it("AC3 #33: an admin-created pledge sends the sponsor the same confirmation email", async () => {
+    vi.stubEnv("EMAIL_TRANSPORT", "memory");
+    vi.stubEnv("EMAIL_FROM", "SSF Gala <gala@example.test>");
+    outbox.length = 0;
+    rpc.mockResolvedValue({ data: { sponsorship_id: "sp1", pledged_cents: 400000 }, error: null });
+    const state = await adminPledge(null, form({ display_name: "Phone Co", email: "p@example.test", "Gold.tables": "2" }));
+    vi.unstubAllEnvs();
+
+    if (!state?.ok) throw new Error("expected ok");
+    expect(outbox).toHaveLength(1);
+    expect(outbox[0]).toMatchObject({
+      to: "p@example.test",
+      subject: "Your table sponsorship for An Evening That Moves You",
+      idempotencyKey: "sponsorship:sp1",
+    });
+    for (const l of state.links) expect(outbox[0].text).toContain(l.url);
+    expect(outbox[0].text).toContain("$4,000");
+    expect(outbox[0].text).toContain("No payment was taken online");
   });
 
   it("adds one guest to a table in the active gala as the admin", async () => {
