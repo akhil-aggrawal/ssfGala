@@ -372,11 +372,20 @@ isOneToOne: false
             "add_admin_attendees":
 { Args: { "p_actor_id": string,"p_amount_cents"?: number,"p_attendees": Json,"p_event_id": string,"p_kind": string,"p_tier_id": string }; Returns: string
                            },
+"admin_add_sponsored_guests":
+{ Args: { "p_admin_id": string,"p_attendees": Json,"p_event_id": string,"p_table_id": string }; Returns: string
+                           },
+"admin_pledge_sponsorship":
+{ Args: { "p_admin_id": string,"p_display_name": string,"p_email": string,"p_event_id": string,"p_tables": Json,"p_token_hashes": (string)[] }; Returns: Json
+                           },
 "apply_stripe_checkout_event":
 { Args: { "p_amount_total": number,"p_event_id": string,"p_event_type": string,"p_payment_intent_id"?: string,"p_payment_status": string,"p_session_id": string }; Returns: Json
                            },
 "correct_sponsorship_receipt":
 { Args: { "p_actor_id": string,"p_amount_cents": number,"p_event_id": string,"p_payment_id": string,"p_received_on": string }; Returns: string
+                           },
+"create_sponsorship_tables":
+{ Args: { "p_action": string,"p_actor_id": string,"p_event_id": string,"p_sponsor_id": string,"p_tables": Json,"p_token_hashes": (string)[] }; Returns: Json
                            },
 "is_admin":
 { Args: Record<PropertyKey, never>; Returns: boolean

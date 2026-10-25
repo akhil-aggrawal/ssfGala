@@ -25,6 +25,7 @@ export type SeatingRows = {
 
 export type SeatingTable = {
   id: string;
+  sponsorshipId: string;
   sponsorName: string;
   tierName: string;
   capacity: number;
@@ -86,6 +87,7 @@ export function buildSeating(rows: SeatingRows): { tables: SeatingTable[]; guest
     const guestCount = seated.get(t.id) ?? 0;
     return {
       id: t.id,
+      sponsorshipId: t.sponsorship_id,
       sponsorName: tableSponsor(t.sponsorship_id),
       tierName: tierName.get(t.tier_id) ?? "",
       capacity: t.capacity,
