@@ -97,6 +97,17 @@
         ]
       }
     },
+    "keyword_exclude": [
+      "e2e/**",
+      "test/**",
+      "tests/**",
+      "**/*.test.ts",
+      "**/*.test.tsx",
+      "**/*.spec.ts",
+      "supabase/tests/**",
+      "docs/**",
+      "README.md"
+    ],
     "allow_auto_on_production": false
   },
   "migrations": {

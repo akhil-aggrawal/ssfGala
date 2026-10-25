@@ -1,4 +1,4 @@
-import { mkdtempSync, writeFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { spawnSync } from "node:child_process";
 import { join } from "node:path";
@@ -102,6 +102,55 @@ describe("super-board-merge-policy: keyword_exclude", () => {
       { category: "auth", why: "label auth" },
     ]);
     const out = holds([{ path: "test/payments/charge.test.ts", added: ["x"] }]);
+    expect(out.map((h) => h.category)).toEqual(["money"]);
+  });
+});
+
+describe("super-board-merge-policy: this repo's keyword_exclude", () => {
+  const repoConfig = JSON.parse(
+    readFileSync(fileURLToPath(new URL("../.claude/super-board/configs/ssfgala.json", import.meta.url)), "utf8"),
+  );
+  const repoPolicy = { policy: repoConfig.merge_policy };
+  const stripeProse = "A refund left `open` in Stripe. needs a manual check.";
+
+  it("passes a docs-only PR whose only keyword hit is prose in docs/** or README.md", () => {
+    const out = holds(
+      [
+        { path: "docs/runbook.md", added: [stripeProse] },
+        { path: "README.md", added: [serviceRole] },
+      ],
+      repoPolicy,
+    );
+    expect(out).toEqual([]);
+  });
+
+  it("still holds stripe. added in src/**", () => {
+    const out = holds([{ path: "src/lib/pay.ts", added: ["const s = stripe.checkout;"] }], repoPolicy);
+    expect(out.map((h) => h.category)).toEqual(["money"]);
+  });
+
+  it("still holds service_role added in agent files and AGENTS.md", () => {
+    for (const path of [".claude/skills/super-board/SKILL.md", "AGENTS.md"]) {
+      const out = holds([{ path, added: [serviceRole] }], repoPolicy);
+      expect(out.map((h) => h.category)).toEqual(["auth"]);
+    }
+  });
+
+  it("keeps the test-path defaults excluded", () => {
+    const out = holds(
+      [
+        { path: "e2e/a.spec.ts", added: [serviceRole] },
+        { path: "test/b.test.ts", added: [dropTable] },
+        { path: "supabase/tests/c.sql", added: [serviceRole] },
+        { path: "src/d.test.tsx", added: [dropTable] },
+      ],
+      repoPolicy,
+    );
+    expect(out).toEqual([]);
+  });
+
+  it("still holds on labels when every file is a docs file", () => {
+    const out = holds([{ path: "docs/runbook.md", added: ["x"] }], { ...repoPolicy, labels: ["payments"] });
     expect(out.map((h) => h.category)).toEqual(["money"]);
   });
 });
