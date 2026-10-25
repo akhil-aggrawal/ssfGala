@@ -1,0 +1,19 @@
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+Running 6 tests using 1 worker
+
+[WebServer] {"level":"error","msg":"email: send failed","time":"2026-10-25T06:57:33.171Z","sponsorshipId":"adced387-5b36-4757-b34c-e35daacba171","kind":"sponsorship","error":"Error: EMAIL_FROM is not set"}
+  ✓  1 [chromium] › e2e/sponsor-share-qa.spec.ts:48:5 › AC4: Copy Invitation Email with the clipboard denied shows the whole invitation selected (2.1s)
+[WebServer] {"level":"error","msg":"email: send failed","time":"2026-10-25T06:57:34.997Z","sponsorshipId":"cb0e662c-1124-42b1-bb1f-b88d5b4f755d","kind":"sponsorship","error":"Error: EMAIL_FROM is not set"}
+  ✓  2 [chromium] › e2e/sponsor-share-qa.spec.ts:69:5 › a table pledged before #18 shows the ask-the-team note and no copy buttons (1.8s)
+[WebServer] {"level":"error","msg":"email: send failed","time":"2026-10-25T06:57:36.871Z","sponsorshipId":"88b64757-dfee-40ab-ac4f-498fca4d4028","kind":"sponsorship","error":"Error: EMAIL_FROM is not set"}
+  ✓  3 [chromium] › e2e/sponsor-share.spec.ts:80:5 › AC1 AC3: Copy Link puts exactly that table's link on the clipboard and says Copied (1.9s)
+[WebServer] {"level":"error","msg":"email: send failed","time":"2026-10-25T06:57:38.723Z","sponsorshipId":"fc7680c8-0315-4ade-9697-5dedd2558aa8","kind":"sponsorship","error":"Error: EMAIL_FROM is not set"}
+  ✓  4 [chromium] › e2e/sponsor-share.spec.ts:97:5 › AC2 AC3: Copy Invitation Email copies subject and body, edits included, and sends nothing (2.2s)
+[WebServer] {"level":"error","msg":"email: send failed","time":"2026-10-25T06:57:40.923Z","sponsorshipId":"9bbb084d-3324-4670-be2a-daafb3d863c8","kind":"sponsorship","error":"Error: EMAIL_FROM is not set"}
+  ✓  5 [chromium] › e2e/sponsor-share.spec.ts:126:5 › AC4: with the clipboard denied, the text is shown selected for a manual copy (1.8s)
+[WebServer] {"level":"error","msg":"email: send failed","time":"2026-10-25T06:57:42.772Z","sponsorshipId":"667b4a39-f518-4313-a2bc-8eb60d95b2f2","kind":"sponsorship","error":"Error: EMAIL_FROM is not set"}
+  ✓  6 [chromium] › e2e/sponsor-share.spec.ts:144:5 › share actions at desktop, tablet and mobile (3.0s)
+
+  6 passed (21.9s)

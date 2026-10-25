@@ -1,0 +1,92 @@
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+Running 2 tests using 1 worker
+
+[WebServer] {"level":"error","msg":"email: send failed","time":"2026-10-25T06:56:49.032Z","sponsorshipId":"4f371c63-6e44-4125-9ad9-9493673308f3","kind":"sponsorship","error":"Error: EMAIL_FROM is not set"}
+  ✘  1 [chromium] › e2e/sponsor-share-qa.spec.ts:48:5 › AC4: Copy Invitation Email with the clipboard denied shows the whole invitation selected (1.6s)
+  -  2 [chromium] › e2e/sponsor-share-qa.spec.ts:69:5 › a table pledged before #18 shows the ask-the-team note and no copy buttons
+
+
+  1) [chromium] › e2e/sponsor-share-qa.spec.ts:48:5 › AC4: Copy Invitation Email with the clipboard denied shows the whole invitation selected 
+
+    Error: expect(received).toMatch(expected)
+
+    Expected pattern: /^Subject: /
+    Received string:  "http://localhost:3100/invite/7_c0oposVZDqtmkYy9NvUGDaykaSJncxTBtxPfC7G0s"
+
+      59 |   const manual = card(page).getByLabel("Text to copy");
+      60 |   const value = await manual.inputValue();
+    > 61 |   expect(value).toMatch(/^Subject: /);
+         |                 ^
+      62 |   expect(value).toContain("Gold");
+      63 |   expect(value).toContain("QA Denied Invite Family");
+      64 |   expect(value).toContain(link);
+        at /Users/akhil/myapps/ssfGala/.claude/worktrees/issue-18-qa/e2e/sponsor-share-qa.spec.ts:61:17
+
+    Error Context: test-results/sponsor-share-qa-AC4-Copy--078c6-e-whole-invitation-selected-chromium/error-context.md
+
+  1 failed
+    [chromium] › e2e/sponsor-share-qa.spec.ts:48:5 › AC4: Copy Invitation Email with the clipboard denied shows the whole invitation selected 
+  1 did not run
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+[WebServer] <claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+
+Running 1 test using 1 worker
+
+[WebServer] {"level":"error","msg":"email: send failed","time":"2026-10-25T06:57:09.134Z","sponsorshipId":"c4e43338-5bc5-45c3-bbc0-62956ee64d18","kind":"sponsorship","error":"Error: EMAIL_FROM is not set"}
+  ✘  1 [chromium] › e2e/sponsor-share-qa.spec.ts:69:5 › a table pledged before #18 shows the ask-the-team note and no copy buttons (6.7s)
+
+
+  1) [chromium] › e2e/sponsor-share-qa.spec.ts:69:5 › a table pledged before #18 shows the ask-the-team note and no copy buttons 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: getByRole('list', { name: 'Your tables' }).getByRole('listitem').filter({ has: getByRole('article') }).first()
+    Timeout: 5000ms
+    - Expected substring  -  1
+    + Received string     + 11
+
+    - Ask the gala team
+    + Table 1 · Gold0 registered / 10 capacityCopy LinkCopy Invitation EmailEdit invitationSubjectMessageHello,
+    +
+    + You're invited to join the Gold table sponsored by QA Legacy Family at QA invite gala.
+    +
+    + Register your seat with this link:
+    + http://localhost:3100/invite/VOlaWO2hJ68LgVGC0CIppotz6hSSw0cKaSNbT4q8jkI
+    +
+    + Sign in with Google, then add your name and email. You can register more than one guest.
+    +
+    + See you there,
+    + QA Legacy FamilyView guestsNo guests have registered yet.
+
+    Call log:
+      - Expect "toContainText" getByRole('list', { name: 'Your tables' }).getByRole('listitem').filter({ has: getByRole('article') }).first() with timeout 5000ms
+      - waiting for getByRole('list', { name: 'Your tables' }).getByRole('listitem').filter({ has: getByRole('article') }).first()
+        10 × locator resolved to <li class="sponsor-dash__card">…</li>
+           - unexpected value "Table 1 · Gold0 registered / 10 capacityCopy LinkCopy Invitation EmailEdit invitationSubjectMessageHello,
+    
+    You're invited to join the Gold table sponsored by QA Legacy Family at QA invite gala.
+    
+    Register your seat with this link:
+    http://localhost:3100/invite/VOlaWO2hJ68LgVGC0CIppotz6hSSw0cKaSNbT4q8jkI
+    
+    Sign in with Google, then add your name and email. You can register more than one guest.
+    
+    See you there,
+    QA Legacy FamilyView guestsNo guests have registered yet."
+
+
+      83 |
+      84 |   await page.goto("/sponsor/dashboard");
+    > 85 |   await expect(card(page)).toContainText("Ask the gala team");
+         |                            ^
+      86 |   await expect(card(page).getByRole("button", { name: "Copy Link" })).toHaveCount(0);
+      87 |   await expect(card(page).getByRole("button", { name: "Copy Invitation Email" })).toHaveCount(0);
+      88 |   await expect(page.getByText(link)).toHaveCount(0);
+        at /Users/akhil/myapps/ssfGala/.claude/worktrees/issue-18-qa/e2e/sponsor-share-qa.spec.ts:85:28
+
+    Error Context: test-results/sponsor-share-qa-a-table-p-3dc79-am-note-and-no-copy-buttons-chromium/error-context.md
+
+  1 failed
+    [chromium] › e2e/sponsor-share-qa.spec.ts:69:5 › a table pledged before #18 shows the ask-the-team note and no copy buttons 
