@@ -63,7 +63,7 @@ async function Registration({ params }: { params: Params }) {
   return (
     <>
       {intro}
-      <GuestForm token={token} tier={invite.tier} max={MAX_GUESTS} />
+      <GuestForm token={token} tier={invite.tier} max={MAX_GUESTS} suggestedCents={invite.suggestedCents} />
     </>
   );
 }
@@ -72,7 +72,7 @@ export default function RegisterPage({ params }: PageProps<"/invite/[token]/regi
   return (
     <main className="tickets">
       <h1>Register Guests</h1>
-      <p>Enter a name and email for each attendee. There is nothing to pay.</p>
+      <p>Enter a name and email for each attendee. A contribution is optional.</p>
       <Suspense fallback={<p>Loading…</p>}>
         <Registration params={params} />
       </Suspense>

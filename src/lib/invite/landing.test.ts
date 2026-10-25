@@ -6,7 +6,7 @@ import { hashInviteToken, newInviteTokens } from "@/lib/sponsor/pledge";
 import { invitePath, isTokenShape, loadInvite, toInvite, type InviteRow } from "./landing";
 
 const row = (over: { event?: string; sponsorship?: string } = {}): InviteRow => ({
-  seating_tiers: { name: "Gold" },
+  seating_tiers: { name: "Gold", suggested_contribution_cents: 20000 },
   sponsorships: { status: over.sponsorship ?? "committed", sponsors: { display_name: "Acme Family" } },
   events: { name: "SSF Gala 2027", status: over.event ?? "open" },
 });
@@ -33,6 +33,7 @@ describe("toInvite", () => {
       sponsorName: "Acme Family",
       tier: "Gold",
       eventName: "SSF Gala 2027",
+      suggestedCents: 20000,
     });
   });
 

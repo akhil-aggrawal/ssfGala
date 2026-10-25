@@ -1094,3 +1094,19 @@ a:focus-visible {
   font-family: var(--font-serif);
   font-size: 1.5rem;
 }
+
+/* Invited guest contribution */
+.invite-register__amount {
+  margin-top: 1.5rem;
+}
+
+.invite-register__hint {
+  font-size: 0.875rem;
+}
+
+.ticket-form__continue.invite-register__secondary {
+  margin-top: 0.75rem;
+  border: 2px solid currentColor;
+  background: transparent;
+  color: inherit;
+}

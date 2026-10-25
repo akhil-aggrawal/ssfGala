@@ -5,15 +5,16 @@ import { hashInviteToken } from "@/lib/sponsor/pledge";
 // Table invite landing: turns the raw token in /invite/<token> into what the
 // page shows. Read-only. Guests may be signed out and anon reads nothing
 // under RLS, so the caller passes the service-role client; the lookup is by
-// token hash only and returns just the sponsor name, tier and event state.
+// token hash only and returns just the sponsor name, tier, the tier's suggested
+// per-seat contribution and event state.
 
 export type Invite =
   | { kind: "invalid" }
-  | { kind: "closed"; sponsorName: string; tier: string; eventName: string }
-  | { kind: "open"; sponsorName: string; tier: string; eventName: string };
+  | { kind: "closed"; sponsorName: string; tier: string; eventName: string; suggestedCents: number }
+  | { kind: "open"; sponsorName: string; tier: string; eventName: string; suggestedCents: number };
 
 export type InviteRow = {
-  seating_tiers: { name: string };
+  seating_tiers: { name: string; suggested_contribution_cents: number };
   sponsorships: { status: string; sponsors: { display_name: string } };
   events: { name: string; status: string };
 };
@@ -33,6 +34,7 @@ export function toInvite(row: InviteRow | null): Invite {
     sponsorName: row.sponsorships.sponsors.display_name,
     tier: row.seating_tiers.name,
     eventName: row.events.name,
+    suggestedCents: row.seating_tiers.suggested_contribution_cents,
   };
   return row.events.status === "open" ? { kind: "open", ...shown } : { kind: "closed", ...shown };
 }
@@ -42,7 +44,7 @@ export async function loadInvite(client: SupabaseClient<Database>, token: string
   if (!isTokenShape(token)) return { kind: "invalid" };
   const { data, error } = await client
     .from("sponsored_tables")
-    .select("seating_tiers!inner(name), sponsorships!inner(status, sponsors!inner(display_name)), events!inner(name, status)")
+    .select("seating_tiers!inner(name, suggested_contribution_cents), sponsorships!inner(status, sponsors!inner(display_name)), events!inner(name, status)")
     .eq("invite_token_hash", hashInviteToken(token))
     .maybeSingle();
   if (error) throw new Error(`loadInvite failed: ${error.message}`);

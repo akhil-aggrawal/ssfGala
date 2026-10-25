@@ -130,7 +130,10 @@ test("AC2 + AC3: the 11th attendee is accepted with the normal confirmation, tie
 test("AC4: the page offers no pledge option", async ({ page }) => {
   await signIn(page, `qa-reg-d-${Date.now()}@example.test`);
   await expect(page.locator("main")).not.toContainText(/pledge/i);
-  await expect(page.locator("main input:not([type=hidden]):not([name=attendee_name]):not([name=attendee_email]), main select")).toHaveCount(1);
+  // The attendee count and the optional contribution amount (issue #21) only.
+  await expect(
+    page.locator("main input:not([type=hidden]):not([name=attendee_name]):not([name=attendee_email]):not([name=amount]), main select"),
+  ).toHaveCount(1);
 });
 
 test("register page at desktop, tablet and mobile", async ({ page }) => {
@@ -149,4 +152,41 @@ test("register page at desktop, tablet and mobile", async ({ page }) => {
     expect(scrollWidth).toBeLessThanOrEqual(width);
     if (dir) await page.screenshot({ path: `${dir}/register-${name}.png`, fullPage: true });
   }
+});
+
+// Issue #21: optional seat contribution.
+test("#21 AC1: the amount defaults to suggested × attendees and keeps what the guest types", async ({ page }) => {
+  await signIn(page, `qa-contrib-a-${Date.now()}@example.test`);
+  const amount = page.getByLabel("Contribution (USD)");
+  await expect(amount).toHaveValue("200"); // Gold suggests $200 per seat
+  await page.getByLabel("Number of attendees").selectOption("3");
+  await expect(amount).toHaveValue("600");
+  await amount.fill("75.50");
+  await page.getByLabel("Number of attendees").selectOption("2");
+  await expect(amount).toHaveValue("75.50");
+  await amount.fill("-5");
+  await page.getByRole("button", { name: "Contribute & Register" }).click();
+  await expect(page.locator("main").getByRole("alert")).toContainText("Nothing was saved");
+});
+
+test("#21 AC2: Contribute & Register with $0 registers the guests without Stripe", async ({ page }) => {
+  const before = (await attendeesOnTable()).length;
+  await signIn(page, `qa-contrib-b-${Date.now()}@example.test`);
+  const group = page.getByRole("group", { name: "Attendee 1" });
+  await group.getByLabel("Name").fill("Zero Guest");
+  await group.getByLabel("Email").fill("zero@example.test");
+  await page.getByLabel("Contribution (USD)").fill("0");
+  await page.getByRole("button", { name: "Contribute & Register" }).click();
+  await expect(page.locator("main").getByRole("status")).toContainText("You’re registered");
+  await expect(page).toHaveURL(new RegExp(`/invite/${token}/register$`));
+
+  const { data } = await db()
+    .from("registrations")
+    .select("id, status, payments(id)")
+    .eq("sponsored_table_id", tableId)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .single();
+  expect((await attendeesOnTable()).length).toBe(before + 1);
+  expect(data).toMatchObject({ status: "registered", payments: [] });
 });
