@@ -73,8 +73,10 @@ def restamp(repo: str, base: str, globs) -> list[tuple[str, str]]:
     return renames
 
 
-def check(repo: str, base: str, globs, reviewed: str, head: str) -> str | None:
-    """None when head is reviewed + gate-shaped commits only; else the reason."""
+def check(repo: str, base: str, globs, reviewed: str, head: str, renames: dict | None = None) -> str | None:
+    """None when head is reviewed + gate-shaped commits only; else the reason.
+
+    `renames`, when given, is filled with {path at head: path at reviewed}."""
     if not ok(repo, "merge-base", "--is-ancestor", reviewed, head):
         return f"{reviewed} is not an ancestor of {head}"
     reviewed = git(repo, "rev-parse", reviewed).strip()
@@ -103,6 +105,11 @@ def check(repo: str, base: str, globs, reviewed: str, head: str) -> str | None:
                 if (status != "R100" or not old or not new or paths[0] in base_tree
                         or old[2] != new[2] or os.path.dirname(paths[0]) != os.path.dirname(paths[1])):
                     return f"commit {commit} changes more than a migration's version: {change}"
+                if renames is not None:
+                    # Newest commit first: a path renamed again later is
+                    # already a value in the map; point it further back.
+                    later = next((k for k, v in renames.items() if v == paths[1]), paths[1])
+                    renames[later] = paths[0]
         else:
             return f"commit {commit} has {len(parents)} parents"
     return f"{reviewed} is not on the first-parent history of {head}"

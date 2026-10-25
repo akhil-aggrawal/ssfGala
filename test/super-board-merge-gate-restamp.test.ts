@@ -20,6 +20,20 @@ def git(*a, cwd=None):
 def og(*a):
     return git("--git-dir", origin, *a)
 args = sys.argv[1:]
+if args[0] == "api":
+    # Approval reads (super-board-approval.py): PR head, comments, permissions.
+    if args[1] == "graphql":
+        n = next(a.split("=", 1)[1] for a in args if a.startswith("pr="))
+        print(json.dumps([{"data": {"repository": {"defaultBranchRef": {"name": "staging"}, "pullRequest": {
+            "headRefOid": og("rev-parse", "refs/heads/" + state[n]["branch"]).strip(), "state": "OPEN",
+            "baseRefName": "staging", "body": "",
+            "closingIssuesReferences": {"pageInfo": {"hasNextPage": False, "endCursor": None}, "nodes": []}}}}}]))
+    elif args[-1].endswith("/permission"):
+        print(json.dumps({"permission": "admin"}))
+    else:
+        n = args[-1].split("/issues/")[1].split("/")[0]
+        print(json.dumps([state.get("comments", {}).get(n, [])]))
+    sys.exit(0)
 pr = state[args[2]]
 branch = pr["branch"]
 if args[:2] == ["pr", "view"]:
@@ -106,7 +120,7 @@ function makeBoard() {
   git(work, "push", "-q", "origin", "staging");
   git(root, "clone", "-q", join(root, "origin.git"), "repo");
 
-  const writeConfig = (verify: string[]) => {
+  const writeConfig = (verify: string[], extra: Record<string, unknown> = {}) => {
     const path = join(root, `config-${verify.length}-${Math.random()}.json`);
     writeFileSync(
       path,
@@ -116,6 +130,7 @@ function makeBoard() {
         verify_commands: verify,
         merge_policy: { default: "auto", auto_max_lines: 0, always_human: {} },
         migrations: { allowed_envs: ["test"], target_env: "test", commands: { test: "-" } },
+        ...extra,
       }),
     );
     return path;
@@ -157,6 +172,25 @@ function makeBoard() {
     },
     pr(n: number) {
       return JSON.parse(readFileSync(join(root, "prs.json"), "utf8"))[n];
+    },
+    /** The owner posts the gate's pinned 🙋 request on PR n, then replies `done`. */
+    approve(n: number, gateOutput: string) {
+      const line = gateOutput.split("\n").find((l) => l.startsWith("approval-request: "));
+      if (!line) throw new Error(`no approval request in gate output:\n${gateOutput}`);
+      const user = { login: "owner", type: "User" };
+      const at = (t: string) => ({ created_at: t, updated_at: t });
+      const prs = JSON.parse(readFileSync(join(root, "prs.json"), "utf8"));
+      prs.comments = {
+        [n]: [
+          { id: 1, user, body: `Reason tag: 🙋 needs you\n${line}`, ...at("2026-10-24T10:00:00Z") },
+          { id: 2, user, body: "done", ...at("2026-10-24T11:00:00Z") },
+        ],
+      };
+      writeFileSync(join(root, "prs.json"), JSON.stringify(prs));
+    },
+    migrated() {
+      const log = join(root, "migrated.log");
+      return existsSync(log) ? readFileSync(log, "utf8").trim().split("\n") : [];
     },
     migrationsOnBase() {
       return git(join(root, "origin.git"), "ls-tree", "--name-only", "staging", `${MIG}/`)
@@ -386,5 +420,135 @@ describe("merge gate: re-stamps migrations inside the lock", { timeout: 60_000 }
     expect(runGate(b, 10, head).status).toBe(0);
     expect(b.pr(10).mergedHead).toBe(head);
     expect(existsSync(join(b.root, "github-halt.json"))).toBe(false);
+  });
+});
+
+// #88: a re-stamp must not void an owner's approval, and no env is migrated
+// unless the head being merged is approved or needs no approval.
+describe("merge gate: approval survives its own re-stamp and gates migrations", { timeout: 60_000 }, () => {
+  const migrate = { test: 'echo "$(git rev-parse HEAD)" >> "$FAKE_GH_ROOT/migrated.log"' };
+  const humanConfig = (b: Board, verify: string[] = []) =>
+    b.writeConfig(verify, {
+      merge_policy: { default: "human", auto_max_lines: 0, always_human: {} },
+      migrations: { allowed_envs: ["test"], target_env: "test", commands: migrate },
+    });
+
+  it("merges a PR approved at H whose only gate changes are a base merge and a rename, with no second done", () => {
+    const b = makeBoard();
+    const config = humanConfig(b);
+    const head = b.openPr(20, { [`${MIG}/20261024128000_x.sql`]: "select 2;\n" });
+    b.landOnBase({ [`${MIG}/20261024160000_y.sql`]: "select 3;\n" });
+
+    const ask = runGate(b, 20, head, config);
+    expect(ask.status, ask.out).toBe(7);
+    b.approve(20, ask.out);
+
+    const run = runGate(b, 20, head, config);
+
+    expect(run.status, run.out).toBe(0);
+    expect(run.out).not.toContain("approval-request:");
+    expect(b.migrationsOnBase()).toContain("20261024160001_x.sql");
+    // AC4: the approved migration PR still migrates, and it migrates the merged head.
+    expect(b.migrated()).toEqual([b.pr(20).mergedHead]);
+  });
+
+  it("still honours the approval for H on a re-run after its pushed re-stamp failed verification", () => {
+    const b = makeBoard();
+    const config = humanConfig(b);
+    const head = b.openPr(24, { [`${MIG}/20261024128000_x.sql`]: "select 2;\n" });
+    b.landOnBase({ [`${MIG}/20261024160000_y.sql`]: "select 3;\n" });
+    b.approve(24, runGate(b, 24, head, config).out);
+
+    const red = runGate(b, 24, head, humanConfig(b, ["false"]));
+    expect(red.status, red.out).toBe(2);
+    expect(b.origin("rev-parse", "refs/heads/pr-24")).not.toBe(head);
+    expect(b.migrated()).toEqual([]);
+
+    const run = runGate(b, 24, head, config);
+    expect(run.status, run.out).toBe(0);
+    expect(b.migrated()).toEqual([b.pr(24).mergedHead]);
+  });
+
+  it("asks again (exit 7) and migrates nothing when the PR gained any other change after H", () => {
+    const b = makeBoard();
+    const config = humanConfig(b);
+    const head = b.openPr(21, { [`${MIG}/20261024128000_x.sql`]: "select 2;\n" });
+    b.landOnBase({ [`${MIG}/20261024160000_y.sql`]: "select 3;\n" });
+    b.approve(21, runGate(b, 21, head, config).out);
+    b.pushToPr(21, { "src/app.ts": "export const x = 1;\n" });
+    const newHead = b.origin("rev-parse", "refs/heads/pr-21");
+
+    const run = runGate(b, 21, newHead, config);
+
+    expect(run.status, run.out).toBe(7);
+    expect(run.out).toContain("approval-request:");
+    expect(b.migrated()).toEqual([]);
+    expect(b.pr(21).state).toBe("OPEN");
+  });
+
+  it("does not carry an approval across a rename that also edits the migration's SQL", () => {
+    const b = makeBoard();
+    const config = humanConfig(b);
+    const head = b.openPr(26, { [`${MIG}/20261024128000_x.sql`]: "select 2;\n" });
+    b.approve(26, runGate(b, 26, head, config).out);
+    // Looks like the gate's re-stamp, but the SQL the owner approved is gone.
+    b.git("checkout", "-q", "pr-26");
+    b.git("mv", `${MIG}/20261024128000_x.sql`, `${MIG}/20261024128001_x.sql`);
+    writeFileSync(join(b.root, "work", MIG, "20261024128001_x.sql"), "drop table guests;\n");
+    b.git("commit", "-q", "-am", "rename and edit");
+    b.git("push", "-q", "origin", "pr-26");
+    const newHead = b.origin("rev-parse", "refs/heads/pr-26");
+
+    const run = runGate(b, 26, newHead, config);
+
+    expect(run.status, run.out).toBe(7);
+    expect(run.out).toContain("approval-request:");
+    expect(b.migrated()).toEqual([]);
+    expect(b.pr(26).state).toBe("OPEN");
+  });
+
+  it("exits 7 and migrates nothing when the approval is withdrawn while verification runs", () => {
+    const b = makeBoard();
+    const head = b.openPr(25, { [`${MIG}/20261024128000_x.sql`]: "select 2;\n" });
+    b.landOnBase({ [`${MIG}/20261024160000_y.sql`]: "select 3;\n" });
+    b.approve(25, runGate(b, 25, head, humanConfig(b)).out);
+    // The owner's `done` disappears mid-verify, after the first approval check passed.
+    const withdraw = `python3 -c 'import json,os; p=os.path.join(os.environ["FAKE_GH_ROOT"],"prs.json"); s=json.load(open(p)); s["comments"]["25"]=[c for c in s["comments"]["25"] if c["body"]!="done"]; json.dump(s,open(p,"w"))'`;
+
+    const run = runGate(b, 25, head, humanConfig(b, [withdraw]));
+
+    expect(b.migrated()).toEqual([]);
+    expect(run.status, run.out).toBe(7);
+    expect(run.out).toContain("nothing was migrated");
+    expect(run.out).toContain("approval-request:");
+    expect(b.pr(25).state).toBe("OPEN");
+  });
+
+  it("exits 8 for a human step before any allowed env is migrated", () => {
+    const b = makeBoard();
+    const config = b.writeConfig([], {
+      migrations: { allowed_envs: ["test"], target_env: "live", commands: { ...migrate, live: "push-live" } },
+    });
+    const head = b.openPr(22, { [`${MIG}/20261024170000_x.sql`]: "select 2;\n" });
+
+    const run = runGate(b, 22, head, config);
+
+    expect(run.status, run.out).toBe(8);
+    expect(run.out).toContain("needs-you: push-live");
+    expect(b.migrated()).toEqual([]);
+  });
+
+  it("migrates and merges once a human approved the human step", () => {
+    const b = makeBoard();
+    const config = b.writeConfig([], {
+      migrations: { allowed_envs: ["test"], target_env: "live", commands: { ...migrate, live: "push-live" } },
+    });
+    const head = b.openPr(23, { [`${MIG}/20261024170000_x.sql`]: "select 2;\n" });
+    b.approve(23, runGate(b, 23, head, config).out);
+
+    const run = runGate(b, 23, head, config);
+
+    expect(run.status, run.out).toBe(0);
+    expect(b.migrated()).toEqual([head]);
   });
 });
