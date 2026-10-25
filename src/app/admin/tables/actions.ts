@@ -1,8 +1,10 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { parseTableNumber, seatingErrorMessage } from "@/lib/admin/seating";
+import { loadSeating, parseTableNumber, seatingErrorMessage } from "@/lib/admin/seating";
 import { requireRole } from "@/lib/auth/guard";
+import { loadGalaEvent, sendTableAssignments as emailTableAssignments } from "@/lib/email/seating-notices";
+import { createEmailTransport } from "@/lib/email/transport";
 import { createSupabaseAdminClient } from "@/lib/supabase/server";
 
 export type SeatState = { ok: boolean; message: string } | null;
@@ -43,4 +45,22 @@ export async function setTableNumber(_prev: SeatState, formData: FormData): Prom
 // their sponsored table's number.
 export async function moveAttendee(_prev: SeatState, formData: FormData): Promise<SeatState> {
   return save("move_attendee", "p_attendee_id", formData);
+}
+
+const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? "" : "s"}`;
+
+// Email each active guest with a table number their own table. Takes no
+// message text: there is no free-form email to many attendees. Guests with
+// no table number are skipped and counted.
+export async function sendTableAssignments(): Promise<SeatState> {
+  const access = await requireRole("admin", "/admin/tables");
+  if (access.eventId === null) return { ok: false, message: "No active gala is set up yet. Nothing was sent." };
+
+  const db = createSupabaseAdminClient();
+  const [{ guests }, event] = await Promise.all([loadSeating(db, access.eventId), loadGalaEvent(db, access.eventId)]);
+  const { sent, skipped, failed } = await emailTableAssignments(event, guests, createEmailTransport());
+
+  const message = `Sent ${plural(sent, "table assignment")}. Skipped ${plural(skipped, "guest")} without a table number.`;
+  if (failed > 0) return { ok: false, message: `${message} ${failed} could not be sent; try again.` };
+  return { ok: true, message };
 }

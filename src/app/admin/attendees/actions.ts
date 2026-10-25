@@ -3,6 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { attendeeErrorMessage, parseAttendeeEdit, parseAttendeeId } from "@/lib/admin/attendees";
 import { requireRole } from "@/lib/auth/guard";
+import { notifyCancellation } from "@/lib/email/seating-notices";
+import { createEmailTransport } from "@/lib/email/transport";
 import { createSupabaseAdminClient } from "@/lib/supabase/server";
 
 export type AttendeeActionState = { ok: boolean; message: string } | null;
@@ -32,18 +34,22 @@ export async function updateAttendee(_prev: AttendeeActionState, fd: FormData): 
 }
 
 // Soft-cancel one attendee: sets cancelled_at, keeps every payment row.
+// The attendee then gets one cancellation notice; the database refuses a
+// second cancel, so a repeat click sends nothing.
 export async function cancelAttendee(_prev: AttendeeActionState, fd: FormData): Promise<AttendeeActionState> {
   const access = await requireRole("admin", PATH);
   if (access.eventId === null) return NO_GALA;
   const attendeeId = parseAttendeeId(fd);
   if (!attendeeId) return { ok: false, message: "Unknown attendee. Nothing was saved." };
 
-  const { error } = await createSupabaseAdminClient().rpc("admin_cancel_attendee", {
+  const db = createSupabaseAdminClient();
+  const { error } = await db.rpc("admin_cancel_attendee", {
     p_actor_id: access.user.id,
     p_event_id: access.eventId,
     p_attendee_id: attendeeId,
   });
   if (error) return { ok: false, message: attendeeErrorMessage(error) };
+  await notifyCancellation(db, access.eventId, attendeeId, createEmailTransport());
   revalidatePath(PATH);
   return { ok: true, message: "Cancelled." };
 }

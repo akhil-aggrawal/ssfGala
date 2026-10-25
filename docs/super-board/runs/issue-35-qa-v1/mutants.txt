@@ -1,0 +1,15 @@
+## mutant 1: drop notifyCancellation call
+     × AC3: cancelling an attendee sends them one cancellation notice; a second cancel sends nothing 25ms
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  src/lib/email/seating-notices.db.test.ts > table assignment and cancellation notices against the real schema (issue #35 QA) > AC3: cancelling an attendee sends them one cancellation notice; a second cancel sends nothing
+      Tests  1 failed | 3 passed (4)
+## mutant 2: key without table number
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  src/lib/email/seating-notices.db.test.ts > table assignment and cancellation notices against the real schema (issue #35 QA) > AC1: a repeat click reuses each guest's key, so Resend sends it once; a moved guest gets a new key
+      Tests  1 failed | 3 passed (4)
+## mutant 3: include cancelled guests
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  src/lib/email/seating-notices.db.test.ts > table assignment and cancellation notices against the real schema (issue #35 QA) > AC1 + AC2: emails each active guest with a table number their own table, skips and counts the rest
+ FAIL  src/lib/email/seating-notices.db.test.ts > table assignment and cancellation notices against the real schema (issue #35 QA) > AC1: a repeat click reuses each guest's key, so Resend sends it once; a moved guest gets a new key
+ FAIL  src/lib/email/seating-notices.db.test.ts > table assignment and cancellation notices against the real schema (issue #35 QA) > AC3: cancelling an attendee sends them one cancellation notice; a second cancel sends nothing
+      Tests  3 failed | 1 passed (4)

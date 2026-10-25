@@ -6,6 +6,7 @@ import { requireRole } from "@/lib/auth/guard";
 import { createSupabaseAdminClient } from "@/lib/supabase/server";
 import { moveAttendee, setTableNumber } from "./actions";
 import { SeatForm } from "./seat-form";
+import { SendAssignments } from "./send-assignments";
 
 export const metadata: Metadata = { title: "Tables & Seating — SSF Gala admin" };
 
@@ -73,6 +74,8 @@ async function Seating({ searchParams }: { searchParams: SearchParams }) {
       <section aria-labelledby="guests">
         <h2 id="guests">Guests</h2>
         <p>A guest shows their sponsored table&apos;s number unless moved. Clear a moved guest&apos;s number to send them back.</p>
+        <p>Send table assignments emails each guest with a table number their own table. Guests without one are skipped.</p>
+        <SendAssignments />
         {guests.length === 0 ? (
           <p>No guests yet.</p>
         ) : (
