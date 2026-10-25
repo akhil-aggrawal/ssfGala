@@ -231,6 +231,24 @@ e2e/streaming/ttfb.spec.ts:18   [qa] [issue] spec asserts status only — add a 
 
 Threads are resolved via `gh api graphql` `resolveReviewThread` mutation when the fix is committed.
 
+## Shared local database — scratch databases and the stack lock
+
+All lanes and the merge gate share one local Supabase stack. Never run a bare
+`supabase db reset` from a lane: it restarts the db container, wiping the database
+another lane is testing on and every scratch database. Use
+`.claude/bin/super-board-local-db.sh` instead:
+
+| Step | Command |
+|---|---|
+| Migration check, pgTAP (talk to Postgres directly) | `super-board-local-db.sh scratch -- sh -c 'supabase db reset --db-url "$SB_SCRATCH_DB_URL" --yes && supabase test db --db-url "$SB_SCRATCH_DB_URL"'` |
+| Reset or seed the main local database | `super-board-local-db.sh reset-main` |
+| e2e, app tests through supabase-js (need the local API) | `super-board-local-db.sh lock -- npx playwright test …` |
+
+`scratch` builds a database from the main one's Supabase schemas and grants and drops it
+on exit (pass, fail or interrupt). `lock` holds the local-stack lock only for that step; a
+second caller waits, and a dead holder's lock is reaped. Builds, unit tests and review run
+without either. The gate's `verify_commands` use `scratch` the same way.
+
 ## Lane lifecycles (per card)
 
 ### Builder pre-flight (before ANY card goes Ready → Building)
@@ -327,7 +345,7 @@ column), never built unchecked. `qa` cards are not pre-flighted: nothing is buil
 3. Read issue + PR + Builder's handoff comment.
 4. Build issue-scoped test plan: one observable test per AC.
 4b. **Test-gap check** (super-qa → "Test-gap check (after build)"): map every AC to unit / component / e2e tests, hunt edge cases, write the High gaps red-first. A High gap that needs app code changed → Fail (step 7) with the gap list. Medium/Low go in the handoff under `Test gaps (not written)`.
-5. Run the tests. Capture evidence to `docs/super-board/runs/issue-<N>-qa-v<N>/`. For UI/visual ACs, capture screenshots at the standard viewports (1920×1080 desktop, 1024×768 tablet, 375×667 mobile). Commit the screenshots to the issue branch BEFORE writing the comment (the markdown image URLs depend on the files being present on the branch).
+5. Run the tests — anything touching the local database through `super-board-local-db.sh` (see "Shared local database"). Capture evidence to `docs/super-board/runs/issue-<N>-qa-v<N>/`. For UI/visual ACs, capture screenshots at the standard viewports (1920×1080 desktop, 1024×768 tablet, 375×667 mobile). Commit the screenshots to the issue branch BEFORE writing the comment (the markdown image URLs depend on the files being present on the branch).
 6. **Pass** → commit test files + screenshots to same branch + push → tick the `ac` block with proof lines, write `visual` for UI, append a `history` row, rewrite `status` → `[qa] [report] ✅` PR comment with results + evidence path **+ inline screenshot embeds** (see "Screenshot embed format" below) → issue comment with the SAME inline screenshot embeds → move card QA → Review. Clean up worktree.
 7. **Fail** → leave failing ACs unchecked with the reason, append a `history` row, rewrite `status` → `[qa] [report] ❌` PR comment with per-AC expected/actual + repro file:line + evidence path + "what fixed should look like" **+ inline screenshot embeds of the broken state** → issue comment with the same inline screenshots (showing what's wrong) → increment rebuild counter → move card QA → Ready (label `loop:rebuild-N`). Clean up worktree.
 

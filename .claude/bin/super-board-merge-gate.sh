@@ -320,6 +320,10 @@ if [ "${#VERIFY[@]}" -eq 0 ]; then
 else
   for cmd in "${VERIFY[@]:-}"; do
     say "verify: ${cmd}"
+    # A bare reset wipes the shared local database other lanes are testing on (#87).
+    case "$cmd" in *"supabase db reset"*) case "$cmd" in *--db-url*) ;; *)
+      say "WARNING: '${cmd}' resets the shared local database; wrap it in"
+      say "WARNING: super-board-local-db.sh scratch and pass --db-url \"\$SB_SCRATCH_DB_URL\"" ;; esac ;; esac
     if ! ( cd "$SCRATCH" && eval "$cmd" ) >"$SCRATCH/.verify.log" 2>&1; then
       say "FAILED: ${cmd}"
       tail -30 "$SCRATCH/.verify.log" >&2
