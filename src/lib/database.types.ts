@@ -372,6 +372,9 @@ isOneToOne: false
             "add_admin_attendees":
 { Args: { "p_actor_id": string,"p_amount_cents"?: number,"p_attendees": Json,"p_event_id": string,"p_kind": string,"p_tier_id": string }; Returns: string
                            },
+"apply_stripe_checkout_event":
+{ Args: { "p_amount_total": number,"p_event_id": string,"p_event_type": string,"p_payment_intent_id"?: string,"p_payment_status": string,"p_session_id": string }; Returns: Json
+                           },
 "is_admin":
 { Args: Record<PropertyKey, never>; Returns: boolean
                            },
