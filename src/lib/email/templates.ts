@@ -188,3 +188,31 @@ export function sponsorshipConfirmationEmail(pledge: SponsorshipPledge): Rendere
   ]);
   return { subject, html, text };
 }
+
+// Table assignment (issue #35): sent only when an admin clicks Send table
+// assignments. Names the guest's own table number and nothing about others.
+export function tableAssignmentEmail(event: GalaEvent, attendee: { name: string; tableNumber: string }): Rendered {
+  const lines = eventLines(event);
+  const subject = `Your table for ${event.name}`;
+  const text = [`Hello ${attendee.name}, your seat is ready.`, `Table ${attendee.tableNumber}`, ...lines].join("\n");
+  const html = layout("Your table", [
+    `Hello ${escapeHtml(attendee.name)}, your seat is ready.`,
+    `<strong>Table ${escapeHtml(attendee.tableNumber)}</strong>`,
+    lines.map(escapeHtml).join("<br>"),
+  ]);
+  return { subject, html, text };
+}
+
+// Sent once when an admin cancels an attendee's registration.
+export function cancellationEmail(event: GalaEvent, attendee: { name: string }): Rendered {
+  const lines = eventLines(event);
+  const subject = `Your registration for ${event.name} is cancelled`;
+  const note = "If you think this is a mistake, reply to this email and we will help.";
+  const text = [`Hello ${attendee.name}, your registration has been cancelled.`, ...lines, note].join("\n");
+  const html = layout("Registration cancelled", [
+    `Hello ${escapeHtml(attendee.name)}, your registration has been cancelled.`,
+    lines.map(escapeHtml).join("<br>"),
+    note,
+  ]);
+  return { subject, html, text };
+}

@@ -8,6 +8,9 @@ const rpc = vi.hoisted(() => vi.fn());
 vi.mock("@/lib/auth/guard", () => guard);
 vi.mock("@/lib/supabase/server", () => ({ createSupabaseAdminClient: () => ({ rpc }) }));
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
+const notices = vi.hoisted(() => ({ notifyCancellation: vi.fn() }));
+vi.mock("@/lib/email/seating-notices", () => notices);
+vi.mock("@/lib/email/transport", () => ({ createEmailTransport: () => "transport" }));
 
 const { cancelAttendee, updateAttendee } = await import("./actions");
 
@@ -66,6 +69,7 @@ describe("updateAttendee", () => {
 
 describe("cancelAttendee", () => {
   beforeEach(() => {
+    notices.notifyCancellation.mockReset();
     guard.requireRole.mockReset();
     rpc.mockReset().mockResolvedValue({ data: null, error: null });
   });
@@ -84,6 +88,20 @@ describe("cancelAttendee", () => {
       p_event_id: "event-1",
       p_attendee_id: ID,
     });
+  });
+
+  it("AC3: sends the cancelled attendee one notice, scoped to the active gala", async () => {
+    guard.requireRole.mockResolvedValue(admin);
+    await cancelAttendee(null, form({ attendee_id: ID }));
+    expect(notices.notifyCancellation).toHaveBeenCalledTimes(1);
+    expect(notices.notifyCancellation).toHaveBeenCalledWith(expect.anything(), "event-1", ID, "transport");
+  });
+
+  it("sends no notice when the cancel is refused (already cancelled)", async () => {
+    guard.requireRole.mockResolvedValue(admin);
+    rpc.mockResolvedValue({ data: null, error: { code: "P0001", message: "attendee_already_cancelled" } });
+    await cancelAttendee(null, form({ attendee_id: ID }));
+    expect(notices.notifyCancellation).not.toHaveBeenCalled();
   });
 
   it("shows a plain message when the database refuses", async () => {
