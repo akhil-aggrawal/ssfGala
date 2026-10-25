@@ -1,0 +1,6 @@
+Mutation checks for src/lib/email/ticket-confirmation.db.test.ts (each restored after the run)
+M1 drop cancelled-attendee filter in loadTicketOrder       -> AC1+AC2+AC4, AC3 x2, AC5 red
+M2 run onConfirmed on any processed outcome (webhook.ts)   -> AC3 replay + AC3 race red
+M3 drop .eq("purpose","ticket") in loadTicketOrder         -> seat contribution test red
+M4 drop registrationId from "email: send failed" log       -> AC5 red
+Unmutated: 5/5 green

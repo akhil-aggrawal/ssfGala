@@ -1,0 +1,54 @@
+
+ RUN  v5.0.5 /Users/akhil/myapps/ssfGala/.claude/worktrees/issue-32-qa
+
+ ✓ src/lib/email/ticket-confirmation.test.ts > sendTicketConfirmation > AC1: sends one receipt to the buyer with amount, tier and attendee names 27ms
+ ✓ src/lib/email/ticket-confirmation.test.ts > sendTicketConfirmation > AC2: each attendee gets one confirmation with tier and event details and no table number 3ms
+ ✓ src/lib/email/ticket-confirmation.test.ts > sendTicketConfirmation > AC4: every email's From address equals EMAIL_FROM 2ms
+ ✓ src/lib/email/ticket-confirmation.test.ts > sendTicketConfirmation > AC5: a failed send logs the registration id and the other emails still go out 4ms
+ ✓ src/lib/email/ticket-confirmation.test.ts > sendTicketConfirmation > escapes attendee names in the HTML 1ms
+ ✓ src/lib/email/ticket-confirmation.test.ts > createEmailTransport (Resend) > AC4: posts to Resend with EMAIL_FROM as the sender and an idempotency key 43ms
+ ✓ src/lib/email/ticket-confirmation.test.ts > createEmailTransport (Resend) > throws on a Resend error so the caller can log it 3ms
+ ✓ src/lib/email/ticket-confirmation.test.ts > createEmailTransport (Resend) > refuses to send without EMAIL_FROM 1ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+ ✓ src/lib/stripe/webhook.test.ts > handleStripeWebhook > AC1: rejects a bad signature with 400 and changes nothing 7ms
+ ✓ src/lib/stripe/webhook.test.ts > handleStripeWebhook > AC1: rejects a missing signature header with 400 1ms
+ ✓ src/lib/stripe/webhook.test.ts > handleStripeWebhook > AC1: rejects a body changed after signing with 400 1ms
+ ✓ src/lib/stripe/webhook.test.ts > handleStripeWebhook > answers 500 without a webhook secret and changes nothing 1ms
+ ✓ src/lib/stripe/webhook.test.ts > handleStripeWebhook > passes only fields from the signed event to the database 2ms
+ ✓ src/lib/stripe/webhook.test.ts > handleStripeWebhook > AC2: a replayed event answers 200 so Stripe stops retrying 1ms
+ ✓ src/lib/stripe/webhook.test.ts > handleStripeWebhook > #32: runs the confirmation step once the database confirms the payment 1ms
+ ✓ src/lib/stripe/webhook.test.ts > handleStripeWebhook > #32 AC3: a replayed or already settled event sends no emails 1ms
+ ✓ src/lib/stripe/webhook.test.ts > handleStripeWebhook > #32 AC5: a failed confirmation step is logged and still answers 200 4ms
+ ✓ src/lib/stripe/webhook.test.ts > handleStripeWebhook > AC3: logs the session id with the expected and paid amounts on a mismatch 1ms
+ ✓ src/lib/stripe/webhook.test.ts > handleStripeWebhook > AC4: hands an expired session to the database (which leaves the order pending) 2ms
+ ✓ src/lib/stripe/webhook.test.ts > handleStripeWebhook > reads the payment intent id from an expanded object 1ms
+ ✓ src/lib/stripe/webhook.test.ts > handleStripeWebhook > acknowledges other event types without touching the database 1ms
+ ✓ src/lib/stripe/webhook.test.ts > handleStripeWebhook > answers 500 when the database write fails, so Stripe retries 1ms
+<claude-code-hint v="1" type="plugin" value="stripe@claude-plugins-official" />
+stdout | src/lib/email/ticket-confirmation.db.test.ts > ticket confirmation emails through the real webhook route (issue #32 QA) > AC1 + AC2 + AC4: a confirmed order sends one receipt and one confirmation per live attendee, all from EMAIL_FROM
+
+ ✓ src/lib/email/ticket-confirmation.db.test.ts > ticket confirmation emails through the real webhook route (issue #32 QA) > AC1 + AC2 + AC4: a confirmed order sends one receipt and one confirmation per live attendee, all from EMAIL_FROM 315ms
+stdout | src/lib/email/ticket-confirmation.db.test.ts > ticket confirmation emails through the real webhook route (issue #32 QA) > AC3: replaying the event, or a second event for the same session, sends no extra emails
+
+stdout | src/lib/email/ticket-confirmation.db.test.ts > ticket confirmation emails through the real webhook route (issue #32 QA) > AC3: replaying the event, or a second event for the same session, sends no extra emails
+
+stdout | src/lib/email/ticket-confirmation.db.test.ts > ticket confirmation emails through the real webhook route (issue #32 QA) > AC3: replaying the event, or a second event for the same session, sends no extra emails
+
+ ✓ src/lib/email/ticket-confirmation.db.test.ts > ticket confirmation emails through the real webhook route (issue #32 QA) > AC3: replaying the event, or a second event for the same session, sends no extra emails 161ms
+stdout | src/lib/email/ticket-confirmation.db.test.ts > ticket confirmation emails through the real webhook route (issue #32 QA) > AC3: two deliveries of the same event at once send one set of emails
+
+stdout | src/lib/email/ticket-confirmation.db.test.ts > ticket confirmation emails through the real webhook route (issue #32 QA) > AC3: two deliveries of the same event at once send one set of emails
+
+ ✓ src/lib/email/ticket-confirmation.db.test.ts > ticket confirmation emails through the real webhook route (issue #32 QA) > AC3: two deliveries of the same event at once send one set of emails 147ms
+stdout | src/lib/email/ticket-confirmation.db.test.ts > ticket confirmation emails through the real webhook route (issue #32 QA) > AC5: a Resend failure logs the registration id and the order stays registered
+
+ ✓ src/lib/email/ticket-confirmation.db.test.ts > ticket confirmation emails through the real webhook route (issue #32 QA) > AC5: a Resend failure logs the registration id and the order stays registered 158ms
+stdout | src/lib/email/ticket-confirmation.db.test.ts > ticket confirmation emails through the real webhook route (issue #32 QA) > a confirmed seat contribution sends no ticket emails
+
+ ✓ src/lib/email/ticket-confirmation.db.test.ts > ticket confirmation emails through the real webhook route (issue #32 QA) > a confirmed seat contribution sends no ticket emails 142ms
+
+ Test Files  3 passed (3)
+      Tests  27 passed (27)
+   Start at  21:56:40
+   Duration  1.51s (tests 71%, import 27%, transform 2%, worker 1%)
+
