@@ -486,6 +486,44 @@ describe("merge gate: approval survives its own re-stamp and gates migrations", 
     expect(b.pr(21).state).toBe("OPEN");
   });
 
+  it("does not carry an approval across a rename that also edits the migration's SQL", () => {
+    const b = makeBoard();
+    const config = humanConfig(b);
+    const head = b.openPr(26, { [`${MIG}/20261024128000_x.sql`]: "select 2;\n" });
+    b.approve(26, runGate(b, 26, head, config).out);
+    // Looks like the gate's re-stamp, but the SQL the owner approved is gone.
+    b.git("checkout", "-q", "pr-26");
+    b.git("mv", `${MIG}/20261024128000_x.sql`, `${MIG}/20261024128001_x.sql`);
+    writeFileSync(join(b.root, "work", MIG, "20261024128001_x.sql"), "drop table guests;\n");
+    b.git("commit", "-q", "-am", "rename and edit");
+    b.git("push", "-q", "origin", "pr-26");
+    const newHead = b.origin("rev-parse", "refs/heads/pr-26");
+
+    const run = runGate(b, 26, newHead, config);
+
+    expect(run.status, run.out).toBe(7);
+    expect(run.out).toContain("approval-request:");
+    expect(b.migrated()).toEqual([]);
+    expect(b.pr(26).state).toBe("OPEN");
+  });
+
+  it("exits 7 and migrates nothing when the approval is withdrawn while verification runs", () => {
+    const b = makeBoard();
+    const head = b.openPr(25, { [`${MIG}/20261024128000_x.sql`]: "select 2;\n" });
+    b.landOnBase({ [`${MIG}/20261024160000_y.sql`]: "select 3;\n" });
+    b.approve(25, runGate(b, 25, head, humanConfig(b)).out);
+    // The owner's `done` disappears mid-verify, after the first approval check passed.
+    const withdraw = `python3 -c 'import json,os; p=os.path.join(os.environ["FAKE_GH_ROOT"],"prs.json"); s=json.load(open(p)); s["comments"]["25"]=[c for c in s["comments"]["25"] if c["body"]!="done"]; json.dump(s,open(p,"w"))'`;
+
+    const run = runGate(b, 25, head, humanConfig(b, [withdraw]));
+
+    expect(b.migrated()).toEqual([]);
+    expect(run.status, run.out).toBe(7);
+    expect(run.out).toContain("nothing was migrated");
+    expect(run.out).toContain("approval-request:");
+    expect(b.pr(25).state).toBe("OPEN");
+  });
+
   it("exits 8 for a human step before any allowed env is migrated", () => {
     const b = makeBoard();
     const config = b.writeConfig([], {
