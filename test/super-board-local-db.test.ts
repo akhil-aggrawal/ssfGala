@@ -12,10 +12,17 @@ const config = JSON.parse(
 ) as { verify_commands: string[] };
 
 function run(args: string[], env: Record<string, string> = {}, cwd = repo) {
-  return spawn(script, args, { cwd, env: { ...process.env, ...env } });
+  return track(spawn(script, args, { cwd, env: { ...process.env, ...env } }));
+}
+// Attach at spawn time: a child that exits before anyone awaits it (reset-main
+// exits 5 at once on CI, with no local stack) must still resolve.
+const exits = new WeakMap<ReturnType<typeof spawn>, Promise<number>>();
+function track(child: ReturnType<typeof spawn>) {
+  exits.set(child, new Promise<number>((done) => child.on("exit", (code, signal) => done(code ?? (signal ? 128 : 1)))));
+  return child;
 }
 function exited(child: ReturnType<typeof spawn>) {
-  return new Promise<number>((done) => child.on("exit", (code, signal) => done(code ?? (signal ? 128 : 1))));
+  return exits.get(child)!;
 }
 async function until(check: () => boolean, ms = 10_000) {
   const end = Date.now() + ms;
@@ -161,7 +168,7 @@ describe.skipIf(!stackTests)("scratch databases (needs the local stack)", () => 
 
       const a = laneRepo("a", "b");
       const b = laneRepo("b", "a");
-      const gate = exited(spawn("sh", ["-c", gateReset], { cwd: laneRepo("gate", "none"), stdio: "ignore" }));
+      const gate = exited(track(spawn("sh", ["-c", gateReset], { cwd: laneRepo("gate", "none"), stdio: "ignore" })));
       const lanes = [a, b].map((cwd) => {
         const child = run(["scratch", "--", "sh", "-c", pgtap], {}, cwd);
         let out = "";
