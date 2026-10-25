@@ -111,4 +111,17 @@ describe("pledgeTables", () => {
       message: "Not enough Gold tables are left (1 available). Nothing was pledged.",
     });
   });
+
+  it("sends no confirmation email when the pledge is refused (#33)", async () => {
+    vi.stubEnv("EMAIL_TRANSPORT", "memory");
+    vi.stubEnv("EMAIL_FROM", "SSF Gala <gala@example.test>");
+    outbox.length = 0;
+    guard.getAccess.mockResolvedValue({ user: { id: "u1" }, roles: [], eventId: "ev1" });
+    rpc.mockResolvedValue({ data: null, error: { code: "P0001", message: "pledge_inventory: Gold has 1 tables left" } });
+    const state = await pledgeTables(null, pledge);
+    vi.unstubAllEnvs();
+
+    expect(state?.ok).toBe(false);
+    expect(outbox).toHaveLength(0);
+  });
 });
