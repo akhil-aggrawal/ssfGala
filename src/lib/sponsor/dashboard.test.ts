@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { registeredText, toTableCards, type SponsorTableRow } from "./dashboard";
 
 const guest = (full_name: string, cancelled_at: string | null = null) => ({
+  id: `id-${full_name}`,
   full_name,
   email: `${full_name.toLowerCase()}@example.test`,
   cancelled_at,
@@ -57,6 +58,17 @@ describe("toTableCards", () => {
     ]);
     expect(card.guests.map((g) => g.full_name)).toEqual(["Ana", "Di"]);
     expect(registeredText(card)).toBe("2 registered / 10 capacity");
+  });
+
+  it("marks paid guests and keeps their ids", () => {
+    const [card] = toTableCards(
+      [row({ registrations: [{ status: "registered", attendees: [guest("Ana"), guest("Ben")] }] })],
+      new Set(["id-Ben"]),
+    );
+    expect(card.guests.map((g) => [g.id, g.paid])).toEqual([
+      ["id-Ana", false],
+      ["id-Ben", true],
+    ]);
   });
 
   it("returns no cards for no tables", () => {

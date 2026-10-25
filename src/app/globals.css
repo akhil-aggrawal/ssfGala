@@ -1077,6 +1077,114 @@ a:focus-visible {
   font-size: 0.9rem;
 }
 
+/* Sponsor guest row: edit and remove, high contrast on the white card. */
+.guest-row {
+  display: grid;
+  gap: 0.5rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #ccc;
+}
+
+.guest-row__who {
+  font-weight: 600;
+}
+
+.guest-row__details summary {
+  min-height: 2.75rem;
+  display: flex;
+  align-items: center;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.guest-row__details summary:focus-visible {
+  outline: 3px solid #1a56db;
+  outline-offset: 2px;
+}
+
+.guest-row__edit {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.guest-row__edit label {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.guest-row input {
+  min-height: 2.75rem;
+  padding: 0.5rem;
+  border: 1px solid #555;
+  border-radius: 0.25rem;
+  background: #fff;
+  color: #111;
+  font: inherit;
+}
+
+.guest-row button {
+  min-height: 2.75rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid #111;
+  border-radius: 0.25rem;
+  background: #111;
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.guest-row__edit button {
+  justify-self: start;
+  margin-top: 0.25rem;
+}
+
+.guest-row__remove {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.guest-row__remove button {
+  background: #fff;
+  color: #a00d0d;
+  border-color: #a00d0d;
+}
+
+.guest-row button:disabled {
+  background: #e5e5e5;
+  color: #555;
+  border-color: #767676;
+  cursor: not-allowed;
+}
+
+.guest-row input:focus-visible,
+.guest-row button:focus-visible {
+  outline: 3px solid #1a56db;
+  outline-offset: 2px;
+}
+
+.guest-row__note {
+  color: #444;
+  font-size: 0.9rem;
+}
+
+.guest-row__ok {
+  color: #0b6b2f;
+  font-weight: 600;
+}
+
+.guest-row__error {
+  color: #a00d0d;
+  font-weight: 600;
+}
+
+.guest-row__ok:empty,
+.guest-row__error:empty {
+  display: none;
+}
+
 /* Table invite landing */
 .invite {
   max-width: 36rem;

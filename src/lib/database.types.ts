@@ -407,6 +407,29 @@ isOneToOne: false
                            },
 "set_table_number":
 { Args: { "p_actor_id": string,"p_event_id": string,"p_number": string,"p_table_id": string }; Returns: undefined
+                           },
+"sponsor_lock_guest":
+{ Args: { "p_attendee_id": string,"p_event_id": string,"p_user_id": string }; Returns: {
+              "assigned_table_number": string | null,
+"cancelled_at": string | null,
+"created_at": string,
+"email": string,
+"event_id": string,
+"full_name": string,
+"id": string,
+"registration_id": string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "attendees"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+"sponsor_remove_guest":
+{ Args: { "p_attendee_id": string,"p_event_id": string,"p_user_id": string }; Returns: undefined
+                           },
+"sponsor_update_guest":
+{ Args: { "p_attendee_id": string,"p_email": string,"p_event_id": string,"p_full_name": string,"p_user_id": string }; Returns: undefined
                            }
           }
           Enums: {
