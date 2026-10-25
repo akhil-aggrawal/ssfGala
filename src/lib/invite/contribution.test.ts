@@ -42,6 +42,16 @@ describe("parseContributionCents", () => {
     }
   });
 
+  // QA (#21): both edges of the accepted range, one cent either side.
+  it("accepts exactly $999,999.99 and $0.50 and rejects one cent past either edge", () => {
+    expect(parseContributionCents("999999.99")).toEqual({ ok: true, cents: MAX_CONTRIBUTION_CENTS });
+    expect(parseContributionCents("1,000,000").ok).toBe(false);
+    expect(parseContributionCents(".5").ok).toBe(false);
+    expect(parseContributionCents("0.5")).toEqual({ ok: true, cents: 50 });
+    expect(parseContributionCents("0.49").ok).toBe(false);
+    expect(parseContributionCents("0.01").ok).toBe(false);
+  });
+
   it("rejects a card payment under Stripe's 50-cent minimum", () => {
     const r = parseContributionCents("0.25");
     expect(r.ok).toBe(false);

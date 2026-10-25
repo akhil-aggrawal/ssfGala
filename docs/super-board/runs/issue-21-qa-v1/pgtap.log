@@ -1,0 +1,26 @@
+[local-db] scratch database sb_scratch_1792898622_27213
+Connecting to remote database...
+/Users/akhil/myapps/ssfGala/.claude/worktrees/issue-21-qa/supabase/tests/add_admin_attendees_test.sql ............ ok
+/Users/akhil/myapps/ssfGala/.claude/worktrees/issue-21-qa/supabase/tests/append_only_history_test.sql ............ ok
+/Users/akhil/myapps/ssfGala/.claude/worktrees/issue-21-qa/supabase/tests/audit_log_writer_test.sql ............... ok
+/Users/akhil/myapps/ssfGala/.claude/worktrees/issue-21-qa/supabase/tests/events_tiers_edges_test.sql ............. ok
+/Users/akhil/myapps/ssfGala/.claude/worktrees/issue-21-qa/supabase/tests/events_tiers_test.sql ................... ok
+/Users/akhil/myapps/ssfGala/.claude/worktrees/issue-21-qa/supabase/tests/payments_allocations_edges_test.sql ..... ok
+/Users/akhil/myapps/ssfGala/.claude/worktrees/issue-21-qa/supabase/tests/payments_allocations_test.sql ........... ok
+/Users/akhil/myapps/ssfGala/.claude/worktrees/issue-21-qa/supabase/tests/pledge_sponsorship_test.sql ............. ok
+/Users/akhil/myapps/ssfGala/.claude/worktrees/issue-21-qa/supabase/tests/register_sponsored_guests_test.sql ...... ok
+/Users/akhil/myapps/ssfGala/.claude/worktrees/issue-21-qa/supabase/tests/registrations_attendees_edges_test.sql .. ok
+/Users/akhil/myapps/ssfGala/.claude/worktrees/issue-21-qa/supabase/tests/registrations_attendees_test.sql ........ ok
+/Users/akhil/myapps/ssfGala/.claude/worktrees/issue-21-qa/supabase/tests/row_level_security_edges_test.sql ....... ok
+/Users/akhil/myapps/ssfGala/.claude/worktrees/issue-21-qa/supabase/tests/row_level_security_test.sql ............. ok
+/Users/akhil/myapps/ssfGala/.claude/worktrees/issue-21-qa/supabase/tests/save_gala_setup_test.sql ................ ok
+/Users/akhil/myapps/ssfGala/.claude/worktrees/issue-21-qa/supabase/tests/save_pending_ticket_order_test.sql ...... ok
+/Users/akhil/myapps/ssfGala/.claude/worktrees/issue-21-qa/supabase/tests/seat_contribution_test.sql .............. ok
+/Users/akhil/myapps/ssfGala/.claude/worktrees/issue-21-qa/supabase/tests/seating_test.sql ........................ ok
+/Users/akhil/myapps/ssfGala/.claude/worktrees/issue-21-qa/supabase/tests/sponsors_tables_edges_test.sql .......... ok
+/Users/akhil/myapps/ssfGala/.claude/worktrees/issue-21-qa/supabase/tests/sponsors_tables_test.sql ................ ok
+/Users/akhil/myapps/ssfGala/.claude/worktrees/issue-21-qa/supabase/tests/stripe_checkout_event_edges_test.sql .... ok
+/Users/akhil/myapps/ssfGala/.claude/worktrees/issue-21-qa/supabase/tests/stripe_checkout_event_test.sql .......... ok
+All tests successful.
+Files=21, Tests=300,  1 wallclock secs ( 0.14 usr  0.05 sys +  0.22 cusr  0.13 csys =  0.54 CPU)
+Result: PASS
