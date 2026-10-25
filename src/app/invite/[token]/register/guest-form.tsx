@@ -1,14 +1,31 @@
 "use client";
 
 import { useActionState, useState } from "react";
+import { formatDollars, suggestedTotalCents } from "@/lib/invite/contribution";
 import { registerGuests, type RegisterState } from "./actions";
 
-// Attendee count, then one name and email pair per attendee. The server
-// validates every field. On success the form gives way to the confirmation,
-// which names the tier only: table numbers are sent later by the gala team.
-export function GuestForm({ token, tier, max }: { token: string; tier: string; max: number }) {
+// Attendee count, then one name and email pair per attendee, then an optional
+// contribution. The amount starts at the tier's suggested amount × attendees
+// and follows the count until the guest types their own; any amount from $0
+// is accepted. The server validates every field and prices nothing from the
+// browser beyond the amount the guest chose. On success the form gives way
+// to the confirmation, which names the tier only.
+export function GuestForm({
+  token,
+  tier,
+  max,
+  suggestedCents,
+}: {
+  token: string;
+  tier: string;
+  max: number;
+  suggestedCents: number;
+}) {
   const [state, action, pending] = useActionState<RegisterState, FormData>(registerGuests.bind(null, token), null);
   const [count, setCount] = useState(1);
+  const [typedAmount, setTypedAmount] = useState<string | null>(null);
+  const failedAmount = state && !state.done ? state.amount : undefined;
+  const amount = typedAmount ?? failedAmount ?? formatDollars(suggestedTotalCents(suggestedCents, count));
 
   if (state?.done) {
     return (
@@ -18,6 +35,7 @@ export function GuestForm({ token, tier, max }: { token: string; tier: string; m
           {state.count} attendee{state.count === 1 ? "" : "s"} · Seating tier: <strong>{tier}</strong>
         </p>
         <p>Your table number will be sent to you before the gala.</p>
+        {state.message && <p className="ticket-form__error">{state.message}</p>}
       </section>
     );
   }
@@ -88,8 +106,32 @@ export function GuestForm({ token, tier, max }: { token: string; tier: string; m
         );
       })}
 
-      <button type="submit" className="ticket-form__continue" disabled={pending}>
-        {pending ? "Registering…" : "Register Without Payment"}
+      <label className="attendee__field invite-register__amount">
+        Contribution (USD)
+        <span className="invite-register__hint" id="amount-hint">
+          Suggested: ${formatDollars(suggestedCents)} per seat. Any amount is welcome, including $0.
+        </span>
+        <input
+          name="amount"
+          inputMode="decimal"
+          autoComplete="off"
+          value={amount}
+          onChange={(e) => setTypedAmount(e.target.value)}
+          aria-describedby="amount-hint"
+        />
+      </label>
+
+      <button type="submit" name="intent" value="contribute" className="ticket-form__continue" disabled={pending}>
+        {pending ? "Registering…" : "Contribute & Register"}
+      </button>
+      <button
+        type="submit"
+        name="intent"
+        value="register"
+        className="ticket-form__continue invite-register__secondary"
+        disabled={pending}
+      >
+        Register Without Payment
       </button>
     </form>
   );
