@@ -7,5 +7,6 @@ export default defineConfig({
   },
   test: {
     include: ["src/**/*.test.{ts,tsx}", "test/**/*.test.ts"],
+    env: { INVITE_LINK_SECRET: "test-invite-link-secret" },
   },
 });

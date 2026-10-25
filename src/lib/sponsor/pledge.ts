@@ -1,4 +1,4 @@
-import { createHash, randomBytes } from "node:crypto";
+import { createHash, createHmac, randomUUID } from "node:crypto";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/database.types";
 
@@ -8,18 +8,32 @@ import type { Database } from "@/lib/database.types";
 export type PledgeTier = { id: string; name: string };
 export type PledgeTable = { tier_id: string; tier_name: string; count: number };
 export type PledgeInput = { display_name: string; email: string; tables: PledgeTable[] };
-export type InviteToken = { token: string; hash: string };
+export type TableInvite = { id: string; token: string; hash: string };
 
 // SHA-256 hex. Only this is stored; the raw token lives in the link.
 export function hashInviteToken(token: string): string {
   return createHash("sha256").update(token).digest("hex");
 }
 
-// 256 random bits per table, URL-safe.
-export function newInviteTokens(count: number): InviteToken[] {
+function inviteSecret(): string {
+  const secret = process.env.INVITE_LINK_SECRET?.trim();
+  if (!secret) throw new Error("INVITE_LINK_SECRET is not set");
+  return secret;
+}
+
+// A table's invite token: HMAC-SHA256(INVITE_LINK_SECRET, table id) in
+// base64url (43 chars). The server can rebuild any table's link from its id;
+// the database still stores only the token's hash.
+export function tableInviteToken(tableId: string, secret: string = inviteSecret()): string {
+  return createHmac("sha256", secret).update(tableId).digest("base64url");
+}
+
+// One new table id and its signed token per pledged table.
+export function newTableInvites(count: number, secret: string = inviteSecret()): TableInvite[] {
   return Array.from({ length: count }, () => {
-    const token = randomBytes(32).toString("base64url");
-    return { token, hash: hashInviteToken(token) };
+    const id = randomUUID();
+    const token = tableInviteToken(id, secret);
+    return { id, token, hash: hashInviteToken(token) };
   });
 }
 

@@ -62,7 +62,8 @@ describe("admin sponsor actions", () => {
     const [fn, args] = rpc.mock.calls[0];
     expect(fn).toBe("admin_pledge_sponsorship");
     expect(args).toMatchObject({ p_admin_id: "admin-1", p_event_id: "ev-1", p_display_name: "Phone Co" });
-    expect(args.p_tables).toEqual([{ tier_id: "t-gold", count: 2 }]);
+    expect(args.p_tables).toMatchObject([{ tier_id: "t-gold", count: 2 }]);
+    expect(args.p_tables[0].table_ids).toHaveLength(2);
 
     if (!state?.ok) throw new Error("expected ok");
     expect(state.pledged_cents).toBe(400000);

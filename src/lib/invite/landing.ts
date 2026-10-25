@@ -19,7 +19,7 @@ export type InviteRow = {
   events: { name: string; status: string };
 };
 
-// Raw tokens are 32 random bytes in base64url (newInviteTokens).
+// Raw tokens are a 32-byte HMAC in base64url (tableInviteToken).
 const TOKEN_SHAPE = /^[A-Za-z0-9_-]{43}$/;
 
 export function isTokenShape(token: string): boolean {
