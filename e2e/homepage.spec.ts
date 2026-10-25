@@ -18,6 +18,16 @@ test.describe("homepage", () => {
     ).toBeVisible();
   });
 
+  test("shows the save-the-date poster with its text as alt text", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    const poster = page.getByRole("main").getByRole("img", { name: /^Save the date poster/ });
+    await expect(poster).toBeVisible();
+    await expect(poster).toHaveAttribute("alt", /January 23, 2027.*ICC Milpitas/);
+    expect(await poster.evaluate((img: HTMLImageElement) => img.naturalWidth)).toBeGreaterThan(0);
+  });
+
   test("header links: Gala, About, Buy Tickets, Sponsor a Table, Sign In", async ({
     page,
   }) => {
