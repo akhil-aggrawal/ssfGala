@@ -1,11 +1,15 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { getAccess } from "@/lib/auth/guard";
+import { requestAppOrigin } from "@/lib/auth/origin";
 import { loadSponsorTables, registeredText } from "@/lib/sponsor/dashboard";
+import { invitationEmail } from "@/lib/sponsor/invitation";
 import { createSupabaseAdminClient, createSupabaseServerClient } from "@/lib/supabase/server";
 import { GuestRow } from "./guest-row";
+import { TableShare } from "./table-share";
 
 export const metadata: Metadata = { title: "Your Tables — SSF Gala" };
 
@@ -18,6 +22,7 @@ async function Tables() {
         createSupabaseAdminClient(),
         access.user.id,
         access.eventId,
+        requestAppOrigin(await headers()),
       )
     : [];
 
@@ -42,6 +47,20 @@ async function Tables() {
               Table {card.number} · {card.tier}
             </h2>
             <p className="sponsor-dash__count">{registeredText(card)}</p>
+            {card.inviteUrl ? (
+              <TableShare
+                tableId={card.id}
+                url={card.inviteUrl}
+                invitation={invitationEmail({
+                  eventName: card.eventName,
+                  sponsorName: card.sponsorName,
+                  tier: card.tier,
+                  url: card.inviteUrl,
+                })}
+              />
+            ) : (
+              <p className="sponsor-dash__nolink">This table&apos;s link cannot be shown here. Ask the gala team for it.</p>
+            )}
             <details>
               <summary>View guests</summary>
               {card.guests.length === 0 ? (
